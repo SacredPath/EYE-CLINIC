@@ -1696,6 +1696,16 @@ function openMod(id){
   document.getElementById('mod-'+id).classList.add('open');
   // reset EMR steps on open
   if(id==='emr')setTimeout(()=>emrGoStep(1),30);
+  // pre-select last used patient for new exam/appt/invoice
+  const _selMap={emr:'emr-pt',appointment:'appt-pt',invoice:'bill-pt'};
+  if(_selMap[id]){
+    const _last=getLastPatient();
+    if(_last) setTimeout(()=>{
+      const _eidField=document.getElementById(id==='emr'?'emr-eid':id==='appointment'?'appt-eid':'bill-eid');
+      const _sel=document.getElementById(_selMap[id]);
+      if(_sel && !_eidField?.value) _sel.value=_last;
+    },65);
+  }
   // auto-focus first visible field
   setTimeout(()=>{
     const modal=document.getElementById('mod-'+id);
@@ -1713,7 +1723,9 @@ function savePt(){
   const eid=document.getElementById('pt-eid').value;
   const o={id:eid||uid(),name:fn+' '+ln,dob:document.getElementById('pt-dob').value,gender:document.getElementById('pt-gen').value,phone:ph,email:document.getElementById('pt-em').value,address:document.getElementById('pt-ad').value,blood:document.getElementById('pt-bl').value,status:document.getElementById('pt-st').value,allergies:document.getElementById('pt-al').value,occupation:document.getElementById('pt-oc').value,notes:document.getElementById('pt-nt').value,createdAt:eid?(pts.find(p=>p.id===eid)||{}).createdAt||td():td()};
   if(eid){const i=pts.findIndex(p=>p.id===eid);if(i>-1)pts[i]=o;}else pts.push(o);
+  const _isNewPt=!eid;
   saveAll();closeMod('patient');toast(eid?'Patient updated!':'Patient registered!');renderDash();renderPts();
+  if(_isNewPt) addNotif('New patient registered', 'ok');
 }
 function editPt(id){
   const p=pts.find(x=>x.id===id);if(!p)return;
@@ -1745,6 +1757,7 @@ function delRec(type,id,name){
   });
 }
 function viewPt(id){
+  rememberLastPatient(id);
   const p=pts.find(x=>x.id===id);if(!p)return;
   const age=p.dob?Math.floor((Date.now()-new Date(p.dob))/(365.25*864e5)):'—';
   const ptE=emrs.filter(e=>e.patientId===p.id),ptA=appts.filter(a=>a.patientId===p.id),ptB=bills.filter(b=>b.patientId===p.id);
@@ -1824,7 +1837,7 @@ function saveEMR(){
     followUp:document.getElementById('emr-fu').value,spec:document.getElementById('emr-spec').value,
   };
   if(eid){const i=emrs.findIndex(x=>x.id===eid);if(i>-1)emrs[i]=o;}else emrs.push(o);
-  saveAll();closeMod('emr');toast(eid?'Examination updated!':'Examination saved!');renderDash();renderEMR();renderPts();
+  saveAll();closeMod('emr');toast(eid?'Examination updated!':'Examination saved!');renderDash();renderEMR();renderPts();setTimeout(genNotifs,0);
 }
 function editEMR(id){
   const e=emrs.find(x=>x.id===id);if(!e)return;
@@ -2005,7 +2018,7 @@ function saveAppt(){
   const eid=document.getElementById('appt-eid').value;
   const o={id:eid||uid(),patientId:ptId,date,time:document.getElementById('appt-tm').value,type:document.getElementById('appt-vt').value,status:document.getElementById('appt-st').value,reminder:document.getElementById('appt-rem').value,notes:document.getElementById('appt-nt').value};
   if(eid){const i=appts.findIndex(a=>a.id===eid);if(i>-1)appts[i]=o;}else appts.push(o);
-  saveAll();closeMod('appointment');toast(eid?'Appointment updated!':'Appointment booked!');renderDash();renderCal();updBadge();
+  saveAll();closeMod('appointment');toast(eid?'Appointment updated!':'Appointment booked!');renderDash();renderCal();updBadge();setTimeout(genNotifs,0);
 }
 function editAppt(id){
   const a=appts.find(x=>x.id===id);if(!a)return;
@@ -2029,7 +2042,7 @@ function renderCal(){
   }
   const rem=(7-(first+dim)%7)%7;for(let i=1;i<=rem;i++)h+=`<div class="cc om">${i}</div>`;
   document.getElementById('calGrid').innerHTML=h;
-  renderSlots();renderUpcoming();renderReminders();
+  renderSlots();renderUpcoming();renderReminders();applyHeatmap();
 }
 function selDay(d){selD=d;selM=calMon;selY=calYr;renderCal();}
 function renderSlots(){
@@ -2171,7 +2184,7 @@ function saveInv2(){
   } else {
     toast('Invoice updated!');
   }
-  renderDash();renderBilling();
+  renderDash();renderBilling();setTimeout(genNotifs,0);
 }
 function editInv3(id){
   const b=bills.find(x=>x.id===id);if(!b)return;
@@ -2298,6 +2311,19 @@ function renderDash(){
   const remEl=document.getElementById('dashRemCard');
   if(pendRem>0){remEl.innerHTML=`<div style="display:flex;align-items:center;gap:12px;"><div style="width:34px;height:34px;border-radius:9px;background:var(--abg);display:flex;align-items:center;justify-content:center;flex-shrink:0;"><svg viewBox="0 0 24 24" fill="none" stroke="var(--amber)" stroke-width="2" stroke-linecap="round" width="15" height="15"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg></div><div style="flex:1;"><div style="font-size:12.5px;font-weight:600;">${pendRem} reminder(s) pending</div><div style="font-size:11px;color:var(--muted);">Upcoming appointments not yet notified</div></div><button class="btn btn-amber btn-sm" onclick="openRemModal();openMod('reminder')">Review</button></div>`;}
   else remEl.innerHTML='';
+  // Onboarding checklist card
+  const dashGrid=document.getElementById('dashGrid');
+  const ob=document.getElementById('dashOnboard');
+  if(ob) ob.remove();
+  const _obHtml=renderOnboarding();
+  if(_obHtml && dashGrid){
+    const _obDiv=document.createElement('div');
+    _obDiv.id='dashOnboard';
+    _obDiv.innerHTML=_obHtml;
+    dashGrid.parentNode.insertBefore(_obDiv, dashGrid);
+  }
+  // Notifications
+  setTimeout(genNotifs, 0);
 }
 
 // ══ SETTINGS ══
@@ -3860,89 +3886,23 @@ function duplicateInvoice(billId){
 // ══ LAST USED PATIENT ══
 function rememberLastPatient(ptId){ S.s('cv_lastPt', ptId); }
 function getLastPatient(){ return S.g('cv_lastPt'); }
+// last-patient pre-select injected directly into openMod above
 
-// Override openMod to pre-select last patient
-const _openModOrig2 = openMod;
-function openMod(id){
-  _openModOrig2(id);
-  // Pre-fill last used patient in new exam/appt/invoice forms
-  const selMap = {emr:'emr-pt', appointment:'appt-pt', invoice:'bill-pt'};
-  const selId = selMap[id];
-  if(selId){
-    const last = getLastPatient();
-    if(last) setTimeout(()=>{
-      const sel=document.getElementById(selId);
-      if(sel && !document.getElementById(id==='emr'?'emr-eid':id==='appointment'?'appt-eid':'bill-eid')?.value){
-        sel.value=last;
-      }
-    },60);
-  }
-}
+// viewPt remembers last patient — injected directly into viewPt above
 
-// Hook viewPt to remember last patient
-const _origViewPt = viewPt;
-function viewPt(id){ rememberLastPatient(id); _origViewPt(id); }
-
-// ══ HEATMAP CALENDAR ══
-// Enhance the calendar rendering to show intensity dots
-const _origRenderCal = renderCal;
-function renderCal(){
-  _origRenderCal();
-  // After original cal renders, overlay heatmap colours on cal cells
+// ══ HEATMAP CALENDAR — called directly after renderCal via applyHeatmap ══
+function applyHeatmap(){
   setTimeout(()=>{
     document.querySelectorAll('.cday').forEach(cell=>{
       const d=cell.dataset.date;
       if(!d) return;
       const count=appts.filter(a=>a.date===d).length;
-      if(count===0) return;
+      if(count===0){ cell.style.background=''; return; }
       const intensity=Math.min(count,5);
       const opacities=[0,'0.15','0.28','0.42','0.58','0.75'];
       cell.style.background=`rgba(0,207,168,${opacities[intensity]})`;
-      cell.style.position='relative';
     });
   },50);
-}
-
-// ══ INTEGRATE NOTIFS INTO KEY ACTIONS ══
-const _origSavePt=savePt;
-function savePt(){
-  const isNew=!document.getElementById('pt-eid').value;
-  _origSavePt();
-  if(isNew) addNotif(`New patient registered`, 'ok');
-  genNotifs();
-}
-const _origSaveAppt=saveAppt;
-function saveAppt(){
-  _origSaveAppt();
-  genNotifs();
-}
-const _origSaveEMR=saveEMR;
-function saveEMR(){
-  _origSaveEMR();
-  genNotifs();
-}
-const _origSaveInv2=saveInv2;
-function saveInv2(){
-  _origSaveInv2();
-  genNotifs();
-}
-
-// Add genNotifs to renderDash
-const _origRenderDash=renderDash;
-function renderDash(){
-  _origRenderDash();
-  // Onboarding card
-  const dashGrid=document.getElementById('dashGrid');
-  const ob=document.getElementById('dashOnboard');
-  if(ob) ob.remove();
-  const html=renderOnboarding();
-  if(html && dashGrid){
-    const div=document.createElement('div');
-    div.id='dashOnboard';
-    div.innerHTML=html;
-    dashGrid.parentNode.insertBefore(div, dashGrid);
-  }
-  genNotifs();
 }
 
 // ══ BRANDING — applies clinic name + doctor name everywhere ══
