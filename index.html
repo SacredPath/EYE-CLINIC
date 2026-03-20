@@ -2245,6 +2245,8 @@ function printReceipt(billId){
   w.document.close();
   toast('Receipt opened — ready to print!');
 }
+
+function clearAll(){
   if(!isDoc()){toast('Only doctors can clear data.','err');return;}
   cfm('Clear ALL clinic data?','This permanently deletes all patients, exams, appointments, surgical plans, inventory, invoices, follow-ups and messages.',()=>{
     pts=[];appts=[];emrs=[];surgs=[];invItems=[];bills=[];
