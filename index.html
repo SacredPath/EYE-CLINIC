@@ -241,7 +241,7 @@ html,body{
 
 /* ── STAT CARDS ── */
 .srow{display:grid;gap:12px;margin-bottom:16px;}
-.srow-4{grid-template-columns:repeat(4,1fr);}
+.srow-4{grid-template-columns:repeat(3,1fr);}
 .srow-3{grid-template-columns:repeat(3,1fr);}
 .sc{background:var(--surface);border-radius:var(--r);border:1px solid var(--border);padding:14px 16px;box-shadow:var(--sh);position:relative;overflow:hidden;}
 .sc::after{content:'';position:absolute;top:-28px;right:-28px;width:88px;height:88px;border-radius:50%;opacity:0.05;}
@@ -606,6 +606,28 @@ body.dark .tab.active{color:#00cfa8;border-color:#00cfa8;}
 .dark-toggle{background:none;border:1.5px solid var(--border2);width:34px;height:34px;border-radius:9px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--muted);transition:var(--tr);}
 .dark-toggle:hover{background:var(--s2);color:var(--ink);}
 .dark-toggle svg{width:15px;height:15px;}
+
+/* ══ MESSAGING ══ */
+.msg-channel-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:16px;}
+.msg-ch-card{border:1.5px solid var(--border2);border-radius:10px;padding:10px 8px;text-align:center;cursor:pointer;transition:var(--tr);background:var(--surface);}
+.msg-ch-card:hover{border-color:var(--cyan);background:var(--cbg);}
+.msg-ch-card.active{border-color:var(--cyan);background:var(--cbg);box-shadow:0 0 0 3px rgba(0,207,168,0.1);}
+.msg-ch-card.ch-wa.active{border-color:#25d366;background:rgba(37,211,102,0.09);box-shadow:0 0 0 3px rgba(37,211,102,0.1);}
+.msg-ch-card.ch-email.active{border-color:var(--blue);background:var(--bbg);box-shadow:0 0 0 3px rgba(51,97,255,0.1);}
+.msg-ch-card.ch-sms.active{border-color:var(--amber);background:var(--abg);}
+.msg-ch-icon{width:32px;height:32px;border-radius:8px;margin:0 auto 6px;display:flex;align-items:center;justify-content:center;}
+.msg-ch-icon svg{width:15px;height:15px;}
+.msg-ch-label{font-size:11px;font-weight:600;}
+.msg-template-row{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px;}
+.msg-tpl{font-size:10.5px;font-weight:600;padding:3px 10px;border-radius:20px;border:1.5px solid var(--border2);cursor:pointer;transition:var(--tr);background:var(--surface);}
+.msg-tpl:hover{border-color:var(--cyan);background:var(--cbg);color:var(--cyan-d);}
+.msg-send-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px;}
+.msg-send-wa{background:#25d366;color:#fff;border:none;}
+.msg-send-wa:hover{background:#1da851;}
+.msg-send-email{background:var(--blue);color:#fff;border:none;}
+.msg-send-email:hover{background:#2550e8;}
+.bulk-msg-row{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);}
+.bulk-msg-check{width:16px;height:16px;accent-color:var(--cyan);cursor:pointer;}
 </style>
 </head>
 <body>
@@ -786,6 +808,7 @@ body.dark .tab.active{color:#00cfa8;border-color:#00cfa8;}
     <!-- APPOINTMENTS -->
     <div id="page-appointments" class="page content">
       <div style="display:flex;justify-content:flex-end;margin-bottom:14px;gap:8px;">
+        <button class="btn btn-ghost btn-sm" onclick="openBulkMsg('today')"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>Bulk Message</button>
         <button class="btn btn-ghost btn-sm" onclick="openRemModal();openMod('reminder')"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>Reminders</button>
         <button class="btn btn-primary" onclick="openMod('appointment')"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Book Appointment</button>
       </div>
@@ -903,7 +926,7 @@ body.dark .tab.active{color:#00cfa8;border-color:#00cfa8;}
           <div class="ma"><button class="btn btn-primary" onclick="saveSettings()">Save Settings</button></div>
         </div>
         <div class="card cp">
-          <div class="ct" style="margin-bottom:4px;">Access Levels</div>
+          <div class="ct" style="margin-bottom:4px;">Access Levels</div>ss Levels</div>
           <div class="cs" style="margin-bottom:14px;">Role permissions overview</div>
           <table style="width:100%;border-collapse:collapse;font-size:12px;">
             <thead><tr><th style="text-align:left;padding:7px 0;color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:0.6px;border-bottom:1px solid var(--border);">Feature</th><th style="padding:7px 12px;color:var(--gold);font-size:10px;text-transform:uppercase;border-bottom:1px solid var(--border);">Doctor</th><th style="padding:7px 12px;color:var(--blue);font-size:10px;text-transform:uppercase;border-bottom:1px solid var(--border);">Receptionist</th></tr></thead>
@@ -1144,10 +1167,14 @@ body.dark .tab.active{color:#00cfa8;border-color:#00cfa8;}
 </div></div></div>
 
 <!-- Reminder Modal -->
-<div class="mo" id="mod-reminder" onclick="ovClose(event,'reminder')"><div class="md"><div class="mh"><div class="mt">Appointment Reminders</div><button class="mc" onclick="closeMod('reminder')">✕</button></div><div class="mb">
-  <div class="alert alert-info" style="margin-bottom:14px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>Reminders are logged here. In production, integrate with SMS/WhatsApp gateway.</div>
+<div class="mo" id="mod-reminder" onclick="ovClose(event,'reminder')"><div class="md" style="max-width:520px;"><div class="mh"><div class="mt">Appointment Reminders</div><button class="mc" onclick="closeMod('reminder')">✕</button></div><div class="mb">
+  <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;">
+    <button class="btn btn-ghost btn-sm" onclick="sendAllRemindersWA()">💬 WhatsApp All</button>
+    <button class="btn btn-ghost btn-sm" onclick="sendAllRemindersEmail()">✉ Email All</button>
+    <button class="btn btn-ghost btn-sm" style="margin-left:auto;" onclick="sendAllReminders()">✓ Mark All Sent</button>
+  </div>
   <div id="remModalList"></div>
-  <div class="ma"><button class="btn btn-ghost" onclick="closeMod('reminder')">Close</button><button class="btn btn-primary" onclick="sendAllReminders()">Mark All Sent</button></div>
+  <div class="ma"><button class="btn btn-ghost" onclick="closeMod('reminder')">Close</button></div>
 </div></div></div>
 
 <!-- Follow-up Note Modal -->
@@ -1167,17 +1194,97 @@ body.dark .tab.active{color:#00cfa8;border-color:#00cfa8;}
 </div></div></div>
 
 <!-- Message Modal -->
-<div class="mo" id="mod-message" onclick="ovClose(event,'message')"><div class="md"><div class="mh"><div class="mt">Send Message / Notification</div><button class="mc" onclick="closeMod('message')">✕</button></div><div class="mb">
+<div class="mo" id="mod-message" onclick="ovClose(event,'message')"><div class="md" style="max-width:600px;"><div class="mh">
+  <div><div class="mt" id="msgModalTitle">Message Patient</div><div style="font-size:11.5px;color:var(--muted);" id="msgModalSub"></div></div>
+  <button class="mc" onclick="closeMod('message')">✕</button>
+</div><div class="mb">
   <input type="hidden" id="msg-pid">
-  <div class="alert alert-info" style="margin-bottom:14px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" width="16" height="16"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>Messages are logged in the patient record. Integrate with SMS/WhatsApp gateway in production.</div>
-  <div class="fgrid">
-    <div class="fg full"><label class="flbl">To (Patient)</label><input class="fi" id="msg-to" readonly style="background:var(--s2);"></div>
-    <div class="fg"><label class="flbl">Channel</label><select class="fsel" id="msg-ch"><option>In-App Log</option><option>SMS</option><option>WhatsApp</option><option>Email</option><option>Phone Call</option></select></div>
-    <div class="fg"><label class="flbl">Category</label><select class="fsel" id="msg-cat"><option>Appointment Reminder</option><option>Test Results Ready</option><option>Prescription Ready</option><option>Follow-Up Prompt</option><option>Payment Reminder</option><option>General Info</option></select></div>
-    <div class="fg full"><label class="flbl">Message *</label><textarea class="fta" id="msg-body" placeholder="Type message to patient…"></textarea></div>
+  <!-- Channel selector -->
+  <div style="font-size:10.5px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.6px;margin-bottom:8px;">Send via</div>
+  <div class="msg-channel-grid">
+    <div class="msg-ch-card ch-wa active" id="chCard-whatsapp" onclick="selectMsgChannel('whatsapp')">
+      <div class="msg-ch-icon" style="background:rgba(37,211,102,0.12);"><svg viewBox="0 0 24 24" fill="#25d366" width="15" height="15"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347"/><path d="M12 2C6.477 2 2 6.477 2 12c0 1.89.525 3.66 1.438 5.168L2 22l4.984-1.419A9.953 9.953 0 0 0 12 22c5.523 0 10-4.477 10-10S17.523 2 12 2"/></svg></div>
+      <div class="msg-ch-label">WhatsApp</div>
+    </div>
+    <div class="msg-ch-card ch-email" id="chCard-email" onclick="selectMsgChannel('email')">
+      <div class="msg-ch-icon" style="background:var(--bbg);"><svg viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="2" stroke-linecap="round" width="15" height="15"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></div>
+      <div class="msg-ch-label">Email</div>
+    </div>
+
+    <div class="msg-ch-card" id="chCard-log" onclick="selectMsgChannel('log')">
+      <div class="msg-ch-icon" style="background:var(--s3);"><svg viewBox="0 0 24 24" fill="none" stroke="var(--muted)" stroke-width="2" stroke-linecap="round" width="15" height="15"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
+      <div class="msg-ch-label">Log Only</div>
+    </div>
   </div>
-  <div class="ma"><button class="btn btn-ghost" onclick="closeMod('message')">Cancel</button><button class="btn btn-primary" onclick="sendMsg()">Log Message</button></div>
+  <!-- Channel info banner -->
+  <div id="msgChannelInfo" style="font-size:11.5px;padding:8px 12px;border-radius:8px;margin-bottom:12px;background:var(--s2);color:var(--muted);"></div>
+  <!-- Message category -->
+  <div class="fg" style="margin-bottom:12px;">
+    <label class="flbl">Category</label>
+    <select class="fsel" id="msg-cat">
+      <option>Appointment Reminder</option>
+      <option>Follow-Up Prompt</option>
+      <option>Test Results Ready</option>
+      <option>Prescription Ready</option>
+      <option>Payment Reminder</option>
+      <option>Recall Notice</option>
+      <option>General Info</option>
+    </select>
+  </div>
+  <!-- Quick templates -->
+  <div style="font-size:10.5px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.6px;margin-bottom:6px;">Quick Templates</div>
+  <div class="msg-template-row" id="msgTemplates"></div>
+  <!-- Message body -->
+  <div class="fg" style="margin-bottom:4px;">
+    <label class="flbl">Message</label>
+    <textarea class="fta" id="msg-body" placeholder="Type or pick a template above…" style="min-height:90px;"></textarea>
+  </div>
+  <div style="font-size:10.5px;color:var(--muted);margin-bottom:14px;" id="msgCharCount">0 characters</div>
+  <!-- Actions -->
+  <div class="msg-send-actions" id="msgSendActions"></div>
 </div></div></div>
+<div class="mo" id="mod-bulkmsg" onclick="ovClose(event,'bulkmsg')"><div class="md md-lg"><div class="mh">
+  <div><div class="mt">Bulk Message Patients</div><div style="font-size:11.5px;color:var(--muted);" id="bulkMsgSub">Select patients and compose</div></div>
+  <button class="mc" onclick="closeMod('bulkmsg')">✕</button>
+</div><div class="mb">
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+    <div>
+      <div style="font-size:10.5px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.6px;margin-bottom:8px;">Select Recipients</div>
+      <div style="display:flex;gap:6px;margin-bottom:8px;flex-wrap:wrap;">
+        <button class="btn btn-ghost btn-sm" onclick="bulkSelectGroup('today')">Today's Patients</button>
+        <button class="btn btn-ghost btn-sm" onclick="bulkSelectGroup('pending-reminder')">Pending Reminders</button>
+        <button class="btn btn-ghost btn-sm" onclick="bulkSelectGroup('overdue')">Overdue Bills</button>
+        <button class="btn btn-ghost btn-sm" onclick="bulkSelectGroup('all')">All Active</button>
+      </div>
+      <div style="max-height:240px;overflow-y:auto;border:1px solid var(--border);border-radius:10px;" id="bulkRecipientList"></div>
+      <div style="font-size:11px;color:var(--muted);margin-top:6px;" id="bulkSelectedCount">0 selected</div>
+    </div>
+    <div>
+      <div style="font-size:10.5px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.6px;margin-bottom:8px;">Channel &amp; Message</div>
+      <div style="display:flex;gap:6px;margin-bottom:12px;">
+        <button class="btn btn-ghost btn-sm" id="bulkChWA" onclick="selectBulkChannel('whatsapp')" style="flex:1;">💬 WhatsApp</button>
+        <button class="btn btn-ghost btn-sm" id="bulkChEmail" onclick="selectBulkChannel('email')" style="flex:1;">✉ Email</button>
+
+      </div>
+      <div class="fg" style="margin-bottom:8px;">
+        <label class="flbl">Category</label>
+        <select class="fsel" id="bulk-cat" onchange="updateBulkTemplates()">
+          <option>Appointment Reminder</option><option>Follow-Up Prompt</option>
+          <option>Test Results Ready</option><option>Payment Reminder</option>
+          <option>Recall Notice</option><option>General Info</option>
+        </select>
+      </div>
+      <div class="msg-template-row" id="bulkTemplates" style="margin-bottom:8px;"></div>
+      <div class="fg" style="margin-bottom:6px;">
+        <label class="flbl">Message</label>
+        <textarea class="fta" id="bulk-body" placeholder="Compose your message…" style="min-height:100px;" oninput="updBulkCount()"></textarea>
+      </div>
+      <div style="font-size:10.5px;color:var(--muted);margin-bottom:10px;" id="bulkCharCount">0 characters</div>
+      <div id="bulkSendActions"></div>
+    </div>
+  </div>
+</div></div></div>
+
 <div class="mo" id="mod-confirm"><div class="md" style="max-width:340px;"><div style="text-align:center;padding:28px;">
   <div style="width:52px;height:52px;border-radius:50%;background:var(--rbg);display:flex;align-items:center;justify-content:center;margin:0 auto 14px;"><svg viewBox="0 0 24 24" fill="none" stroke="var(--rose)" stroke-width="2" stroke-linecap="round" width="22" height="22"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg></div>
   <div style="font-size:15px;font-weight:700;margin-bottom:6px;" id="cfTitle">Delete?</div>
@@ -1772,6 +1879,7 @@ function viewEMR(id){
     <div style="display:flex;gap:8px;margin-top:8px;">
       <button class="btn btn-ghost" style="flex:1;" onclick="closeMod('emrDetail');editEMR('${e.id}')">Edit</button>
       <button class="btn btn-primary btn-sm" onclick="printRxSlip('${e.id}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" width="11" height="11"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>Print Rx Slip</button>
+      ${e.followUp?`<button class="btn btn-ghost btn-sm" onclick="closeMod('emrDetail');sendExamFollowUp('${e.id}')">💬 Follow-Up Msg</button>`:''}
       <button class="btn btn-danger" onclick="closeMod('emrDetail');delRec('emr','${e.id}','examination')">Delete</button>
     </div>`;
   document.getElementById('mod-emrDetail').classList.add('open');
@@ -2102,6 +2210,7 @@ function renderBilling(search=''){
       <div style="text-align:right;">${amtH}<span class="bdg ${sc.cls}" style="margin-top:3px;">${b.status}</span>
         <div style="display:flex;gap:3px;margin-top:5px;justify-content:flex-end;">
           <button class="ibt" title="Print Receipt" onclick="printReceipt('${b.id}')" style="background:var(--cbg);border-color:rgba(0,207,168,0.25);color:var(--cyan-d);"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" width="11" height="11"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg></button>
+          ${b.status!=='Paid'?`<button class="ibt" title="Send payment nudge" onclick="sendInvoiceNudge('${b.id}')" style="background:var(--abg);border-color:rgba(240,153,10,0.25);color:var(--amber);" ><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" width="11" height="11"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.14 13a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3 2.18h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.09 9a16 16 0 0 0 6 6"/></svg></button>`:``}
           <button class="ibt" title="Duplicate invoice" onclick="duplicateInvoice('${b.id}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" width="11" height="11"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button>
           <button class="ibt" onclick="editInv3('${b.id}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" width="11" height="11"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
           <button class="ibt" onclick="delRec('bill','${b.id}','invoice')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" width="11" height="11"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/></svg></button>
@@ -2216,6 +2325,7 @@ function saveSettings(){
   S.s('cv_cFooter',document.getElementById('sClinicFooter').value);
   S.s('cv_docName',document.getElementById('sDocName').value);
   S.s('cv_recName',document.getElementById('sRecName').value);
+  // Termii
   toast('Settings saved!');
   updInvBadge();
   applyBranding();
@@ -2877,36 +2987,425 @@ function saveFU() {
 }
 
 // ══ MESSAGE MODAL ══
-function openMsgModal(ptId) {
+// ══════════════════════════════════════════════
+// MESSAGING ENGINE
+// ══════════════════════════════════════════════
+
+let currentMsgChannel = 'whatsapp';
+let bulkMsgChannel = 'whatsapp';
+let bulkSelectedIds = new Set();
+
+// Message templates per category
+const MSG_TEMPLATES = {
+  'Appointment Reminder': [
+    'Hi {name}, this is a reminder of your appointment at {clinic} on {date} at {time}. Please arrive 5 minutes early. Reply STOP to opt out.',
+    'Dear {name}, your eye appointment at {clinic} is scheduled for {date} at {time}. Call us if you need to reschedule: {phone}.',
+    'Hello {name}! Reminder: Eye consultation at {clinic} — {date}, {time}. See you soon! 👁️'
+  ],
+  'Follow-Up Prompt': [
+    'Hi {name}, it\'s time for your follow-up eye check at {clinic}. Please call us to book your next appointment.',
+    'Dear {name}, {doctor} at {clinic} would like to see you for a follow-up. Please contact us on {phone}.',
+    'Hello {name}, your follow-up review is due. Please book an appointment at {clinic} at your earliest convenience.'
+  ],
+  'Test Results Ready': [
+    'Hi {name}, your test results are ready at {clinic}. Please visit or call {phone} to discuss with your doctor.',
+    'Dear {name}, your eye examination results are available at {clinic}. Contact us on {phone}.',
+  ],
+  'Prescription Ready': [
+    'Hi {name}, your prescription is ready for collection at {clinic}. Our hours are Mon–Sat, 8am–5pm.',
+    'Dear {name}, your spectacle/contact lens prescription is ready. Please visit {clinic} at your convenience.',
+  ],
+  'Payment Reminder': [
+    'Dear {name}, you have an outstanding balance at {clinic}. Please contact us on {phone} to settle your account.',
+    'Hi {name}, a payment of is due at {clinic}. Please call {phone} or visit us to make arrangements.',
+  ],
+  'Recall Notice': [
+    'Dear {name}, it has been 6 months since your last eye examination at {clinic}. Regular checks protect your vision. Call {phone} to book.',
+    'Hi {name}, {clinic} recommends an annual eye exam. Your last visit was some time ago — please book your next check-up on {phone}.',
+  ],
+  'General Info': [
+    'Hi {name}, this is {clinic}. Please contact us on {phone} if you have any questions.',
+    'Dear {name}, thank you for choosing {clinic} for your eye care needs.',
+  ],
+};
+
+function fillTemplate(tmpl, ptId, apptId=null){
+  const p = pts.find(x=>x.id===ptId)||{name:'Patient',phone:'',email:''};
+  const a = apptId ? appts.find(x=>x.id===apptId) : null;
+  const c = getClinic();
+  return tmpl
+    .replace(/{name}/g, p.name)
+    .replace(/{clinic}/g, c.name)
+    .replace(/{phone}/g, c.phone||'our office')
+    .replace(/{doctor}/g, c.docName||'our doctor')
+    .replace(/{date}/g, a ? fmtD(a.date) : '')
+    .replace(/{time}/g, a ? a.time : '');
+}
+
+function selectMsgChannel(ch){
+  currentMsgChannel = ch;
+  ['whatsapp','email','sms','log'].forEach(c=>{
+    const card = document.getElementById('chCard-'+c);
+    if(card){ card.classList.remove('active'); }
+  });
+  const active = document.getElementById('chCard-'+ch);
+  if(active) active.classList.add('active');
+  // Update info banner
+  const info = document.getElementById('msgChannelInfo');
+  const infos = {
+    whatsapp: '💬 Opens WhatsApp with your message pre-filled. Works on phone and WhatsApp Web.',
+    email: '✉ Opens your email client with subject and body pre-filled. One click to send.',
+    log: '📋 Saves message in patient record only. No external delivery.',
+  };
+  if(info) info.textContent = infos[ch]||'';
+  updateMsgActions();
+}
+
+function updateMsgTemplates(ptId, apptId=null){
+  const cat = document.getElementById('msg-cat')?.value || 'Appointment Reminder';
+  const templates = MSG_TEMPLATES[cat] || [];
+  const el = document.getElementById('msgTemplates');
+  if(!el) return;
+  el.innerHTML = templates.map((t,i)=>`<button class="msg-tpl" onclick="applyTemplate(${i},'${ptId}','${apptId||''}')">Template ${i+1}</button>`).join('');
+}
+
+function applyTemplate(i, ptId, apptId){
+  const cat = document.getElementById('msg-cat')?.value || 'Appointment Reminder';
+  const templates = MSG_TEMPLATES[cat] || [];
+  if(!templates[i]) return;
+  const body = document.getElementById('msg-body');
+  if(body){ body.value = fillTemplate(templates[i], ptId, apptId||null); updMsgCount(); }
+}
+
+function updMsgCount(){
+  const b = document.getElementById('msg-body');
+  const c = document.getElementById('msgCharCount');
+  if(b&&c) c.textContent = b.value.length + ' characters' + (b.value.length>160?' ('+Math.ceil(b.value.length/160)+' SMS parts)':'');
+}
+
+function updateMsgActions(){
+  const el = document.getElementById('msgSendActions');
+  if(!el) return;
+  const ptId = document.getElementById('msg-pid')?.value;
+  const p = pts.find(x=>x.id===ptId)||{};
+  const waNum = (p.phone||'').replace(/\D/g,'');
+  const actions = {
+    whatsapp: `<button class="btn msg-send-wa" onclick="sendViaWhatsApp()">💬 Open WhatsApp${p.phone?' ('+p.phone+')':''}</button><button class="btn btn-ghost" onclick="logMsgOnly()">Log only</button><button class="btn btn-ghost" onclick="closeMod('message')">Cancel</button>`,
+    email: p.email
+      ? `<button class="btn msg-send-email" onclick="sendViaEmail()">✉ Open Email (${p.email})</button><button class="btn btn-ghost" onclick="logMsgOnly()">Log only</button><button class="btn btn-ghost" onclick="closeMod('message')">Cancel</button>`
+      : `<div style="color:var(--rose);font-size:12px;font-weight:600;">No email on file for this patient.</div><button class="btn btn-ghost" onclick="logMsgOnly()">Log only</button><button class="btn btn-ghost" onclick="closeMod('message')">Cancel</button>`,
+    log: `<button class="btn btn-primary" onclick="logMsgOnly()">Save to Record</button><button class="btn btn-ghost" onclick="closeMod('message')">Cancel</button>`,
+  };
+  el.innerHTML = actions[currentMsgChannel] || actions.log;
+}
+
+function openMsgModal(ptId, apptId=null, prefillCat=null) {
   loadPortalData();
   const p = pts.find(x => x.id === ptId); if (!p) return;
   document.getElementById('msg-pid').value = ptId;
-  document.getElementById('msg-to').value = p.name + (p.phone ? ' · ' + p.phone : '');
-  document.getElementById('msg-ch').value = 'In-App Log';
-  document.getElementById('msg-cat').value = 'Appointment Reminder';
+  document.getElementById('msgModalTitle').textContent = 'Message ' + p.name;
+  document.getElementById('msgModalSub').textContent = p.phone + (p.email ? ' · ' + p.email : '');
+  if(prefillCat) document.getElementById('msg-cat').value = prefillCat;
   document.getElementById('msg-body').value = '';
+  document.getElementById('msgCharCount').textContent = '0 characters';
+  selectMsgChannel('whatsapp');
+  updateMsgTemplates(ptId, apptId);
+  document.getElementById('msg-cat').onchange = ()=>{ updateMsgTemplates(ptId, apptId); updateMsgActions(); };
+  document.getElementById('msg-body').oninput = updMsgCount;
   document.getElementById('mod-message').classList.add('open');
+  setTimeout(()=>{ const f=document.getElementById('msg-body'); if(f)f.focus(); },120);
 }
 
-function sendMsg() {
-  const body = document.getElementById('msg-body').value.trim();
-  if (!body) { toast('Message cannot be empty.', 'err'); return; }
+function sendViaWhatsApp(){
+  const ptId = document.getElementById('msg-pid').value;
+  const p = pts.find(x=>x.id===ptId)||{};
+  const msg = document.getElementById('msg-body').value.trim();
+  if(!msg){ toast('Write a message first.','err'); return; }
+  const phone = (p.phone||'').replace(/\D/g,'');
+  if(!phone){ toast('No phone number on file.','err'); return; }
+  const url = `https://wa.me/${phone.startsWith('0')?'234'+phone.slice(1):phone}?text=${encodeURIComponent(msg)}`;
+  window.open(url,'_blank');
+  logAndClose(ptId, 'WhatsApp', msg);
+}
+
+function sendViaEmail(){
+  const ptId = document.getElementById('msg-pid').value;
+  const p = pts.find(x=>x.id===ptId)||{};
+  const msg = document.getElementById('msg-body').value.trim();
+  if(!msg){ toast('Write a message first.','err'); return; }
+  const c = getClinic();
+  const cat = document.getElementById('msg-cat').value;
+  const subject = encodeURIComponent(`${cat} — ${c.name}`);
+  const body = encodeURIComponent(msg);
+  window.location.href = `mailto:${p.email||''}?subject=${subject}&body=${body}`;
+  logAndClose(ptId, 'Email', msg);
+}
+
+
+function logMsgOnly(){
+  const ptId = document.getElementById('msg-pid').value;
+  const msg = document.getElementById('msg-body').value.trim();
+  if(!msg){ closeMod('message'); return; }
+  logAndClose(ptId, 'In-App Log', msg);
+}
+
+function logAndClose(ptId, channel, body){
   loadPortalData();
   const obj = {
-    id: uid(),
-    patientId: document.getElementById('msg-pid').value,
-    date: td(),
-    channel: document.getElementById('msg-ch').value,
-    category: document.getElementById('msg-cat').value,
-    body,
+    id: uid(), patientId: ptId, date: td(), channel,
+    category: document.getElementById('msg-cat').value, body,
   };
   messages.push(obj);
   savePortalData();
   closeMod('message');
-  toast('Message logged!');
-  if (portalPatientId === obj.patientId) {
-    switchPortalTab('messages', document.querySelector('#portalTabs .tab:last-child'));
+  toast(`Message ${channel==='In-App Log'?'logged':'sent & logged'}!`);
+  if(portalPatientId===ptId) switchPortalTab('messages',document.querySelector('#portalTabs .tab:last-child'));
+}
+
+
+
+
+// ── Reminder modal with real send buttons ──
+function openRemModal(){
+  const needRem=appts.filter(a=>a.date>=td()&&a.reminder==='Not sent');
+  const el=document.getElementById('remModalList');
+  if(!needRem.length){el.innerHTML='<div style="text-align:center;color:var(--muted);padding:20px;">No pending reminders — all appointments notified ✓</div>';return;}
+  el.innerHTML=needRem.map(a=>{
+    const p=pts.find(x=>x.id===a.patientId)||{name:'Unknown'};
+    const waNum=(p.phone||'').replace(/\D/g,'');
+    const waPhone=waNum.startsWith('0')?'234'+waNum.slice(1):waNum;
+    const c=getClinic();
+    const msg=encodeURIComponent(fillTemplate(MSG_TEMPLATES['Appointment Reminder'][0],p.id,a.id));
+    return `<div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);flex-wrap:wrap;">
+      <div class="av" style="width:30px;height:30px;font-size:11px;background:${avc(p.name)};flex-shrink:0;">${ini(p.name)}</div>
+      <div style="flex:1;min-width:120px;"><div style="font-size:12.5px;font-weight:600;">${p.name}</div><div style="font-size:11px;color:var(--muted);">${fmtD(a.date)} · ${a.time} — ${a.type}</div></div>
+      <div style="display:flex;gap:5px;flex-wrap:wrap;">
+        ${p.phone?`<a href="https://wa.me/${waPhone}?text=${msg}" target="_blank" onclick="markRemSent('${a.id}')" style="text-decoration:none;"><button class="btn btn-xs" style="background:#25d366;color:#fff;border:none;">💬</button></a>`:''}
+        ${p.email?`<a href="mailto:${p.email}?subject=${encodeURIComponent('Appointment Reminder — '+c.name)}&body=${msg}" onclick="markRemSent('${a.id}')" style="text-decoration:none;"><button class="btn btn-xs" style="background:var(--blue);color:#fff;border:none;">✉</button></a>`:''}
+        <button class="btn btn-xs btn-amber" onclick="openMsgModal('${p.id}','${a.id}','Appointment Reminder');markRemSent('${a.id}')">Custom</button>
+        <button class="btn btn-xs btn-ghost" onclick="markRemSent('${a.id}');openRemModal()">✓</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function markRemSent(id,ch='SMS sent'){
+  const i=appts.findIndex(a=>a.id===id);
+  if(i>-1){appts[i].reminder=ch;saveAll();renderCal();renderDash();}
+}
+
+function sendAllReminders(){ appts.forEach(a=>{if(a.date>=td()&&a.reminder==='Not sent')a.reminder='SMS sent';}); saveAll();closeMod('reminder');toast('All reminders marked sent!');renderCal();renderDash(); }
+
+function sendAllRemindersWA(){
+  const needRem=appts.filter(a=>a.date>=td()&&a.reminder==='Not sent');
+  if(!needRem.length){toast('No pending reminders.','warn');return;}
+  let opened=0;
+  needRem.forEach(a=>{
+    const p=pts.find(x=>x.id===a.patientId)||{};
+    if(!p.phone) return;
+    const phone=(p.phone||'').replace(/\D/g,'');
+    const e164=phone.startsWith('0')?'234'+phone.slice(1):phone;
+    const msg=fillTemplate(MSG_TEMPLATES['Appointment Reminder'][0],p.id,a.id);
+    setTimeout(()=>window.open(`https://wa.me/${e164}?text=${encodeURIComponent(msg)}`,'_blank'),opened*600);
+    markRemSent(a.id,'WhatsApp sent');
+    opened++;
+  });
+  toast(`Opened ${opened} WhatsApp window(s). Send each message.`);
+  openRemModal();
+}
+
+function sendAllRemindersEmail(){
+  const needRem=appts.filter(a=>a.date>=td()&&a.reminder==='Not sent');
+  if(!needRem.length){toast('No pending reminders.','warn');return;}
+  const c=getClinic();
+  let sent=0;
+  needRem.forEach(a=>{
+    const p=pts.find(x=>x.id===a.patientId)||{};
+    if(!p.email) return;
+    const msg=fillTemplate(MSG_TEMPLATES['Appointment Reminder'][0],p.id,a.id);
+    const sub=encodeURIComponent('Appointment Reminder — '+c.name);
+    setTimeout(()=>window.location.href=`mailto:${p.email}?subject=${sub}&body=${encodeURIComponent(msg)}`,sent*800);
+    markRemSent(a.id,'Email sent');
+    sent++;
+  });
+  toast(sent>0?`Opening ${sent} email(s)…`:'No patients have email on file.','warn');
+  openRemModal();
+}
+
+
+// ── Bulk messaging ──
+function openBulkMsg(group='today'){
+  bulkSelectedIds=new Set();
+  bulkMsgChannel='whatsapp';
+  openMod('bulkmsg');
+  bulkSelectGroup(group);
+  updateBulkTemplates();
+  document.getElementById('bulk-body').oninput=updBulkCount;
+  renderBulkActions();
+}
+
+function bulkSelectGroup(group){
+  const t=td();
+  let targetPts=[];
+  if(group==='today'){
+    const todayPtIds=new Set(appts.filter(a=>a.date===t).map(a=>a.patientId));
+    targetPts=pts.filter(p=>todayPtIds.has(p.id));
+    document.getElementById('bulkMsgSub').textContent="Today's patients";
+  } else if(group==='pending-reminder'){
+    const ids=new Set(appts.filter(a=>a.date>=t&&a.reminder==='Not sent').map(a=>a.patientId));
+    targetPts=pts.filter(p=>ids.has(p.id));
+    document.getElementById('bulkMsgSub').textContent='Patients with unsent reminders';
+  } else if(group==='overdue'){
+    const ids=new Set(bills.filter(b=>b.status==='Overdue').map(b=>b.patientId));
+    targetPts=pts.filter(p=>ids.has(p.id));
+    document.getElementById('bulkMsgSub').textContent='Patients with overdue bills';
+  } else {
+    targetPts=pts.filter(p=>p.status==='Active');
+    document.getElementById('bulkMsgSub').textContent='All active patients';
   }
+  bulkSelectedIds=new Set(targetPts.map(p=>p.id));
+  renderBulkList(targetPts);
+  updBulkSelectedCount();
+}
+
+function renderBulkList(list){
+  const el=document.getElementById('bulkRecipientList');
+  if(!list.length){el.innerHTML='<div style="padding:14px;text-align:center;font-size:12px;color:var(--muted);">No patients in this group.</div>';return;}
+  el.innerHTML=list.map(p=>`<div class="bulk-msg-row" style="padding:8px 12px;">
+    <input type="checkbox" class="bulk-msg-check" ${bulkSelectedIds.has(p.id)?'checked':''} onchange="toggleBulkPt('${p.id}',this.checked)">
+    <div class="av" style="width:26px;height:26px;font-size:9.5px;background:${avc(p.name)};">${ini(p.name)}</div>
+    <div style="flex:1;min-width:0;"><div style="font-size:12px;font-weight:600;">${p.name}</div><div style="font-size:10.5px;color:var(--muted);">${p.phone||'No phone'}${p.email?' · '+p.email:''}</div></div>
+  </div>`).join('');
+}
+
+function toggleBulkPt(id,on){
+  if(on) bulkSelectedIds.add(id);
+  else bulkSelectedIds.delete(id);
+  updBulkSelectedCount();
+}
+
+function updBulkSelectedCount(){
+  const el=document.getElementById('bulkSelectedCount');
+  if(el) el.textContent=bulkSelectedIds.size+' patient(s) selected';
+}
+
+function updBulkCount(){
+  const b=document.getElementById('bulk-body');
+  const c=document.getElementById('bulkCharCount');
+  if(b&&c) c.textContent=b.value.length+' characters'+(b.value.length>160?' ('+Math.ceil(b.value.length/160)+' parts)':'');
+}
+
+function selectBulkChannel(ch){
+  bulkMsgChannel=ch;
+  ['WA','Email','SMS'].forEach(x=>{
+    const btn=document.getElementById('bulkCh'+x);
+    if(btn) btn.style.background=btn.style.borderColor='';
+  });
+  const colors={whatsapp:{bg:'#25d366',label:'WA'},email:{bg:'var(--blue)',label:'Email'},sms:{bg:'var(--amber)',label:'SMS'}};
+  const sel=colors[ch];
+  const btn=document.getElementById('bulkCh'+(sel?.label||''));
+  if(btn){btn.style.background=sel.bg;btn.style.color='#fff';btn.style.border='none';}
+  renderBulkActions();
+}
+
+function updateBulkTemplates(){
+  const cat=document.getElementById('bulk-cat')?.value||'Appointment Reminder';
+  const templates=MSG_TEMPLATES[cat]||[];
+  const el=document.getElementById('bulkTemplates');
+  if(!el) return;
+  const firstPtId=[...bulkSelectedIds][0]||pts[0]?.id;
+  el.innerHTML=templates.map((t,i)=>`<button class="msg-tpl" onclick="applyBulkTemplate(${i},'${firstPtId||''}')"">Template ${i+1}</button>`).join('');
+}
+
+function applyBulkTemplate(i,ptId){
+  const cat=document.getElementById('bulk-cat')?.value||'Appointment Reminder';
+  const t=(MSG_TEMPLATES[cat]||[])[i];
+  if(!t) return;
+  document.getElementById('bulk-body').value=fillTemplate(t,ptId||pts[0]?.id||'');
+  updBulkCount();
+}
+
+function renderBulkActions(){
+  const el=document.getElementById('bulkSendActions');
+  if(!el) return;
+  const labels={whatsapp:'💬 Open WhatsApp for each',email:'✉ Email each patient',sms:'📱 Send SMS via Termii'};
+  el.innerHTML=`
+    <button class="btn btn-primary" style="width:100%;justify-content:center;" onclick="executeBulkSend()">${labels[bulkMsgChannel]||'Send'}</button>
+    <div style="font-size:11px;color:var(--muted);margin-top:6px;text-align:center;">WhatsApp opens a tab per patient. Email opens your mail client. Termii sends automatically.</div>`;
+}
+
+async function executeBulkSend(){
+  const msg=document.getElementById('bulk-body').value.trim();
+  if(!msg){toast('Write a message first.','err');return;}
+  if(!bulkSelectedIds.size){toast('Select at least one patient.','err');return;}
+  const sel=pts.filter(p=>bulkSelectedIds.has(p.id));
+  let ok=0,skip=0;
+  if(bulkMsgChannel==='whatsapp'){
+    sel.forEach((p,i)=>{
+      const phone=(p.phone||'').replace(/\D/g,'');
+      if(!phone){skip++;return;}
+      const e164=phone.startsWith('0')?'234'+phone.slice(1):phone;
+      const text=fillTemplate(msg,p.id);
+      setTimeout(()=>window.open(`https://wa.me/${e164}?text=${encodeURIComponent(text)}`,'_blank'),i*700);
+      ok++;
+    });
+    toast(`Opened ${ok} WhatsApp window(s). ${skip?skip+' skipped (no phone).':''}`);
+  } else if(bulkMsgChannel==='email'){
+    const c=getClinic();
+    const cat=document.getElementById('bulk-cat')?.value||'';
+    sel.forEach((p,i)=>{
+      if(!p.email){skip++;return;}
+      const text=fillTemplate(msg,p.id);
+      const sub=encodeURIComponent(cat+' — '+c.name);
+      setTimeout(()=>window.location.href=`mailto:${p.email}?subject=${sub}&body=${encodeURIComponent(text)}`,i*900);
+      ok++;
+    });
+    toast(ok>0?`Opening ${ok} email(s)…`:'No email addresses on file.','warn');
+  }
+  // Log to each patient
+  loadPortalData();
+  const cat=document.getElementById('bulk-cat')?.value||'General Info';
+  sel.forEach(p=>messages.push({id:uid(),patientId:p.id,date:td(),channel:bulkMsgChannel==='log'?'In-App Log':bulkMsgChannel==='whatsapp'?'WhatsApp':bulkMsgChannel==='email'?'Email':'SMS',category:cat,body:fillTemplate(msg,p.id)}));
+  savePortalData();
+  closeMod('bulkmsg');
+}
+
+// ── Overdue invoice nudge ──
+function sendInvoiceNudge(billId){
+  const b=bills.find(x=>x.id===billId);
+  if(!b) return;
+  openMsgModal(b.patientId, null, 'Payment Reminder');
+  // Pre-fill
+  setTimeout(()=>{
+    const body=document.getElementById('msg-body');
+    if(body){
+      const p=pts.find(x=>x.id===b.patientId)||{name:'Patient'};
+      const c=getClinic();
+      body.value=`Dear ${p.name}, you have an outstanding balance of ₦${Number(b.amount).toLocaleString('en-NG')} at ${c.name} for "${b.service}". Please contact us on ${c.phone} to settle. Thank you.`;
+      updMsgCount();
+    }
+  },80);
+}
+
+// ── Post-exam follow-up ──
+function sendExamFollowUp(emrId){
+  const e=emrs.find(x=>x.id===emrId);
+  if(!e) return;
+  openMsgModal(e.patientId, null, 'Follow-Up Prompt');
+  setTimeout(()=>{
+    const body=document.getElementById('msg-body');
+    if(body){
+      const p=pts.find(x=>x.id===e.patientId)||{name:'Patient'};
+      const c=getClinic();
+      const weeks=e.followUp?`in ${e.followUp} week(s)`:'soon';
+      body.value=`Dear ${p.name}, ${c.docName||'your doctor'} at ${c.name} recommends a follow-up appointment ${weeks}. Please call us on ${c.phone} to schedule. Thank you.`;
+      updMsgCount();
+    }
+  },80);
+}
+
+function sendMsg(){
+  logMsgOnly();
 }
 
 // ══ delRec extended inline above ══
