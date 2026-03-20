@@ -138,8 +138,10 @@ html,body{
 .sb-role-sub{font-size:9.5px;color:rgba(255,255,255,0.28);}
 .sidebar.collapsed .sb-role-name,.sidebar.collapsed .sb-role-sub{display:none;}
 .sb-nav{flex:1;padding:6px 8px;overflow-y:auto;overflow-x:hidden;min-height:0;}
-.sb-nav::-webkit-scrollbar{width:3px;}
-.sb-nav::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.1);border-radius:2px;}
+.sb-nav::-webkit-scrollbar{width:8px;}
+.sb-nav::-webkit-scrollbar-track{background:rgba(255,255,255,0.04);border-radius:4px;}
+.sb-nav::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.22);border-radius:4px;border:2px solid transparent;background-clip:padding-box;}
+.sb-nav::-webkit-scrollbar-thumb:hover{background:rgba(255,255,255,0.4);border-radius:4px;border:2px solid transparent;background-clip:padding-box;}
 .sb-sect{margin-bottom:14px;}
 .sb-sect-lbl{font-size:9px;font-weight:600;color:rgba(255,255,255,0.2);letter-spacing:1.6px;text-transform:uppercase;padding:0 8px;margin-bottom:4px;white-space:nowrap;transition:var(--tr);}
 .sidebar.collapsed .sb-sect-lbl{opacity:0;}
@@ -205,8 +207,10 @@ html,body{
   overflow-x:hidden;
   padding:18px 20px;
 }
-.content::-webkit-scrollbar{width:5px;}
-.content::-webkit-scrollbar-thumb{background:rgba(6,12,26,0.12);border-radius:3px;}
+.content::-webkit-scrollbar{width:8px;}
+.content::-webkit-scrollbar-track{background:var(--s3);border-radius:4px;}
+.content::-webkit-scrollbar-thumb{background:rgba(6,12,26,0.22);border-radius:4px;border:2px solid var(--s2);background-clip:padding-box;}
+.content::-webkit-scrollbar-thumb:hover{background:rgba(6,12,26,0.4);}
 
 /* ── PAGES ── */
 .page{display:none;}
@@ -1792,10 +1796,10 @@ document.addEventListener('DOMContentLoaded',()=>{
     .cc.sel:hover,.cc.tod:hover{transform:scale(1.08);}
     .ni-badge.amber{animation:badgePulse 2.2s ease-in-out infinite;}
     @keyframes badgePulse{0%,100%{opacity:1;}50%{opacity:0.55;}}
-    ::-webkit-scrollbar{width:5px;height:5px;}
-    ::-webkit-scrollbar-track{background:transparent;}
-    ::-webkit-scrollbar-thumb{background:rgba(6,12,26,0.12);border-radius:3px;}
-    ::-webkit-scrollbar-thumb:hover{background:rgba(6,12,26,0.22);}
+    ::-webkit-scrollbar{width:8px;height:8px;}
+    ::-webkit-scrollbar-track{background:var(--s3);border-radius:4px;}
+    ::-webkit-scrollbar-thumb{background:rgba(6,12,26,0.22);border-radius:4px;border:2px solid var(--s2);background-clip:padding-box;}
+    ::-webkit-scrollbar-thumb:hover{background:rgba(6,12,26,0.42);border-radius:4px;}
     .page{animation:fadeUp 0.22s ease;}
     @keyframes fadeUp{from{opacity:0;transform:translateY(7px);}to{opacity:1;transform:none;}}
     .l-feat{animation:featIn 0.4s ease both;}
