@@ -120,16 +120,18 @@ html,body{
 .sidebar.collapsed{width:var(--swc);min-width:var(--swc);}
 .sb-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:299;backdrop-filter:blur(3px);}
 .sb-overlay.show{display:block;}
-.sb-top{padding:14px 12px;display:flex;align-items:center;gap:10px;border-bottom:1px solid rgba(255,255,255,0.05);height:62px;flex-shrink:0;}
+.sb-top{padding:0 12px;display:flex;align-items:center;gap:10px;border-bottom:1px solid rgba(255,255,255,0.05);height:62px;flex-shrink:0;overflow:hidden;}
 .sb-logo{width:34px;height:34px;border-radius:9px;flex-shrink:0;background:linear-gradient(135deg,var(--cyan),var(--blue));display:flex;align-items:center;justify-content:center;}
 .sb-logo svg{width:16px;height:16px;}
-.sb-brand{white-space:nowrap;overflow:hidden;transition:var(--tr);}
+.sb-brand{flex:1;white-space:nowrap;overflow:hidden;transition:opacity 0.2s,max-width 0.22s cubic-bezier(.4,0,.2,1);max-width:160px;}
 .sb-name{font-size:13px;font-weight:700;color:#fff;letter-spacing:-0.3px;}
 .sb-tagline{font-size:9px;color:rgba(255,255,255,0.28);letter-spacing:1.3px;text-transform:uppercase;}
-.sidebar.collapsed .sb-brand{width:0;opacity:0;}
-.sb-tog{margin-left:auto;background:rgba(255,255,255,0.06);border:none;width:26px;height:26px;border-radius:7px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:var(--tr);color:rgba(255,255,255,0.4);}
-.sb-tog:hover{background:rgba(255,255,255,0.12);color:#fff;}
-.sb-tog svg{width:13px;height:13px;}
+.sidebar.collapsed .sb-brand{max-width:0;opacity:0;}
+.sb-tog{flex-shrink:0;background:rgba(255,255,255,0.06);border:none;width:30px;height:30px;border-radius:8px;cursor:pointer;display:flex!important;align-items:center;justify-content:center;transition:var(--tr);color:rgba(255,255,255,0.5);}
+.sb-tog:hover{background:rgba(255,255,255,0.14);color:#fff;}
+.sb-tog svg{width:14px;height:14px;}
+.sidebar.collapsed .sb-top{justify-content:center;gap:0;}
+.sidebar.collapsed .sb-logo{display:none;}
 .sb-role{margin:8px 8px 4px;padding:7px 9px;border-radius:9px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);display:flex;align-items:center;gap:8px;white-space:nowrap;overflow:hidden;flex-shrink:0;}
 .sb-role-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
 .sb-role-name{font-size:11px;font-weight:600;color:rgba(255,255,255,0.7);}
