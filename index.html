@@ -1,0 +1,1491 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#060c1a">
+<title>ClearVision — Eye Clinic EMR</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{
+  --ink:#060c1a;--ink2:#111827;--ink3:#1f2d45;
+  --surface:#fff;--s2:#f5f7fc;--s3:#e8ecf5;
+  --muted:#6b7590;--muted2:#9ea6bf;
+  --border:rgba(6,12,26,0.08);--border2:rgba(6,12,26,0.14);
+  --cyan:#00cfa8;--cyan-d:#009e82;--cbg:rgba(0,207,168,0.09);
+  --rose:#ff3d5a;--rbg:rgba(255,61,90,0.09);
+  --amber:#f0990a;--abg:rgba(240,153,10,0.09);
+  --blue:#3361ff;--bbg:rgba(51,97,255,0.09);
+  --violet:#6d28d9;--vbg:rgba(109,40,217,0.09);
+  --green:#059669;--gbg:rgba(5,150,105,0.09);
+  --gold:#d4a017;--gdbg:rgba(212,160,23,0.1);
+  --pink:#db2777;--pbg:rgba(219,39,119,0.09);
+  --teal:#0891b2;--tbg:rgba(8,145,178,0.09);
+  --sw:256px;--swc:64px;--th:58px;
+  --r:14px;--rsm:9px;
+  --sh:0 1px 8px rgba(6,12,26,0.07);--shm:0 6px 28px rgba(6,12,26,0.11);--shl:0 18px 64px rgba(6,12,26,0.18);
+  --tr:all 0.2s cubic-bezier(.4,0,.2,1);
+}
+html,body{height:100%;font-family:'Sora',sans-serif;background:var(--s2);color:var(--ink);font-size:14px;overflow-x:hidden;}
+
+/* ─── LOGIN ─── */
+#loginScreen{position:fixed;inset:0;z-index:9000;background:var(--ink);display:flex;align-items:stretch;}
+#loginScreen.hidden{display:none;}
+.l-art{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;background:linear-gradient(140deg,#060c1a 0%,#0e1f3d 55%,#091a30 100%);position:relative;overflow:hidden;padding:40px;}
+.l-art::before{content:'';position:absolute;width:600px;height:600px;border-radius:50%;background:radial-gradient(circle,rgba(0,207,168,0.1) 0%,transparent 70%);top:-150px;right:-150px;}
+.l-art::after{content:'';position:absolute;width:400px;height:400px;border-radius:50%;background:radial-gradient(circle,rgba(51,97,255,0.1) 0%,transparent 70%);bottom:-100px;left:-80px;}
+.l-art-inner{position:relative;z-index:1;text-align:center;}
+.l-eye{width:110px;height:110px;border-radius:50%;background:linear-gradient(135deg,rgba(0,207,168,0.18),rgba(51,97,255,0.18));border:1px solid rgba(0,207,168,0.28);display:flex;align-items:center;justify-content:center;margin:0 auto 28px;animation:eyePulse 3s ease-in-out infinite;}
+@keyframes eyePulse{0%,100%{box-shadow:0 0 0 0 rgba(0,207,168,0.25);}50%{box-shadow:0 0 0 22px rgba(0,207,168,0);}}
+.l-eye svg{width:48px;height:48px;}
+.l-title{font-family:'Instrument Serif',serif;font-size:38px;color:#fff;line-height:1.2;margin-bottom:12px;}
+.l-sub{font-size:13px;color:rgba(255,255,255,0.38);max-width:280px;line-height:1.8;margin-bottom:28px;}
+.l-features{display:flex;flex-direction:column;gap:8px;max-width:300px;}
+.l-feat{display:flex;align-items:center;gap:10px;font-size:12px;color:rgba(255,255,255,0.5);}
+.l-feat-dot{width:6px;height:6px;border-radius:50%;background:var(--cyan);flex-shrink:0;}
+.l-panel{width:480px;background:var(--surface);display:flex;flex-direction:column;justify-content:center;padding:52px 48px;overflow-y:auto;}
+.l-logo{display:flex;align-items:center;gap:10px;margin-bottom:36px;}
+.l-logo-icon{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,var(--cyan),var(--blue));display:flex;align-items:center;justify-content:center;}
+.l-logo-icon svg{width:17px;height:17px;}
+.l-logo-name{font-size:15px;font-weight:700;}
+.l-logo-sub{font-size:9.5px;color:var(--muted);text-transform:uppercase;letter-spacing:1.2px;}
+.role-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:24px;}
+.role-card{padding:14px;border-radius:12px;border:1.5px solid var(--border2);background:var(--s2);cursor:pointer;transition:var(--tr);text-align:center;font-family:'Sora',sans-serif;}
+.role-card:hover{border-color:var(--cyan);background:var(--cbg);}
+.role-card.active{border-color:var(--cyan);background:var(--cbg);box-shadow:0 0 0 3px rgba(0,207,168,0.12);}
+.role-card-icon{width:36px;height:36px;border-radius:9px;display:flex;align-items:center;justify-content:center;margin:0 auto 8px;}
+.role-card-icon svg{width:16px;height:16px;}
+.role-card-name{font-size:12.5px;font-weight:600;}
+.role-card-sub{font-size:10.5px;color:var(--muted);margin-top:2px;}
+.pin-row{display:flex;gap:12px;justify-content:center;margin:16px 0 10px;}
+.pin-dot{width:14px;height:14px;border-radius:50%;border:2px solid var(--border2);background:transparent;transition:var(--tr);}
+.pin-dot.on{background:var(--cyan);border-color:var(--cyan);box-shadow:0 0 8px rgba(0,207,168,0.4);}
+.pin-dot.err{background:var(--rose);border-color:var(--rose);}
+.pin-err{text-align:center;font-size:11.5px;font-weight:600;color:var(--rose);height:16px;margin-bottom:8px;}
+.pin-pad{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;max-width:264px;margin:0 auto;}
+.pk{height:54px;border-radius:11px;border:1.5px solid var(--border2);background:var(--surface);font-size:18px;font-weight:600;cursor:pointer;transition:var(--tr);font-family:'Sora',sans-serif;display:flex;align-items:center;justify-content:center;color:var(--ink);}
+.pk:hover{background:var(--cbg);border-color:var(--cyan);color:var(--cyan-d);}
+.pk:active{transform:scale(0.95);}
+.pk.clr{font-size:12px;color:var(--muted);}
+.pk.z{grid-column:2;}
+.pk.del{color:var(--rose);}
+.pin-hint{margin-top:22px;padding:13px;border-radius:10px;background:var(--s2);border:1px solid var(--border);}
+.pin-hint-title{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.7px;margin-bottom:8px;}
+.pin-hint-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;}
+.pin-hint-row:last-child{margin-bottom:0;}
+.pin-hint-label{font-size:12px;}
+.pin-chip{font-family:monospace;font-size:12px;font-weight:700;color:var(--cyan-d);background:var(--cbg);padding:2px 8px;border-radius:5px;letter-spacing:2px;}
+@media(max-width:768px){.l-art{display:none;}.l-panel{width:100%;padding:36px 24px;}}
+
+/* ─── APP SHELL ─── */
+#appShell{display:flex;min-height:100vh;}
+#appShell.hidden{display:none;}
+
+/* SIDEBAR */
+.sidebar{position:fixed;top:0;left:0;height:100vh;width:var(--sw);background:var(--ink2);z-index:300;display:flex;flex-direction:column;transition:var(--tr);overflow:hidden;}
+.sidebar.collapsed{width:var(--swc);}
+.sb-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:299;backdrop-filter:blur(3px);}
+.sb-overlay.show{display:block;}
+.sb-top{padding:14px 12px;display:flex;align-items:center;gap:10px;border-bottom:1px solid rgba(255,255,255,0.05);min-height:62px;}
+.sb-logo{width:34px;height:34px;border-radius:9px;flex-shrink:0;background:linear-gradient(135deg,var(--cyan),var(--blue));display:flex;align-items:center;justify-content:center;}
+.sb-logo svg{width:16px;height:16px;}
+.sb-brand{white-space:nowrap;overflow:hidden;}
+.sb-name{font-size:13px;font-weight:700;color:#fff;letter-spacing:-0.3px;}
+.sb-tagline{font-size:9px;color:rgba(255,255,255,0.28);letter-spacing:1.3px;text-transform:uppercase;}
+.sb-tog{margin-left:auto;background:rgba(255,255,255,0.06);border:none;width:26px;height:26px;border-radius:7px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:var(--tr);color:rgba(255,255,255,0.4);}
+.sb-tog:hover{background:rgba(255,255,255,0.12);color:#fff;}
+.sb-tog svg{width:13px;height:13px;}
+.sb-role{margin:8px 8px 4px;padding:7px 9px;border-radius:9px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);display:flex;align-items:center;gap:8px;white-space:nowrap;overflow:hidden;}
+.sb-role-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+.sb-role-name{font-size:11px;font-weight:600;color:rgba(255,255,255,0.7);}
+.sb-role-sub{font-size:9.5px;color:rgba(255,255,255,0.28);}
+.sidebar.collapsed .sb-role-name,.sidebar.collapsed .sb-role-sub{display:none;}
+.sb-nav{flex:1;padding:6px 8px;overflow-y:auto;overflow-x:hidden;}
+.sb-nav::-webkit-scrollbar{width:3px;}
+.sb-nav::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.1);border-radius:2px;}
+.sb-sect{margin-bottom:14px;}
+.sb-sect-lbl{font-size:9px;font-weight:600;color:rgba(255,255,255,0.2);letter-spacing:1.6px;text-transform:uppercase;padding:0 8px;margin-bottom:4px;white-space:nowrap;transition:var(--tr);}
+.sidebar.collapsed .sb-sect-lbl{opacity:0;}
+.ni{display:flex;align-items:center;gap:10px;padding:8px 8px;border-radius:10px;cursor:pointer;transition:var(--tr);color:rgba(255,255,255,0.38);font-size:12.5px;font-weight:500;position:relative;white-space:nowrap;margin-bottom:1px;}
+.ni:hover{background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.8);}
+.ni.active{background:rgba(0,207,168,0.13);color:#fff;}
+.ni.active .ni-icon{color:var(--cyan);}
+.ni-icon{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:var(--tr);}
+.ni.active .ni-icon{background:rgba(0,207,168,0.14);}
+.ni-icon svg{width:14px;height:14px;}
+.ni-lbl{transition:var(--tr);overflow:hidden;}
+.sidebar.collapsed .ni-lbl{width:0;opacity:0;}
+.ni-badge{margin-left:auto;font-size:9.5px;font-weight:700;padding:2px 6px;border-radius:20px;transition:var(--tr);}
+.ni-badge.red{background:var(--rose);color:#fff;}
+.ni-badge.amber{background:var(--amber);color:#fff;}
+.sidebar.collapsed .ni-badge{display:none;}
+.sb-tip{position:absolute;left:calc(var(--swc) + 8px);background:var(--ink3);color:#fff;font-size:11.5px;font-weight:500;padding:5px 10px;border-radius:7px;white-space:nowrap;pointer-events:none;opacity:0;transition:opacity 0.15s;z-index:400;box-shadow:var(--shm);}
+.sidebar.collapsed .ni:hover .sb-tip{opacity:1;}
+.sb-foot{padding:10px;border-top:1px solid rgba(255,255,255,0.05);display:flex;align-items:center;gap:9px;min-height:56px;}
+.sb-ava{width:30px;height:30px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;}
+.sb-uinfo{flex:1;white-space:nowrap;overflow:hidden;}
+.sb-uname{font-size:12px;font-weight:600;color:#fff;}
+.sb-urole{font-size:9.5px;color:rgba(255,255,255,0.3);}
+.sidebar.collapsed .sb-uinfo{display:none;}
+.sb-logout{background:rgba(255,61,90,0.12);border:none;width:26px;height:26px;border-radius:7px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--rose);transition:var(--tr);flex-shrink:0;}
+.sb-logout:hover{background:var(--rose);color:#fff;}
+.sb-logout svg{width:12px;height:12px;}
+.sidebar.collapsed .sb-logout{display:none;}
+
+/* MAIN */
+.main{margin-left:var(--sw);transition:var(--tr);min-height:100vh;display:flex;flex-direction:column;}
+.main.exp{margin-left:var(--swc);}
+.topbar{height:var(--th);background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 20px;gap:10px;position:sticky;top:0;z-index:200;}
+.tb-title{font-size:15px;font-weight:700;flex:1;letter-spacing:-0.3px;}
+.tb-date{font-size:11px;color:var(--muted);white-space:nowrap;}
+.tb-role{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:20px;border:1.5px solid var(--border2);}
+.tb-role-dot{width:6px;height:6px;border-radius:50%;}
+.tb-role-lbl{font-size:10.5px;font-weight:600;color:var(--muted);}
+.mob-menu{display:none;background:none;border:1.5px solid var(--border2);width:32px;height:32px;border-radius:8px;cursor:pointer;align-items:center;justify-content:center;color:var(--ink);}
+.mob-menu svg{width:14px;height:14px;}
+.offline-bar{display:none;padding:6px 20px;font-size:11.5px;font-weight:600;text-align:center;background:var(--amber);color:var(--ink);}
+.offline-bar.show{display:block;}
+
+/* CONTENT */
+.content{padding:20px;flex:1;}
+.page{display:none;animation:fadeUp 0.2s ease;}
+.page.active{display:block;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:none;}}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:9px;font-size:12.5px;font-weight:600;cursor:pointer;border:none;font-family:'Sora',sans-serif;transition:var(--tr);}
+.btn-primary{background:linear-gradient(135deg,var(--cyan),#00b8e0);color:#fff;box-shadow:0 3px 12px rgba(0,207,168,0.28);}
+.btn-primary:hover{transform:translateY(-1px);box-shadow:0 5px 18px rgba(0,207,168,0.36);}
+.btn-ghost{background:transparent;border:1.5px solid var(--border2);color:var(--ink);}
+.btn-ghost:hover{background:var(--s2);}
+.btn-danger{background:var(--rbg);border:1.5px solid rgba(255,61,90,0.2);color:var(--rose);}
+.btn-danger:hover{background:rgba(255,61,90,0.16);}
+.btn-amber{background:var(--abg);border:1.5px solid rgba(240,153,10,0.2);color:var(--amber);}
+.btn-sm{padding:5px 10px;font-size:11.5px;border-radius:7px;}
+.btn-xs{padding:3px 8px;font-size:11px;border-radius:6px;}
+.ibt{background:var(--s2);border:1px solid var(--border);width:29px;height:29px;border-radius:7px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:var(--tr);color:var(--muted);}
+.ibt:hover{background:var(--s3);color:var(--ink);}
+.ibt svg{width:12px;height:12px;}
+
+/* CARDS */
+.card{background:var(--surface);border-radius:var(--r);border:1px solid var(--border);box-shadow:var(--sh);}
+.cp{padding:20px;}
+.ch{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
+.ct{font-size:13px;font-weight:700;letter-spacing:-0.2px;}
+.cs{font-size:11.5px;color:var(--muted);}
+
+/* STATS */
+.srow{display:grid;gap:12px;margin-bottom:20px;}
+.srow-4{grid-template-columns:repeat(4,1fr);}
+.srow-3{grid-template-columns:repeat(3,1fr);}
+.sc{background:var(--surface);border-radius:var(--r);border:1px solid var(--border);padding:16px;box-shadow:var(--sh);position:relative;overflow:hidden;}
+.sc::after{content:'';position:absolute;top:-28px;right:-28px;width:88px;height:88px;border-radius:50%;opacity:0.05;}
+.sc.c-cy::after{background:var(--cyan);}
+.sc.c-bl::after{background:var(--blue);}
+.sc.c-am::after{background:var(--amber);}
+.sc.c-ro::after{background:var(--rose);}
+.sc.c-vi::after{background:var(--violet);}
+.sc.c-gr::after{background:var(--green);}
+.sc.c-te::after{background:var(--teal);}
+.sc.locked{background:var(--s2);}
+.si{width:36px;height:36px;border-radius:9px;display:flex;align-items:center;justify-content:center;margin-bottom:12px;}
+.si svg{width:16px;height:16px;}
+.sv{font-size:21px;font-weight:700;letter-spacing:-0.7px;margin-bottom:2px;font-family:'Instrument Serif',serif;}
+.sl{font-size:11px;color:var(--muted);font-weight:500;}
+.sd{font-size:10.5px;margin-top:4px;font-weight:600;}
+.up{color:var(--cyan-d);}
+.dn{color:var(--rose);}
+.lv{font-size:21px;font-weight:700;letter-spacing:3px;color:var(--muted2);filter:blur(4px);user-select:none;margin-bottom:2px;}
+.lm{font-size:10.5px;color:var(--muted);margin-top:4px;display:flex;align-items:center;gap:4px;}
+.lm svg{width:11px;height:11px;}
+
+/* BADGES */
+.bdg{display:inline-flex;align-items:center;padding:2px 8px;border-radius:20px;font-size:10.5px;font-weight:600;gap:4px;white-space:nowrap;}
+.b-cy{background:var(--cbg);color:var(--cyan-d);}
+.b-ro{background:var(--rbg);color:var(--rose);}
+.b-am{background:var(--abg);color:#9a6200;}
+.b-bl{background:var(--bbg);color:var(--blue);}
+.b-vi{background:var(--vbg);color:var(--violet);}
+.b-gr{background:var(--s3);color:var(--muted);}
+.b-gn{background:var(--gbg);color:var(--green);}
+.b-gd{background:var(--gdbg);color:var(--gold);}
+.b-pk{background:var(--pbg);color:var(--pink);}
+.b-te{background:var(--tbg);color:var(--teal);}
+
+/* FORMS */
+.fg{display:flex;flex-direction:column;gap:5px;}
+.fgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.fg.full{grid-column:1/-1;}
+.fg.third{grid-column:span 1;}
+.flbl{font-size:10.5px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.6px;}
+.fi,.fsel,.fta{padding:8px 11px;border-radius:8px;border:1.5px solid var(--border2);font-family:'Sora',sans-serif;font-size:12.5px;color:var(--ink);background:var(--surface);outline:none;transition:var(--tr);width:100%;}
+.fi:focus,.fsel:focus,.fta:focus{border-color:var(--cyan);box-shadow:0 0 0 3px rgba(0,207,168,0.1);}
+.fta{resize:vertical;min-height:64px;}
+.fi::placeholder{color:var(--muted2);}
+.fi-sm{padding:6px 9px;font-size:12px;}
+
+/* MODAL */
+.mo{display:none;position:fixed;inset:0;background:rgba(6,12,26,0.55);z-index:500;align-items:center;justify-content:center;padding:16px;backdrop-filter:blur(5px);}
+.mo.open{display:flex;}
+.md{background:var(--surface);border-radius:18px;width:100%;max-width:560px;max-height:92vh;overflow-y:auto;box-shadow:var(--shl);animation:mdIn 0.18s ease;}
+.md-lg{max-width:720px;}
+.md-xl{max-width:900px;}
+@keyframes mdIn{from{opacity:0;transform:scale(0.96) translateY(8px);}to{opacity:1;transform:none;}}
+.mh{display:flex;align-items:center;justify-content:space-between;padding:20px 22px 0;margin-bottom:18px;}
+.mt{font-size:15px;font-weight:700;letter-spacing:-0.4px;}
+.mc{background:var(--s2);border:none;width:28px;height:28px;border-radius:50%;cursor:pointer;font-size:13px;color:var(--muted);display:flex;align-items:center;justify-content:center;transition:var(--tr);}
+.mc:hover{background:var(--rbg);color:var(--rose);}
+.mb{padding:0 22px 22px;}
+.ma{display:flex;justify-content:flex-end;gap:10px;margin-top:18px;}
+
+/* TOAST */
+.tw{position:fixed;bottom:18px;right:18px;z-index:9999;display:flex;flex-direction:column;gap:6px;}
+.tos{background:var(--ink2);color:#fff;padding:10px 15px;border-radius:10px;font-size:12.5px;font-weight:500;box-shadow:var(--shm);animation:tsIn 0.22s ease;display:flex;align-items:center;gap:9px;max-width:300px;}
+.td{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+.tos.ok .td{background:var(--cyan);}
+.tos.err .td{background:var(--rose);}
+.tos.warn .td{background:var(--amber);}
+@keyframes tsIn{from{opacity:0;transform:translateX(22px);}to{opacity:1;transform:none;}}
+
+/* TABLE */
+.tw2{overflow-x:auto;border-radius:var(--r);}
+table{width:100%;border-collapse:collapse;}
+thead th{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.8px;padding:9px 13px;background:var(--s2);border-bottom:1px solid var(--border);white-space:nowrap;}
+tbody td{padding:11px 13px;font-size:12.5px;border-bottom:1px solid var(--border);}
+tbody tr:last-child td{border-bottom:none;}
+tbody tr:hover td{background:var(--s2);}
+
+/* AVATAR */
+.av{border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;color:#fff;flex-shrink:0;}
+
+/* SEARCH */
+.sbar{display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap;}
+.swrap{flex:1;min-width:160px;position:relative;}
+.swrap svg{position:absolute;left:9px;top:50%;transform:translateY(-50%);width:13px;height:13px;color:var(--muted);pointer-events:none;}
+.spl{padding-left:30px!important;}
+
+/* CALENDAR */
+.cal-layout{display:grid;grid-template-columns:1fr 290px;gap:14px;}
+.cal-head{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;margin-bottom:2px;}
+.cdlbl{text-align:center;font-size:9.5px;font-weight:700;color:var(--muted);padding:3px;text-transform:uppercase;}
+.cgrid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;}
+.cc{aspect-ratio:1;border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;font-size:11.5px;font-weight:500;color:var(--muted);transition:var(--tr);position:relative;}
+.cc:hover{background:var(--s2);}
+.cc.tod{background:var(--ink);color:#fff;font-weight:700;}
+.cc.sel{background:var(--cbg);color:var(--cyan-d);font-weight:700;}
+.cc.sel.tod{background:var(--ink);color:#fff;}
+.cc.om{opacity:0.22;}
+.cc.ha::after{content:'';position:absolute;bottom:3px;left:50%;transform:translateX(-50%);width:4px;height:4px;border-radius:50%;background:var(--cyan);}
+.cc.tod::after{background:rgba(255,255,255,0.6);}
+
+/* EMR SPECIFIC */
+.rx-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;}
+.rx-cell{background:var(--s2);border-radius:8px;padding:10px;}
+.rx-label{font-size:9.5px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;}
+.rx-value{font-size:14px;font-weight:700;color:var(--ink);}
+.rx-sub{font-size:10px;color:var(--muted);margin-top:2px;}
+
+/* IOP */
+.iop-display{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.iop-eye{background:var(--s2);border-radius:10px;padding:14px;text-align:center;}
+.iop-val{font-size:28px;font-weight:700;font-family:'Instrument Serif',serif;}
+.iop-unit{font-size:11px;color:var(--muted);}
+.iop-status{font-size:11px;font-weight:600;margin-top:4px;}
+
+/* INVENTORY */
+.inv-card{background:var(--surface);border-radius:var(--r);border:1px solid var(--border);box-shadow:var(--sh);padding:14px 16px;display:flex;align-items:center;gap:14px;cursor:pointer;transition:var(--tr);}
+.inv-card:hover{border-color:var(--cyan);transform:translateY(-1px);}
+.inv-thumb{width:44px;height:44px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.inv-thumb svg{width:20px;height:20px;}
+.inv-info{flex:1;min-width:0;}
+.inv-name{font-size:13px;font-weight:600;}
+.inv-meta{font-size:11px;color:var(--muted);margin-top:2px;}
+.inv-stock{text-align:right;}
+.inv-qty{font-size:18px;font-weight:700;font-family:'Instrument Serif',serif;}
+.inv-qlbl{font-size:10px;color:var(--muted);}
+.stock-bar{height:4px;border-radius:2px;background:var(--s3);margin-top:6px;overflow:hidden;}
+.stock-fill{height:100%;border-radius:2px;transition:width 0.4s;}
+
+/* REMINDER CHIP */
+.rem-chip{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;border:1px solid var(--border);background:var(--surface);margin-bottom:8px;}
+.rem-chip:last-child{margin-bottom:0;}
+.rem-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+
+/* SURGICAL PLAN */
+.surg-section{background:var(--s2);border-radius:10px;padding:14px;margin-bottom:12px;}
+.surg-section-title{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.7px;margin-bottom:10px;}
+
+/* TABS */
+.tabs{display:flex;gap:4px;margin-bottom:18px;border-bottom:1px solid var(--border);padding-bottom:0;}
+.tab{padding:9px 16px;font-size:12.5px;font-weight:600;cursor:pointer;color:var(--muted);border-bottom:2px solid transparent;margin-bottom:-1px;transition:var(--tr);}
+.tab:hover{color:var(--ink);}
+.tab.active{color:var(--cyan-d);border-bottom-color:var(--cyan);}
+.tab-panel{display:none;}
+.tab-panel.active{display:block;}
+
+/* SECTION DIVIDER */
+.sec-div{display:flex;align-items:center;gap:12px;margin:16px 0 12px;}
+.sec-div-line{flex:1;height:1px;background:var(--border);}
+.sec-div-label{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.8px;white-space:nowrap;}
+
+/* APPOINTMENT SLOT */
+.arow{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);}
+.arow:last-child{border-bottom:none;}
+.at{font-size:11.5px;font-weight:700;color:var(--blue);min-width:46px;}
+.aav{border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10.5px;font-weight:700;color:#fff;flex-shrink:0;}
+
+/* ALERT BANNER */
+.alert{display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:10px;font-size:12.5px;margin-bottom:12px;}
+.alert-warn{background:var(--abg);border:1px solid rgba(240,153,10,0.2);color:#7a4e00;}
+.alert-info{background:var(--cbg);border:1px solid rgba(0,207,168,0.2);color:var(--cyan-d);}
+.alert svg{width:16px;height:16px;flex-shrink:0;}
+
+/* RESPONSIVE */
+@media(max-width:1200px){.srow-4{grid-template-columns:repeat(2,1fr);}.cal-layout{grid-template-columns:1fr;}.dash-grid-wrap{grid-template-columns:1fr!important;}}
+@media(max-width:900px){.rx-grid{grid-template-columns:repeat(2,1fr);}.iop-display{grid-template-columns:1fr 1fr;}}
+@media(max-width:768px){
+  .sidebar{left:-100%;width:286px;}.sidebar.mob-open{left:0;}
+  .main{margin-left:0!important;}.content{padding:12px;}
+  .mob-menu{display:flex;}.topbar{padding:0 12px;}
+  .fgrid{grid-template-columns:1fr;}.srow-4{grid-template-columns:1fr 1fr;}
+  .tb-date{display:none;}.cal-layout{grid-template-columns:1fr;}
+  .rx-grid{grid-template-columns:1fr 1fr;}
+}
+@media(max-width:480px){.srow-4,.srow-3{grid-template-columns:1fr 1fr;}.sc{padding:12px;}.sv{font-size:18px;}}
+</style>
+</head>
+<body>
+<!-- ══ LOGIN ══ -->
+<div id="loginScreen">
+  <div class="l-art">
+    <div class="l-art-inner">
+      <div class="l-eye">
+        <svg viewBox="0 0 48 48" fill="none" stroke-linecap="round" stroke-width="2.5">
+          <defs><linearGradient id="eg" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#00cfa8"/><stop offset="100%" stop-color="#3361ff"/></linearGradient></defs>
+          <ellipse cx="24" cy="24" rx="20" ry="12" stroke="url(#eg)"/>
+          <circle cx="24" cy="24" r="8" fill="url(#eg)" opacity="0.9"/>
+          <circle cx="24" cy="24" r="3" fill="#fff"/>
+          <circle cx="26" cy="22" r="1.5" fill="rgba(255,255,255,0.6)"/>
+        </svg>
+      </div>
+      <div class="l-title">ClearVision<br><em>Eye Clinic EMR</em></div>
+      <div class="l-sub">Complete ophthalmology practice management — examinations, surgical planning, inventory &amp; billing.</div>
+      <div class="l-features">
+        <div class="l-feat"><div class="l-feat-dot"></div>Full Eye Examination &amp; Refraction Records</div>
+        <div class="l-feat"><div class="l-feat-dot"></div>Cataract Surgical Planning (IOL Calculator)</div>
+        <div class="l-feat"><div class="l-feat-dot"></div>Optical Inventory — Frames, Lenses &amp; Contacts</div>
+        <div class="l-feat"><div class="l-feat-dot"></div>Automated Appointment Reminders</div>
+        <div class="l-feat"><div class="l-feat-dot"></div>Role-based Access · Works 100% Offline</div>
+      </div>
+    </div>
+  </div>
+  <div class="l-panel">
+    <div class="l-logo">
+      <div class="l-logo-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round"><ellipse cx="12" cy="12" rx="10" ry="6"/><circle cx="12" cy="12" r="3" fill="#fff" stroke="none"/></svg></div>
+      <div><div class="l-logo-name">ClearVision</div><div class="l-logo-sub">Eye Clinic EMR</div></div>
+    </div>
+    <div style="font-size:14px;font-weight:700;margin-bottom:4px;">Welcome back</div>
+    <div style="font-size:12px;color:var(--muted);margin-bottom:18px;">Select your role and enter PIN to continue</div>
+    <div class="role-grid">
+      <div class="role-card active" id="rc-doctor" onclick="selRole('doctor',this)">
+        <div class="role-card-icon" style="background:var(--gdbg);color:var(--gold);"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></div>
+        <div class="role-card-name">Doctor</div><div class="role-card-sub">Full access</div>
+      </div>
+      <div class="role-card" id="rc-receptionist" onclick="selRole('receptionist',this)">
+        <div class="role-card-icon" style="background:var(--bbg);color:var(--blue);"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
+        <div class="role-card-name">Receptionist</div><div class="role-card-sub">Limited access</div>
+      </div>
+    </div>
+    <div style="font-size:12px;font-weight:600;margin-bottom:2px;" id="pinLbl">Doctor PIN</div>
+    <div style="font-size:11px;color:var(--muted);margin-bottom:4px;">Enter your 4-digit PIN</div>
+    <div class="pin-row"><div class="pin-dot" id="pd0"></div><div class="pin-dot" id="pd1"></div><div class="pin-dot" id="pd2"></div><div class="pin-dot" id="pd3"></div></div>
+    <div class="pin-err" id="pinErr"></div>
+    <div class="pin-pad">
+      <button class="pk" onclick="pk('1')">1</button><button class="pk" onclick="pk('2')">2</button><button class="pk" onclick="pk('3')">3</button>
+      <button class="pk" onclick="pk('4')">4</button><button class="pk" onclick="pk('5')">5</button><button class="pk" onclick="pk('6')">6</button>
+      <button class="pk" onclick="pk('7')">7</button><button class="pk" onclick="pk('8')">8</button><button class="pk" onclick="pk('9')">9</button>
+      <button class="pk clr" onclick="pkClr()">Clear</button><button class="pk z" onclick="pk('0')">0</button>
+      <button class="pk del" onclick="pkDel()"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 4H8l-7 8 7 8h13a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2z"/><line x1="18" y1="9" x2="12" y2="15"/><line x1="12" y1="9" x2="18" y2="15"/></svg></button>
+    </div>
+    <div class="pin-hint">
+      <div class="pin-hint-title">Default PINs (change in Settings)</div>
+      <div class="pin-hint-row"><span class="pin-hint-label">Doctor</span><span class="pin-chip" id="hDoc">1234</span></div>
+      <div class="pin-hint-row"><span class="pin-hint-label">Receptionist</span><span class="pin-chip" id="hRec">5678</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ APP SHELL ══ -->
+<div id="appShell" class="hidden">
+  <aside class="sidebar" id="sidebar">
+    <div class="sb-top">
+      <div class="sb-logo"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round"><ellipse cx="12" cy="12" rx="10" ry="6"/><circle cx="12" cy="12" r="3" fill="#fff" stroke="none"/></svg></div>
+      <div class="sb-brand"><div class="sb-name">ClearVision EMR</div><div class="sb-tagline">Eye Clinic System</div></div>
+      <button class="sb-tog" onclick="togSB()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
+    </div>
+    <div class="sb-role" id="sbRole">
+      <div class="sb-role-dot" id="sbRoleDot"></div>
+      <div><div class="sb-role-name" id="sbRoleName"></div><div class="sb-role-sub" id="sbRoleSub"></div></div>
+    </div>
+    <nav class="sb-nav">
+      <div class="sb-sect">
+        <div class="sb-sect-lbl">Overview</div>
+        <div class="ni active" onclick="goPage('dashboard',this)"><div class="ni-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></div><span class="ni-lbl">Dashboard</span><span class="sb-tip">Dashboard</span></div>
+      </div>
+      <div class="sb-sect">
+        <div class="sb-sect-lbl">Clinical</div>
+        <div class="ni" onclick="goPage('patients',this)"><div class="ni-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></div><span class="ni-lbl">Patients</span><span class="sb-tip">Patients</span></div>
+        <div class="ni" onclick="goPage('emr',this)"><div class="ni-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg></div><span class="ni-lbl">Eye Examinations</span><span class="sb-tip">Examinations</span></div>
+        <div class="ni" onclick="goPage('surgical',this)"><div class="ni-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg></div><span class="ni-lbl">Surgical Planning</span><span class="sb-tip">Surgical</span></div>
+        <div class="ni" onclick="goPage('appointments',this)"><div class="ni-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div><span class="ni-lbl">Appointments</span><span class="ni-badge red" id="apptBadge" style="display:none;">0</span><span class="sb-tip">Appointments</span></div>
+      </div>
+      <div class="sb-sect">
+        <div class="sb-sect-lbl">Operations</div>
+        <div class="ni" onclick="goPage('inventory',this)"><div class="ni-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg></div><span class="ni-lbl">Inventory</span><span class="ni-badge amber" id="invBadge" style="display:none;">0</span><span class="sb-tip">Inventory</span></div>
+        <div class="ni" id="navBilling" onclick="goPage('billing',this)"><div class="ni-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg></div><span class="ni-lbl">Billing</span><span class="sb-tip">Billing</span></div>
+        <div class="ni" id="navSettings" onclick="goPage('settings',this)"><div class="ni-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></div><span class="ni-lbl">Settings</span><span class="sb-tip">Settings</span></div>
+      </div>
+    </nav>
+    <div class="sb-foot">
+      <div class="sb-ava" id="sbAva"></div>
+      <div class="sb-uinfo"><div class="sb-uname" id="sbUname"></div><div class="sb-urole" id="sbUrole"></div></div>
+      <button class="sb-logout" onclick="logout()" title="Sign out"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg></button>
+    </div>
+  </aside>
+  <div class="sb-overlay" id="sbOvl" onclick="closeMobSB()"></div>
+
+  <div class="main" id="main">
+    <div class="offline-bar" id="offBar"></div>
+    <header class="topbar">
+      <button class="mob-menu" onclick="openMobSB()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
+      <div class="tb-title" id="tbTitle">Dashboard</div>
+      <div class="tb-date" id="tbDate"></div>
+      <div class="tb-role"><div class="tb-role-dot" id="tbRoleDot"></div><span class="tb-role-lbl" id="tbRoleLbl"></span></div>
+      <div id="tbActions"></div>
+    </header>
+
+    <!-- DASHBOARD -->
+    <div id="page-dashboard" class="page active content">
+      <div class="srow srow-4" id="dashStats"></div>
+      <div style="display:grid;grid-template-columns:1fr 300px;gap:16px;flex-wrap:wrap;" id="dashGrid" class="dash-grid-wrap">
+        <div style="display:flex;flex-direction:column;gap:14px;">
+          <div class="card cp">
+            <div class="ch"><div><div class="ct">Today's Schedule</div><div class="cs" id="dashDate"></div></div><button class="btn btn-ghost btn-sm" onclick="goPage('appointments',document.querySelector('[onclick*=appointments]'))">View all →</button></div>
+            <div id="dashApptList"></div>
+          </div>
+          <div class="card cp" id="dashLowStockCard"></div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:14px;">
+          <div class="card cp">
+            <div class="ct" style="margin-bottom:14px;">Quick Actions</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;" id="dashQA"></div>
+          </div>
+          <div class="card cp" id="dashPendCard"></div>
+          <div class="card cp" id="dashRemCard"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PATIENTS -->
+    <div id="page-patients" class="page content">
+      <div class="sbar">
+        <div class="swrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input class="fi spl" type="text" placeholder="Search patients…" oninput="renderPts(this.value)"></div>
+        <select class="fsel" style="width:130px;" onchange="renderPts()"><option value="">All Status</option><option>Active</option><option>New</option><option>Inactive</option></select>
+        <button class="btn btn-primary" onclick="openMod('patient')"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Register</button>
+      </div>
+      <div class="card"><div class="tw2"><table><thead><tr><th>Patient</th><th>Age</th><th>Phone</th><th>Last Exam</th><th>Diagnosis</th><th>Status</th><th></th></tr></thead><tbody id="ptBody"></tbody></table></div></div>
+    </div>
+
+    <!-- EYE EXAMINATIONS / EMR -->
+    <div id="page-emr" class="page content">
+      <div class="sbar">
+        <div class="swrap" style="flex:1;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input class="fi spl" type="text" placeholder="Search examinations…" oninput="renderEMR(this.value)"></div>
+        <select class="fsel" style="width:160px;" id="emrFilter" onchange="renderEMR()"><option value="">All Types</option><option>Eye Examination</option><option>Refraction</option><option>Glaucoma Assessment</option><option>Retinal Exam</option><option>Paediatric</option></select>
+        <button class="btn btn-primary" onclick="openMod('emr')"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>New Examination</button>
+      </div>
+      <div class="card"><div class="tw2"><table><thead><tr><th>Patient</th><th>Date</th><th>Type</th><th>VA (R/L)</th><th>IOP (R/L)</th><th>Diagnosis</th><th>Doctor</th><th></th></tr></thead><tbody id="emrBody"></tbody></table></div></div>
+    </div>
+
+    <!-- SURGICAL PLANNING -->
+    <div id="page-surgical" class="page content">
+      <div class="sbar">
+        <div class="swrap" style="flex:1;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input class="fi spl" type="text" placeholder="Search surgical plans…" oninput="renderSurg(this.value)"></div>
+        <select class="fsel" style="width:150px;" id="surgFilter" onchange="renderSurg()"><option value="">All Status</option><option>Planned</option><option>Scheduled</option><option>Completed</option><option>Cancelled</option></select>
+        <button class="btn btn-primary" onclick="openMod('surgical')"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>New Surgical Plan</button>
+      </div>
+      <div class="card"><div class="tw2"><table><thead><tr><th>Patient</th><th>Procedure</th><th>Eye</th><th>IOL Power</th><th>Keratometry</th><th>Axial Length</th><th>Surg Date</th><th>Status</th><th></th></tr></thead><tbody id="surgBody"></tbody></table></div></div>
+    </div>
+
+    <!-- APPOINTMENTS -->
+    <div id="page-appointments" class="page content">
+      <div style="display:flex;justify-content:flex-end;margin-bottom:14px;gap:8px;">
+        <button class="btn btn-ghost btn-sm" onclick="openRemModal();openMod('reminder')"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>Reminders</button>
+        <button class="btn btn-primary" onclick="openMod('appointment')"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Book Appointment</button>
+      </div>
+      <div class="cal-layout">
+        <div>
+          <div class="card cp" style="margin-bottom:14px;">
+            <div class="ch"><button class="ibt" onclick="chMon(-1)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" width="12" height="12"><polyline points="15 18 9 12 15 6"/></svg></button><div class="ct" id="calLbl"></div><button class="ibt" onclick="chMon(1)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" width="12" height="12"><polyline points="9 18 15 12 9 6"/></svg></button></div>
+            <div class="cal-head"><div class="cdlbl">Su</div><div class="cdlbl">Mo</div><div class="cdlbl">Tu</div><div class="cdlbl">We</div><div class="cdlbl">Th</div><div class="cdlbl">Fr</div><div class="cdlbl">Sa</div></div>
+            <div class="cgrid" id="calGrid"></div>
+          </div>
+          <div class="card cp"><div class="ct" id="slotLbl" style="margin-bottom:12px;"></div><div id="slotList"></div></div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:14px;">
+          <div class="card cp"><div class="ct" style="margin-bottom:12px;">Upcoming</div><div id="upcomingList"></div></div>
+          <div class="card cp" id="remindersPanel"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- INVENTORY -->
+    <div id="page-inventory" class="page content">
+      <div id="invAlerts"></div>
+      <div class="tabs" id="invTabs">
+        <div class="tab active" onclick="switchInvTab('frames',this)">Frames</div>
+        <div class="tab" onclick="switchInvTab('lenses',this)">Prescription Lenses</div>
+        <div class="tab" onclick="switchInvTab('contacts',this)">Contact Lenses</div>
+        <div class="tab" onclick="switchInvTab('consumables',this)">Consumables</div>
+      </div>
+      <div class="sbar">
+        <div class="swrap" style="flex:1;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input class="fi spl" type="text" id="invSearch" placeholder="Search inventory…" oninput="renderInv()"></div>
+        <select class="fsel" style="width:130px;" id="invStockFilter" onchange="renderInv()"><option value="">All Stock</option><option value="low">Low Stock</option><option value="ok">In Stock</option></select>
+        <button class="btn btn-primary" onclick="openMod('invItem')"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Add Item</button>
+      </div>
+      <div id="invGrid"></div>
+    </div>
+
+    <!-- BILLING -->
+    <div id="page-billing" class="page content">
+      <div class="srow srow-3" id="billStats"></div>
+      <div class="sbar">
+        <div class="swrap" style="flex:1;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input class="fi spl" type="text" placeholder="Search invoices…" oninput="renderBilling(this.value)"></div>
+        <select class="fsel" style="width:120px;" id="billFilter" onchange="renderBilling()"><option value="">All</option><option>Paid</option><option>Pending</option><option>Overdue</option></select>
+        <button class="btn btn-primary" onclick="openMod('invoice')"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>New Invoice</button>
+      </div>
+      <div class="card"><div id="billList"></div></div>
+    </div>
+
+    <!-- SETTINGS -->
+    <div id="page-settings" class="page content">
+      <div style="max-width:600px;display:flex;flex-direction:column;gap:14px;">
+        <div class="card cp">
+          <div class="ct" style="margin-bottom:4px;">Change PINs</div>
+          <div class="cs" style="margin-bottom:16px;">Update access PINs for each role</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+            <div>
+              <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;"><div style="width:8px;height:8px;border-radius:50%;background:var(--gold);"></div><span style="font-size:13px;font-weight:600;">Doctor PIN</span></div>
+              <div class="fg" style="margin-bottom:8px;"><label class="flbl">Current PIN</label><input class="fi" type="password" maxlength="4" id="dCur" placeholder="••••"></div>
+              <div class="fg" style="margin-bottom:8px;"><label class="flbl">New PIN</label><input class="fi" type="password" maxlength="4" id="dNew" placeholder="••••"></div>
+              <div class="fg" style="margin-bottom:10px;"><label class="flbl">Confirm</label><input class="fi" type="password" maxlength="4" id="dCon" placeholder="••••"></div>
+              <button class="btn btn-primary btn-sm" style="width:100%;" onclick="chgPin('doctor')">Update Doctor PIN</button>
+            </div>
+            <div>
+              <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;"><div style="width:8px;height:8px;border-radius:50%;background:var(--blue);"></div><span style="font-size:13px;font-weight:600;">Receptionist PIN</span></div>
+              <div class="fg" style="margin-bottom:8px;"><label class="flbl">Current PIN</label><input class="fi" type="password" maxlength="4" id="rCur" placeholder="••••"></div>
+              <div class="fg" style="margin-bottom:8px;"><label class="flbl">New PIN</label><input class="fi" type="password" maxlength="4" id="rNew" placeholder="••••"></div>
+              <div class="fg" style="margin-bottom:10px;"><label class="flbl">Confirm</label><input class="fi" type="password" maxlength="4" id="rCon" placeholder="••••"></div>
+              <button class="btn btn-primary btn-sm" style="width:100%;" onclick="chgPin('receptionist')">Update Receptionist PIN</button>
+            </div>
+          </div>
+        </div>
+        <div class="card cp">
+          <div class="ct" style="margin-bottom:4px;">Clinic Information</div>
+          <div class="fgrid" style="margin-top:12px;">
+            <div class="fg full"><label class="flbl">Clinic Name</label><input class="fi" id="sClinicName" placeholder="ClearVision Eye Clinic"></div>
+            <div class="fg"><label class="flbl">Phone</label><input class="fi" id="sClinicPhone" placeholder="+234…"></div>
+            <div class="fg"><label class="flbl">Email</label><input class="fi" id="sClinicEmail" placeholder="clinic@email.com"></div>
+            <div class="fg full"><label class="flbl">Address</label><input class="fi" id="sClinicAddr" placeholder="Clinic address"></div>
+            <div class="fg full"><label class="flbl">Low Stock Alert Threshold</label><input class="fi" id="sLowStock" type="number" min="1" placeholder="5" value="5"></div>
+          </div>
+          <div class="ma"><button class="btn btn-primary" onclick="saveSettings()">Save Settings</button></div>
+        </div>
+        <div class="card cp">
+          <div class="ct" style="margin-bottom:4px;">Access Levels</div>
+          <div class="cs" style="margin-bottom:14px;">Role permissions overview</div>
+          <table style="width:100%;border-collapse:collapse;font-size:12px;">
+            <thead><tr><th style="text-align:left;padding:7px 0;color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:0.6px;border-bottom:1px solid var(--border);">Feature</th><th style="padding:7px 12px;color:var(--gold);font-size:10px;text-transform:uppercase;border-bottom:1px solid var(--border);">Doctor</th><th style="padding:7px 12px;color:var(--blue);font-size:10px;text-transform:uppercase;border-bottom:1px solid var(--border);">Receptionist</th></tr></thead>
+            <tbody id="accessTable"></tbody>
+          </table>
+        </div>
+        <div class="card cp" style="background:var(--rbg);border-color:rgba(255,61,90,0.18);">
+          <div style="font-size:13px;font-weight:700;color:var(--rose);margin-bottom:4px;">Danger Zone</div>
+          <div style="font-size:12px;color:var(--muted);margin-bottom:12px;">Permanently delete all clinic data. Cannot be undone.</div>
+          <button class="btn btn-danger" onclick="clearAll()">Clear All Data</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="tw" id="toastWrap"></div>
+<!-- ══ MODALS ══ -->
+<!-- Patient -->
+<div class="mo" id="mod-patient" onclick="ovClose(event,'patient')"><div class="md"><div class="mh"><div class="mt" id="ptMT">Register Patient</div><button class="mc" onclick="closeMod('patient')">✕</button></div><div class="mb">
+  <input type="hidden" id="pt-eid">
+  <div class="fgrid">
+    <div class="fg"><label class="flbl">First Name *</label><input class="fi" id="pt-fn" placeholder="First name"></div>
+    <div class="fg"><label class="flbl">Last Name *</label><input class="fi" id="pt-ln" placeholder="Last name"></div>
+    <div class="fg"><label class="flbl">Date of Birth</label><input class="fi" id="pt-dob" type="date"></div>
+    <div class="fg"><label class="flbl">Gender</label><select class="fsel" id="pt-gen"><option>Female</option><option>Male</option><option>Other</option></select></div>
+    <div class="fg"><label class="flbl">Phone *</label><input class="fi" id="pt-ph" placeholder="+234…"></div>
+    <div class="fg"><label class="flbl">Email</label><input class="fi" id="pt-em" type="email" placeholder="email@example.com"></div>
+    <div class="fg full"><label class="flbl">Address</label><input class="fi" id="pt-ad" placeholder="Home address"></div>
+    <div class="fg"><label class="flbl">Blood Group</label><select class="fsel" id="pt-bl"><option value="">Unknown</option><option>A+</option><option>A-</option><option>B+</option><option>B-</option><option>AB+</option><option>AB-</option><option>O+</option><option>O-</option></select></div>
+    <div class="fg"><label class="flbl">Status</label><select class="fsel" id="pt-st"><option>New</option><option>Active</option><option>Inactive</option></select></div>
+    <div class="fg"><label class="flbl">Allergies</label><input class="fi" id="pt-al" placeholder="Known allergies…"></div>
+    <div class="fg"><label class="flbl">Occupation</label><input class="fi" id="pt-oc" placeholder="Occupation"></div>
+    <div class="fg full"><label class="flbl">Medical History / Notes</label><textarea class="fta" id="pt-nt" placeholder="PMH, presenting complaint, referral…"></textarea></div>
+  </div>
+  <div class="ma"><button class="btn btn-ghost" onclick="closeMod('patient')">Cancel</button><button class="btn btn-primary" onclick="savePt()">Save Patient</button></div>
+</div></div></div>
+
+<!-- Eye Examination / EMR -->
+<div class="mo" id="mod-emr" onclick="ovClose(event,'emr')"><div class="md md-xl"><div class="mh"><div class="mt" id="emrMT">New Eye Examination</div><button class="mc" onclick="closeMod('emr')">✕</button></div><div class="mb">
+  <input type="hidden" id="emr-eid">
+  <div class="fgrid">
+    <div class="fg full"><label class="flbl">Patient *</label><select class="fsel" id="emr-pt"><option value="">Select patient…</option></select></div>
+    <div class="fg"><label class="flbl">Date *</label><input class="fi" id="emr-date" type="date"></div>
+    <div class="fg"><label class="flbl">Examination Type</label><select class="fsel" id="emr-type"><option>Eye Examination</option><option>Refraction</option><option>Glaucoma Assessment</option><option>Retinal Exam</option><option>Paediatric</option><option>Pre-op Assessment</option><option>Post-op Review</option></select></div>
+    <div class="fg"><label class="flbl">Examining Doctor</label><input class="fi" id="emr-doc" placeholder="Dr. Name"></div>
+    <div class="fg"><label class="flbl">Chief Complaint</label><input class="fi" id="emr-cc" placeholder="e.g. Blurred vision, headache…"></div>
+  </div>
+  <div class="sec-div"><div class="sec-div-line"></div><div class="sec-div-label">Visual Acuity (Unaided)</div><div class="sec-div-line"></div></div>
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;">
+    <div class="fg"><label class="flbl">RE Distance</label><input class="fi fi-sm" id="va-rdu" placeholder="6/6"></div>
+    <div class="fg"><label class="flbl">LE Distance</label><input class="fi fi-sm" id="va-ldu" placeholder="6/6"></div>
+    <div class="fg"><label class="flbl">RE Near</label><input class="fi fi-sm" id="va-rnu" placeholder="N6"></div>
+    <div class="fg"><label class="flbl">LE Near</label><input class="fi fi-sm" id="va-lnu" placeholder="N6"></div>
+  </div>
+  <div class="sec-div"><div class="sec-div-line"></div><div class="sec-div-label">Visual Acuity (Best Corrected)</div><div class="sec-div-line"></div></div>
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;">
+    <div class="fg"><label class="flbl">RE Distance</label><input class="fi fi-sm" id="va-rdc" placeholder="6/6"></div>
+    <div class="fg"><label class="flbl">LE Distance</label><input class="fi fi-sm" id="va-ldc" placeholder="6/6"></div>
+    <div class="fg"><label class="flbl">RE Near</label><input class="fi fi-sm" id="va-rnc" placeholder="N6"></div>
+    <div class="fg"><label class="flbl">LE Near</label><input class="fi fi-sm" id="va-lnc" placeholder="N6"></div>
+  </div>
+  <div class="sec-div"><div class="sec-div-line"></div><div class="sec-div-label">Refraction (Right Eye)</div><div class="sec-div-line"></div></div>
+  <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:8px;">
+    <div class="fg"><label class="flbl">Sph</label><input class="fi fi-sm" id="rx-rs" placeholder="+0.00"></div>
+    <div class="fg"><label class="flbl">Cyl</label><input class="fi fi-sm" id="rx-rc" placeholder="-0.00"></div>
+    <div class="fg"><label class="flbl">Axis</label><input class="fi fi-sm" id="rx-ra" placeholder="0°"></div>
+    <div class="fg"><label class="flbl">Add</label><input class="fi fi-sm" id="rx-rad" placeholder="+0.00"></div>
+    <div class="fg"><label class="flbl">Prism</label><input class="fi fi-sm" id="rx-rp" placeholder="—"></div>
+  </div>
+  <div class="sec-div"><div class="sec-div-line"></div><div class="sec-div-label">Refraction (Left Eye)</div><div class="sec-div-line"></div></div>
+  <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:8px;">
+    <div class="fg"><label class="flbl">Sph</label><input class="fi fi-sm" id="rx-ls" placeholder="+0.00"></div>
+    <div class="fg"><label class="flbl">Cyl</label><input class="fi fi-sm" id="rx-lc" placeholder="-0.00"></div>
+    <div class="fg"><label class="flbl">Axis</label><input class="fi fi-sm" id="rx-la" placeholder="0°"></div>
+    <div class="fg"><label class="flbl">Add</label><input class="fi fi-sm" id="rx-lad" placeholder="+0.00"></div>
+    <div class="fg"><label class="flbl">Prism</label><input class="fi fi-sm" id="rx-lp" placeholder="—"></div>
+  </div>
+  <div class="sec-div"><div class="sec-div-line"></div><div class="sec-div-label">Intraocular Pressure</div><div class="sec-div-line"></div></div>
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;">
+    <div class="fg"><label class="flbl">RE IOP (mmHg)</label><input class="fi fi-sm" id="iop-r" placeholder="e.g. 16" type="number"></div>
+    <div class="fg"><label class="flbl">LE IOP (mmHg)</label><input class="fi fi-sm" id="iop-l" placeholder="e.g. 15" type="number"></div>
+    <div class="fg"><label class="flbl">Method</label><select class="fsel fi-sm" id="iop-m"><option>Non-contact tonometry</option><option>Goldmann applanation</option><option>iCare rebound</option></select></div>
+  </div>
+  <div class="sec-div"><div class="sec-div-line"></div><div class="sec-div-label">Anterior &amp; Posterior Segment</div><div class="sec-div-line"></div></div>
+  <div class="fgrid">
+    <div class="fg"><label class="flbl">Anterior Segment (RE)</label><textarea class="fta" id="ant-r" placeholder="Cornea clear, lens transparent…" style="min-height:52px;"></textarea></div>
+    <div class="fg"><label class="flbl">Anterior Segment (LE)</label><textarea class="fta" id="ant-l" placeholder="Cornea clear, lens transparent…" style="min-height:52px;"></textarea></div>
+    <div class="fg"><label class="flbl">Fundus (RE)</label><textarea class="fta" id="fund-r" placeholder="CDR, macula, periphery…" style="min-height:52px;"></textarea></div>
+    <div class="fg"><label class="flbl">Fundus (LE)</label><textarea class="fta" id="fund-l" placeholder="CDR, macula, periphery…" style="min-height:52px;"></textarea></div>
+  </div>
+  <div class="fgrid" style="margin-top:10px;">
+    <div class="fg full"><label class="flbl">Primary Diagnosis / Impression</label><input class="fi" id="emr-dx" placeholder="e.g. Myopia OU, Glaucoma suspect OD…"></div>
+    <div class="fg full"><label class="flbl">Management Plan</label><textarea class="fta" id="emr-plan" placeholder="Prescription, referral, follow-up, investigations…"></textarea></div>
+    <div class="fg"><label class="flbl">Follow-up (weeks)</label><input class="fi" id="emr-fu" type="number" min="0" placeholder="e.g. 4"></div>
+    <div class="fg"><label class="flbl">Spectacles Prescribed</label><select class="fsel" id="emr-spec"><option>No</option><option>Distance only</option><option>Near only</option><option>Bifocal</option><option>Progressive</option><option>Contact lenses</option></select></div>
+  </div>
+  <div class="ma"><button class="btn btn-ghost" onclick="closeMod('emr')">Cancel</button><button class="btn btn-primary" onclick="saveEMR()">Save Examination</button></div>
+</div></div></div>
+
+<!-- Surgical Plan -->
+<div class="mo" id="mod-surgical" onclick="ovClose(event,'surgical')"><div class="md md-lg"><div class="mh"><div class="mt" id="surgMT">Cataract Surgical Plan</div><button class="mc" onclick="closeMod('surgical')">✕</button></div><div class="mb">
+  <input type="hidden" id="surg-eid">
+  <div class="fgrid">
+    <div class="fg full"><label class="flbl">Patient *</label><select class="fsel" id="surg-pt"><option value="">Select patient…</option></select></div>
+    <div class="fg"><label class="flbl">Procedure *</label><select class="fsel" id="surg-proc"><option>Phacoemulsification + IOL</option><option>ECCE + IOL</option><option>ICCE</option><option>Secondary IOL</option><option>YAG Capsulotomy</option><option>Trabeculectomy</option><option>LASIK</option><option>PRK</option><option>Other</option></select></div>
+    <div class="fg"><label class="flbl">Eye</label><select class="fsel" id="surg-eye"><option>Right Eye (OD)</option><option>Left Eye (OS)</option><option>Both Eyes (OU)</option></select></div>
+    <div class="fg"><label class="flbl">Surgery Date</label><input class="fi" id="surg-date" type="date"></div>
+    <div class="fg"><label class="flbl">Operating Surgeon</label><input class="fi" id="surg-surg" placeholder="Dr. Name"></div>
+  </div>
+  <div class="sec-div"><div class="sec-div-line"></div><div class="sec-div-label">Biometry &amp; IOL Calculation</div><div class="sec-div-line"></div></div>
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;">
+    <div class="fg"><label class="flbl">Axial Length RE (mm)</label><input class="fi fi-sm" id="surg-alr" placeholder="e.g. 23.14" type="number" step="0.01"></div>
+    <div class="fg"><label class="flbl">Axial Length LE (mm)</label><input class="fi fi-sm" id="surg-all" placeholder="e.g. 23.08" type="number" step="0.01"></div>
+    <div class="fg"><label class="flbl">Keratometry RE (D)</label><input class="fi fi-sm" id="surg-kr" placeholder="e.g. 43.25 / 44.00"></div>
+    <div class="fg"><label class="flbl">Keratometry LE (D)</label><input class="fi fi-sm" id="surg-kl" placeholder="e.g. 43.00 / 43.75"></div>
+    <div class="fg"><label class="flbl">Target Refraction (D)</label><input class="fi fi-sm" id="surg-tgt" placeholder="e.g. -0.25" type="number" step="0.25"></div>
+    <div class="fg"><label class="flbl">Calculated IOL RE (D)</label><input class="fi fi-sm" id="surg-iolr" placeholder="e.g. 21.5" type="number" step="0.5"></div>
+    <div class="fg"><label class="flbl">Calculated IOL LE (D)</label><input class="fi fi-sm" id="surg-ioll" placeholder="e.g. 21.0" type="number" step="0.5"></div>
+    <div class="fg"><label class="flbl">IOL Formula Used</label><select class="fsel fi-sm" id="surg-form"><option>SRK/T</option><option>Hoffer Q</option><option>Holladay 1</option><option>Holladay 2</option><option>Barrett Universal II</option><option>Kane</option></select></div>
+    <div class="fg"><label class="flbl">IOL Model / Brand</label><input class="fi fi-sm" id="surg-iolm" placeholder="e.g. AcrySof IQ SN60WF"></div>
+  </div>
+  <div class="sec-div"><div class="sec-div-line"></div><div class="sec-div-label">Pre-operative</div><div class="sec-div-line"></div></div>
+  <div class="fgrid">
+    <div class="fg"><label class="flbl">Anaesthesia</label><select class="fsel" id="surg-anae"><option>Topical</option><option>Peribulbar block</option><option>Retrobulbar block</option><option>General anaesthesia</option></select></div>
+    <div class="fg"><label class="flbl">Pre-op Investigations</label><select class="fsel" id="surg-inv"><option>Ordered</option><option>Completed</option><option>Waived</option></select></div>
+    <div class="fg full"><label class="flbl">Pre-op Notes / Risks</label><textarea class="fta" id="surg-preop" placeholder="Consent obtained, risks discussed, pupil dilation confirmed…" style="min-height:52px;"></textarea></div>
+  </div>
+  <div class="sec-div"><div class="sec-div-line"></div><div class="sec-div-label">Post-operative</div><div class="sec-div-line"></div></div>
+  <div class="fgrid">
+    <div class="fg full"><label class="flbl">Post-op Notes / Instructions</label><textarea class="fta" id="surg-postop" placeholder="Day 1 review, steroid drops, antibiotic drops, follow-up at 1/52…" style="min-height:52px;"></textarea></div>
+    <div class="fg"><label class="flbl">Status</label><select class="fsel" id="surg-stat"><option>Planned</option><option>Scheduled</option><option>Completed</option><option>Cancelled</option></select></div>
+    <div class="fg"><label class="flbl">Outcome VA (if completed)</label><input class="fi" id="surg-outva" placeholder="e.g. 6/9 unaided"></div>
+  </div>
+  <div class="ma"><button class="btn btn-ghost" onclick="closeMod('surgical')">Cancel</button><button class="btn btn-primary" onclick="saveSurg()">Save Surgical Plan</button></div>
+</div></div></div>
+
+<!-- Appointment -->
+<div class="mo" id="mod-appointment" onclick="ovClose(event,'appointment')"><div class="md"><div class="mh"><div class="mt" id="apptMT">Book Appointment</div><button class="mc" onclick="closeMod('appointment')">✕</button></div><div class="mb">
+  <input type="hidden" id="appt-eid">
+  <div class="fgrid">
+    <div class="fg full"><label class="flbl">Patient *</label><select class="fsel" id="appt-pt"><option value="">Select patient…</option></select></div>
+    <div class="fg"><label class="flbl">Date *</label><input class="fi" id="appt-dt" type="date"></div>
+    <div class="fg"><label class="flbl">Time</label><select class="fsel" id="appt-tm"><option>8:00 AM</option><option>8:30 AM</option><option>9:00 AM</option><option>9:30 AM</option><option>10:00 AM</option><option>10:30 AM</option><option>11:00 AM</option><option>11:30 AM</option><option>12:00 PM</option><option>12:30 PM</option><option>1:00 PM</option><option>1:30 PM</option><option>2:00 PM</option><option>2:30 PM</option><option>3:00 PM</option><option>3:30 PM</option><option>4:00 PM</option><option>4:30 PM</option><option>5:00 PM</option></select></div>
+    <div class="fg full"><label class="flbl">Visit Type</label><select class="fsel" id="appt-vt"><option>Eye Examination</option><option>Refraction</option><option>Glaucoma Check</option><option>Cataract Consultation</option><option>Pre-op Assessment</option><option>Post-op Review</option><option>Contact Lens Fitting</option><option>Paediatric Eye Care</option><option>Retinal Assessment</option><option>Diabetic Eye Screening</option><option>Follow-up</option><option>Other</option></select></div>
+    <div class="fg full"><label class="flbl">Status</label><select class="fsel" id="appt-st"><option>Scheduled</option><option>Confirmed</option><option>In Progress</option><option>Done</option><option>No-Show</option><option>Cancelled</option></select></div>
+    <div class="fg"><label class="flbl">Reminder Sent</label><select class="fsel" id="appt-rem"><option>Not sent</option><option>SMS sent</option><option>WhatsApp sent</option><option>Called</option></select></div>
+    <div class="fg full"><label class="flbl">Notes</label><textarea class="fta" id="appt-nt" placeholder="Any additional info…"></textarea></div>
+  </div>
+  <div class="ma"><button class="btn btn-ghost" onclick="closeMod('appointment')">Cancel</button><button class="btn btn-primary" onclick="saveAppt()">Save</button></div>
+</div></div></div>
+
+<!-- Inventory Item -->
+<div class="mo" id="mod-invItem" onclick="ovClose(event,'invItem')"><div class="md"><div class="mh"><div class="mt" id="invMT">Add Inventory Item</div><button class="mc" onclick="closeMod('invItem')">✕</button></div><div class="mb">
+  <input type="hidden" id="inv-eid">
+  <div class="fgrid">
+    <div class="fg full"><label class="flbl">Item Name *</label><input class="fi" id="inv-name" placeholder="e.g. Ray-Ban RB5154, Zeiss Precision Distance…"></div>
+    <div class="fg"><label class="flbl">Category *</label><select class="fsel" id="inv-cat"><option value="frames">Frames</option><option value="lenses">Prescription Lenses</option><option value="contacts">Contact Lenses</option><option value="consumables">Consumables</option></select></div>
+    <div class="fg"><label class="flbl">Brand</label><input class="fi" id="inv-brand" placeholder="Brand name"></div>
+    <div class="fg"><label class="flbl">SKU / Code</label><input class="fi" id="inv-sku" placeholder="Item code"></div>
+    <div class="fg"><label class="flbl">Current Stock *</label><input class="fi" id="inv-qty" type="number" min="0" placeholder="0"></div>
+    <div class="fg"><label class="flbl">Minimum Stock (Alert)</label><input class="fi" id="inv-min" type="number" min="0" placeholder="5"></div>
+    <div class="fg"><label class="flbl">Unit Cost (₦)</label><input class="fi" id="inv-cost" type="number" min="0" placeholder="0"></div>
+    <div class="fg"><label class="flbl">Selling Price (₦)</label><input class="fi" id="inv-price" type="number" min="0" placeholder="0"></div>
+    <div class="fg full"><label class="flbl">Description / Specifications</label><textarea class="fta" id="inv-desc" placeholder="Colour, material, power range, base curve…"></textarea></div>
+    <div class="fg"><label class="flbl">Supplier</label><input class="fi" id="inv-supp" placeholder="Supplier name"></div>
+    <div class="fg"><label class="flbl">Last Restocked</label><input class="fi" id="inv-rst" type="date"></div>
+  </div>
+  <div class="ma"><button class="btn btn-ghost" onclick="closeMod('invItem')">Cancel</button><button class="btn btn-primary" onclick="saveInvItem()">Save Item</button></div>
+</div></div></div>
+
+<!-- Invoice -->
+<div class="mo" id="mod-invoice" onclick="ovClose(event,'invoice')"><div class="md"><div class="mh"><div class="mt" id="invMdT">New Invoice</div><button class="mc" onclick="closeMod('invoice')">✕</button></div><div class="mb">
+  <input type="hidden" id="bill-eid">
+  <div class="fgrid">
+    <div class="fg full"><label class="flbl">Patient *</label><select class="fsel" id="bill-pt"><option value="">Select patient…</option></select></div>
+    <div class="fg full"><label class="flbl">Services / Description *</label><textarea class="fta" id="bill-svc" placeholder="Eye Examination + Prescription Glasses + Frames…"></textarea></div>
+    <div class="fg"><label class="flbl">Amount (₦) *</label><input class="fi" id="bill-amt" type="number" min="0" placeholder="0"></div>
+    <div class="fg"><label class="flbl">Date</label><input class="fi" id="bill-dt" type="date"></div>
+    <div class="fg"><label class="flbl">Payment Method</label><select class="fsel" id="bill-mth"><option>Cash</option><option>Bank Transfer</option><option>POS</option><option>Insurance</option><option>Other</option></select></div>
+    <div class="fg"><label class="flbl">Status</label><select class="fsel" id="bill-st"><option>Paid</option><option>Pending</option><option>Overdue</option></select></div>
+    <div class="fg full"><label class="flbl">Notes</label><input class="fi" id="bill-nt" placeholder="Optional notes…"></div>
+  </div>
+  <div class="ma"><button class="btn btn-ghost" onclick="closeMod('invoice')">Cancel</button><button class="btn btn-primary" onclick="saveInv2()">Save Invoice</button></div>
+</div></div></div>
+
+<!-- Reminder Modal -->
+<div class="mo" id="mod-reminder" onclick="ovClose(event,'reminder')"><div class="md"><div class="mh"><div class="mt">Appointment Reminders</div><button class="mc" onclick="closeMod('reminder')">✕</button></div><div class="mb">
+  <div class="alert alert-info" style="margin-bottom:14px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>Reminders are logged here. In production, integrate with SMS/WhatsApp gateway.</div>
+  <div id="remModalList"></div>
+  <div class="ma"><button class="btn btn-ghost" onclick="closeMod('reminder')">Close</button><button class="btn btn-primary" onclick="sendAllReminders()">Mark All Sent</button></div>
+</div></div></div>
+
+<!-- Confirm -->
+<div class="mo" id="mod-confirm"><div class="md" style="max-width:340px;"><div style="text-align:center;padding:28px;">
+  <div style="width:52px;height:52px;border-radius:50%;background:var(--rbg);display:flex;align-items:center;justify-content:center;margin:0 auto 14px;"><svg viewBox="0 0 24 24" fill="none" stroke="var(--rose)" stroke-width="2" stroke-linecap="round" width="22" height="22"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg></div>
+  <div style="font-size:15px;font-weight:700;margin-bottom:6px;" id="cfTitle">Delete?</div>
+  <div style="font-size:12px;color:var(--muted);" id="cfMsg">This cannot be undone.</div>
+  <div style="display:flex;gap:10px;margin-top:18px;justify-content:center;"><button class="btn btn-ghost" onclick="closeMod('confirm')">Cancel</button><button class="btn btn-danger" id="cfOk">Delete</button></div>
+</div></div></div>
+
+<!-- Patient Detail -->
+<div class="mo" id="mod-ptDetail" onclick="ovClose(event,'ptDetail')"><div class="md" style="max-width:580px;"><div class="mh"><div class="mt">Patient Record</div><button class="mc" onclick="closeMod('ptDetail')">✕</button></div><div class="mb" id="ptDetailBody"></div></div></div>
+
+<!-- EMR Detail View -->
+<div class="mo" id="mod-emrDetail" onclick="ovClose(event,'emrDetail')"><div class="md md-lg"><div class="mh"><div class="mt">Examination Report</div><button class="mc" onclick="closeMod('emrDetail')">✕</button></div><div class="mb" id="emrDetailBody"></div></div></div>
+
+<!-- Surg Detail View -->
+<div class="mo" id="mod-surgDetail" onclick="ovClose(event,'surgDetail')"><div class="md md-lg"><div class="mh"><div class="mt">Surgical Plan</div><button class="mc" onclick="closeMod('surgDetail')">✕</button></div><div class="mb" id="surgDetailBody"></div></div></div>
+<script>
+// ══ STORAGE ══
+const S={g(k){try{return JSON.parse(localStorage.getItem(k)??'null');}catch{return null;}},s(k,v){localStorage.setItem(k,JSON.stringify(v));}};
+
+// ══ STATE ══
+let pts=[],appts=[],emrs=[],surgs=[],invItems=[],bills=[];
+let role=null,pinBuf='',pinRole='doctor';
+let calYr=new Date().getFullYear(),calMon=new Date().getMonth();
+let selD=new Date().getDate(),selM=new Date().getMonth(),selY=new Date().getFullYear();
+let invTab='frames';
+
+// ══ CONSTS ══
+const MONTHS=['January','February','March','April','May','June','July','August','September','October','November','December'];
+const DAYS=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+const AVC=['#3361ff','#009e82','#6d28d9','#f0990a','#ff3d5a','#0891b2','#059669','#db2777'];
+const ACCESS_ROWS=[
+  ['Dashboard','✓ Full','✓ Limited'],['Patient Records','✓','✓'],
+  ['Eye Examinations','✓','✓'],['Surgical Planning','✓','✗'],
+  ['Appointments','✓','✓'],['Inventory','✓','✓'],
+  ['Billing — see amounts','✓','✗'],['Billing — create invoices','✓','✓'],
+  ['Revenue statistics','✓','✗'],['Settings / Change PIN','✓','✗'],
+];
+
+// ══ UTILS ══
+const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,5);
+const ini=n=>n.trim().split(' ').map(p=>p[0]).join('').toUpperCase().slice(0,2);
+const avc=n=>{let h=0;for(let c of n)h=(h*31+c.charCodeAt(0))%AVC.length;return AVC[h];};
+const fmt=n=>'₦'+Number(n||0).toLocaleString('en-NG');
+const td=()=>{const d=new Date();return`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;};
+const fmtD=s=>{if(!s)return'—';const d=new Date(s+'T00:00:00');return d.toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'});};
+const isDoc=()=>role==='doctor';
+const lowStockThreshold=()=>Number(S.g('cv_lsThresh')||5);
+
+function toast(msg,type='ok'){
+  const e=document.createElement('div');e.className=`tos ${type}`;
+  e.innerHTML=`<div class="td"></div>${msg}`;
+  document.getElementById('toastWrap').appendChild(e);
+  setTimeout(()=>e.remove(),3200);
+}
+
+// ══ DATA ══
+function loadData(){pts=S.g('cv_pts')||[];appts=S.g('cv_appts')||[];emrs=S.g('cv_emrs')||[];surgs=S.g('cv_surgs')||[];invItems=S.g('cv_inv')||[];bills=S.g('cv_bills')||[];}
+function saveAll(){S.s('cv_pts',pts);S.s('cv_appts',appts);S.s('cv_emrs',emrs);S.s('cv_surgs',surgs);S.s('cv_inv',invItems);S.s('cv_bills',bills);}
+
+// ══ PIN / LOGIN ══
+function getPin(r){return S.g(`cv_pin_${r}`)||(r==='doctor'?'1234':'5678');}
+function selRole(r,el){pinRole=r;pinBuf='';document.querySelectorAll('.role-card').forEach(c=>c.classList.remove('active'));el.classList.add('active');document.getElementById('pinLbl').textContent=r==='doctor'?'Doctor PIN':'Receptionist PIN';updDots();document.getElementById('pinErr').textContent='';}
+function pk(k){if(pinBuf.length>=4)return;pinBuf+=k;updDots();if(pinBuf.length===4)setTimeout(checkPin,120);}
+function pkDel(){if(pinBuf.length>0){pinBuf=pinBuf.slice(0,-1);updDots();}}
+function pkClr(){pinBuf='';updDots();}
+function updDots(err=false){for(let i=0;i<4;i++){const d=document.getElementById('pd'+i);d.className='pin-dot'+(i<pinBuf.length?(err?' err':' on'):'');}}
+function checkPin(){
+  if(pinBuf===getPin(pinRole)){
+    role=pinRole;loadData();
+    document.getElementById('loginScreen').classList.add('hidden');
+    document.getElementById('appShell').classList.remove('hidden');
+    initApp();
+  } else {
+    updDots(true);document.getElementById('pinErr').textContent='Incorrect PIN. Try again.';
+    setTimeout(()=>{pinBuf='';updDots();document.getElementById('pinErr').textContent='';},1000);
+  }
+}
+function logout(){role=null;pinBuf='';document.getElementById('appShell').classList.add('hidden');document.getElementById('loginScreen').classList.remove('hidden');updDots();}
+function chgPin(r){
+  if(!isDoc()){toast('Only doctors can change PINs.','err');return;}
+  const cur=document.getElementById(r==='doctor'?'dCur':'rCur').value;
+  const nw=document.getElementById(r==='doctor'?'dNew':'rNew').value;
+  const con=document.getElementById(r==='doctor'?'dCon':'rCon').value;
+  if(cur!==getPin(r)){toast('Current PIN incorrect.','err');return;}
+  if(!/^\d{4}$/.test(nw)){toast('PIN must be 4 digits.','err');return;}
+  if(nw!==con){toast('PINs do not match.','err');return;}
+  S.s(`cv_pin_${r}`,nw);['dCur','dNew','dCon','rCur','rNew','rCon'].forEach(id=>document.getElementById(id).value='');
+  toast(`${r==='doctor'?'Doctor':'Receptionist'} PIN updated!`);
+}
+
+// ══ SIDEBAR ══
+let sbC=S.g('cv_sbc')||false;
+function applyS(){
+  const sb=document.getElementById('sidebar'),m=document.getElementById('main');
+  if(window.innerWidth>768){sb.classList.remove('mob-open');document.getElementById('sbOvl').classList.remove('show');sb.classList.toggle('collapsed',sbC);m.classList.toggle('exp',sbC);}
+  else{sb.classList.remove('collapsed');m.classList.remove('exp');}
+}
+function togSB(){if(window.innerWidth>768){sbC=!sbC;S.s('cv_sbc',sbC);applyS();}else openMobSB();}
+function openMobSB(){document.getElementById('sidebar').classList.add('mob-open');document.getElementById('sbOvl').classList.add('show');}
+function closeMobSB(){document.getElementById('sidebar').classList.remove('mob-open');document.getElementById('sbOvl').classList.remove('show');}
+window.addEventListener('resize',applyS);
+
+// ══ PAGES ══
+const PTITLES={dashboard:'Dashboard',patients:'Patients',emr:'Eye Examinations',surgical:'Surgical Planning',appointments:'Appointments',inventory:'Inventory',billing:'Billing',settings:'Settings'};
+function goPage(id,el){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.ni').forEach(n=>n.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  if(el)el.classList.add('active');
+  document.getElementById('tbTitle').textContent=PTITLES[id]||id;
+  closeMobSB();
+  if(id==='dashboard')renderDash();
+  if(id==='patients')renderPts();
+  if(id==='emr')renderEMR();
+  if(id==='surgical')renderSurg();
+  if(id==='appointments')renderCal();
+  if(id==='inventory')renderInv();
+  if(id==='billing')renderBilling();
+  buildActions(id);
+}
+function buildActions(pg){
+  const el=document.getElementById('tbActions');
+  const map={
+    dashboard:`<button class="btn btn-primary btn-sm" onclick="openMod('patient')"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Patient</button>`,
+    patients:`<button class="btn btn-primary btn-sm" onclick="openMod('patient')"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Register</button>`,
+    emr:`<button class="btn btn-primary btn-sm" onclick="openMod('emr')"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>New Exam</button>`,
+    surgical:`<button class="btn btn-primary btn-sm" onclick="openMod('surgical')"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>New Plan</button>`,
+    appointments:`<button class="btn btn-primary btn-sm" onclick="openMod('appointment')"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Book</button>`,
+    inventory:`<button class="btn btn-primary btn-sm" onclick="openMod('invItem')"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Add Item</button>`,
+    billing:`<button class="btn btn-primary btn-sm" onclick="openMod('invoice')"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Invoice</button>`,
+    settings:''
+  };
+  el.innerHTML=map[pg]||'';
+}
+
+// ══ MODAL ══
+function openMod(id){
+  if(['appointment','invoice','emr','surgical'].includes(id)){
+    const selId={appointment:'appt-pt',invoice:'bill-pt',emr:'emr-pt',surgical:'surg-pt'}[id];
+    const sel=document.getElementById(selId);
+    sel.innerHTML='<option value="">Select patient…</option>';
+    pts.forEach(p=>{const o=document.createElement('option');o.value=p.id;o.textContent=p.name;sel.appendChild(o);});
+  }
+  const resets={
+    patient:()=>{document.getElementById('ptMT').textContent='Register Patient';['pt-eid','pt-fn','pt-ln','pt-ph','pt-em','pt-ad','pt-nt','pt-al','pt-oc'].forEach(i=>document.getElementById(i).value='');document.getElementById('pt-dob').value='';document.getElementById('pt-gen').value='Female';document.getElementById('pt-st').value='New';document.getElementById('pt-bl').value='';},
+    emr:()=>{document.getElementById('emrMT').textContent='New Eye Examination';['emr-eid','emr-doc','emr-cc','va-rdu','va-ldu','va-rnu','va-lnu','va-rdc','va-ldc','va-rnc','va-lnc','rx-rs','rx-rc','rx-ra','rx-rad','rx-rp','rx-ls','rx-lc','rx-la','rx-lad','rx-lp','ant-r','ant-l','fund-r','fund-l','emr-dx','emr-plan','emr-fu'].forEach(i=>document.getElementById(i).value='');document.getElementById('emr-date').value=td();document.getElementById('emr-type').value='Eye Examination';document.getElementById('emr-spec').value='No';document.getElementById('iop-r').value='';document.getElementById('iop-l').value='';},
+    surgical:()=>{document.getElementById('surgMT').textContent='Cataract Surgical Plan';['surg-eid','surg-surg','surg-kr','surg-kl','surg-iolm','surg-preop','surg-postop','surg-outva'].forEach(i=>document.getElementById(i).value='');['surg-alr','surg-all','surg-tgt','surg-iolr','surg-ioll'].forEach(i=>document.getElementById(i).value='');document.getElementById('surg-date').value='';document.getElementById('surg-proc').value='Phacoemulsification + IOL';document.getElementById('surg-eye').value='Right Eye (OD)';document.getElementById('surg-form').value='SRK/T';document.getElementById('surg-stat').value='Planned';document.getElementById('surg-anae').value='Topical';document.getElementById('surg-inv').value='Ordered';},
+    appointment:()=>{document.getElementById('apptMT').textContent='Book Appointment';['appt-eid','appt-nt'].forEach(i=>document.getElementById(i).value='');document.getElementById('appt-dt').value=td();document.getElementById('appt-tm').value='9:00 AM';document.getElementById('appt-vt').value='Eye Examination';document.getElementById('appt-st').value='Scheduled';document.getElementById('appt-rem').value='Not sent';},
+    invItem:()=>{document.getElementById('invMT').textContent='Add Inventory Item';['inv-eid','inv-name','inv-brand','inv-sku','inv-desc','inv-supp'].forEach(i=>document.getElementById(i).value='');['inv-qty','inv-min','inv-cost','inv-price'].forEach(i=>document.getElementById(i).value='');document.getElementById('inv-rst').value=td();document.getElementById('inv-cat').value='frames';},
+    invoice:()=>{document.getElementById('invMdT').textContent='New Invoice';['bill-eid','bill-svc','bill-amt','bill-nt'].forEach(i=>document.getElementById(i).value='');document.getElementById('bill-dt').value=td();document.getElementById('bill-mth').value='Cash';document.getElementById('bill-st').value='Paid';},
+  };
+  if(resets[id])resets[id]();
+  document.getElementById('mod-'+id).classList.add('open');
+}
+function closeMod(id){document.getElementById('mod-'+id).classList.remove('open');}
+function ovClose(e,id){if(e.target===e.currentTarget)closeMod(id);}
+function cfm(title,msg,cb){document.getElementById('cfTitle').textContent=title;document.getElementById('cfMsg').textContent=msg;document.getElementById('cfOk').onclick=()=>{cb();closeMod('confirm');};document.getElementById('mod-confirm').classList.add('open');}
+
+// ══ PATIENTS ══
+function savePt(){
+  const fn=document.getElementById('pt-fn').value.trim(),ln=document.getElementById('pt-ln').value.trim(),ph=document.getElementById('pt-ph').value.trim();
+  if(!fn||!ln||!ph){toast('First name, last name and phone required.','err');return;}
+  const eid=document.getElementById('pt-eid').value;
+  const o={id:eid||uid(),name:fn+' '+ln,dob:document.getElementById('pt-dob').value,gender:document.getElementById('pt-gen').value,phone:ph,email:document.getElementById('pt-em').value,address:document.getElementById('pt-ad').value,blood:document.getElementById('pt-bl').value,status:document.getElementById('pt-st').value,allergies:document.getElementById('pt-al').value,occupation:document.getElementById('pt-oc').value,notes:document.getElementById('pt-nt').value,createdAt:eid?(pts.find(p=>p.id===eid)||{}).createdAt||td():td()};
+  if(eid){const i=pts.findIndex(p=>p.id===eid);if(i>-1)pts[i]=o;}else pts.push(o);
+  saveAll();closeMod('patient');toast(eid?'Patient updated!':'Patient registered!');renderDash();renderPts();
+}
+function editPt(id){
+  const p=pts.find(x=>x.id===id);if(!p)return;
+  document.getElementById('ptMT').textContent='Edit Patient';
+  document.getElementById('pt-eid').value=p.id;document.getElementById('pt-fn').value=p.name.split(' ')[0];document.getElementById('pt-ln').value=p.name.split(' ').slice(1).join(' ');document.getElementById('pt-dob').value=p.dob||'';document.getElementById('pt-gen').value=p.gender||'Female';document.getElementById('pt-ph').value=p.phone||'';document.getElementById('pt-em').value=p.email||'';document.getElementById('pt-ad').value=p.address||'';document.getElementById('pt-bl').value=p.blood||'';document.getElementById('pt-st').value=p.status||'Active';document.getElementById('pt-al').value=p.allergies||'';document.getElementById('pt-oc').value=p.occupation||'';document.getElementById('pt-nt').value=p.notes||'';
+  document.getElementById('mod-patient').classList.add('open');
+}
+function delRec(type,id,name){
+  cfm(`Delete ${name}?`,'This permanently removes the record.',()=>{
+    if(type==='pt')pts=pts.filter(x=>x.id!==id);
+    else if(type==='appt')appts=appts.filter(x=>x.id!==id);
+    else if(type==='emr')emrs=emrs.filter(x=>x.id!==id);
+    else if(type==='surg')surgs=surgs.filter(x=>x.id!==id);
+    else if(type==='inv')invItems=invItems.filter(x=>x.id!==id);
+    else if(type==='bill')bills=bills.filter(x=>x.id!==id);
+    saveAll();toast('Deleted.');renderDash();renderPts();renderEMR();renderSurg();renderInv();renderBilling();
+  });
+}
+function viewPt(id){
+  const p=pts.find(x=>x.id===id);if(!p)return;
+  const age=p.dob?Math.floor((Date.now()-new Date(p.dob))/(365.25*864e5)):'—';
+  const ptE=emrs.filter(e=>e.patientId===p.id),ptA=appts.filter(a=>a.patientId===p.id),ptB=bills.filter(b=>b.patientId===p.id);
+  const lastE=ptE.sort((a,b)=>b.date.localeCompare(a.date))[0];
+  const amtH=isDoc()?`<div style="font-size:14px;font-weight:700;">${fmt(ptB.reduce((s,b)=>s+Number(b.amount||0),0))}</div>`:`<div style="font-size:14px;font-weight:700;filter:blur(4px);color:var(--muted2);">₦—</div>`;
+  document.getElementById('ptDetailBody').innerHTML=`
+    <div style="display:flex;align-items:center;gap:14px;margin-bottom:20px;">
+      <div class="av" style="width:52px;height:52px;font-size:16px;background:${avc(p.name)};">${ini(p.name)}</div>
+      <div><div style="font-size:16px;font-weight:700;">${p.name}</div>
+      <div style="font-size:11.5px;color:var(--muted);">${p.phone}${p.email?' · '+p.email:''}</div>
+      <span class="bdg ${p.status==='Active'?'b-cy':p.status==='New'?'b-am':'b-gr'}" style="margin-top:5px;">${p.status}</span></div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;">
+      <div style="background:var(--s2);border-radius:9px;padding:11px 13px;"><div style="font-size:9.5px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:3px;">DoB / Age</div><div style="font-size:13px;font-weight:600;">${fmtD(p.dob)} ${age!=='—'?'('+age+'y)':''}</div></div>
+      <div style="background:var(--s2);border-radius:9px;padding:11px 13px;"><div style="font-size:9.5px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:3px;">Gender / Blood</div><div style="font-size:13px;font-weight:600;">${p.gender||'—'} / ${p.blood||'Unknown'}</div></div>
+      <div style="background:var(--s2);border-radius:9px;padding:11px 13px;"><div style="font-size:9.5px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:3px;">Allergies</div><div style="font-size:12.5px;">${p.allergies||'None known'}</div></div>
+      <div style="background:var(--s2);border-radius:9px;padding:11px 13px;"><div style="font-size:9.5px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:3px;">Occupation</div><div style="font-size:12.5px;">${p.occupation||'—'}</div></div>
+      <div style="background:var(--s2);border-radius:9px;padding:11px 13px;grid-column:1/-1;"><div style="font-size:9.5px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:3px;">Medical History</div><div style="font-size:12.5px;color:var(--muted);">${p.notes||'None'}</div></div>
+    </div>
+    <div style="display:flex;gap:10px;margin-bottom:16px;">
+      <div style="flex:1;background:var(--s2);border-radius:9px;padding:11px 13px;"><div style="font-size:9.5px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:3px;">Examinations</div><div style="font-size:18px;font-weight:700;">${ptE.length}</div></div>
+      <div style="flex:1;background:var(--s2);border-radius:9px;padding:11px 13px;"><div style="font-size:9.5px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:3px;">Appointments</div><div style="font-size:18px;font-weight:700;">${ptA.length}</div></div>
+      <div style="flex:1;background:var(--s2);border-radius:9px;padding:11px 13px;"><div style="font-size:9.5px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:3px;">Total Billed</div>${amtH}</div>
+    </div>
+    ${lastE?`<div style="background:var(--cbg);border-radius:9px;padding:12px;margin-bottom:16px;border:1px solid rgba(0,207,168,0.15);"><div style="font-size:10px;font-weight:600;color:var(--cyan-d);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;">Last Examination · ${fmtD(lastE.date)}</div><div style="font-size:12.5px;font-weight:600;">${lastE.diagnosis||'No diagnosis recorded'}</div><div style="font-size:11.5px;color:var(--muted);margin-top:3px;">VA: ${lastE.vaRD||'—'}/${lastE.vaLD||'—'} · IOP: ${lastE.iopR||'—'}/${lastE.iopL||'—'} mmHg</div></div>`:''}
+    <div style="display:flex;gap:8px;">
+      <button class="btn btn-ghost" style="flex:1;" onclick="closeMod('ptDetail');editPt('${p.id}')">Edit</button>
+      <button class="btn btn-primary btn-sm" onclick="closeMod('ptDetail');openNewExam('${p.id}')">New Exam</button>
+      <button class="btn btn-danger" style="flex:1;" onclick="closeMod('ptDetail');delRec('pt','${p.id}','${p.name.replace(/'/g,"\\'")}')">Delete</button>
+    </div>`;
+  document.getElementById('mod-ptDetail').classList.add('open');
+}
+function openNewExam(ptId){
+  openMod('emr');
+  setTimeout(()=>{const sel=document.getElementById('emr-pt');if(sel)sel.value=ptId;},50);
+}
+function renderPts(search=''){
+  const stF=document.querySelector('#page-patients select')?.value||'';
+  const tb=document.getElementById('ptBody');
+  const list=pts.filter(p=>{const q=(search||'').toLowerCase();return(!q||p.name.toLowerCase().includes(q)||p.phone.includes(q)||(p.email||'').toLowerCase().includes(q))&&(!stF||p.status===stF);});
+  if(!list.length){tb.innerHTML=`<tr><td colspan="7"><div class="empty" style="padding:28px;"><p>No patients found.</p></div></td></tr>`;return;}
+  tb.innerHTML=list.map(p=>{
+    const age=p.dob?Math.floor((Date.now()-new Date(p.dob))/(365.25*864e5)):'—';
+    const lastE=emrs.filter(e=>e.patientId===p.id).sort((a,b)=>b.date.localeCompare(a.date))[0];
+    const sc=p.status==='Active'?'b-cy':p.status==='New'?'b-am':'b-gr';
+    return `<tr><td><div style="display:flex;align-items:center;gap:9px;"><div class="av" style="width:28px;height:28px;font-size:10px;background:${avc(p.name)};">${ini(p.name)}</div><div><div style="font-size:12.5px;font-weight:600;">${p.name}</div><div style="font-size:10px;color:var(--muted);">${p.phone}</div></div></div></td>
+    <td>${age}</td><td style="font-size:12px;">${p.phone}</td>
+    <td style="font-size:11.5px;color:var(--muted);">${lastE?fmtD(lastE.date):'Never'}</td>
+    <td style="font-size:11.5px;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${(lastE?.diagnosis||p.notes||'—').slice(0,25)}</td>
+    <td><span class="bdg ${sc}">${p.status}</span></td>
+    <td><div style="display:flex;gap:3px;">
+      <button class="ibt" onclick="viewPt('${p.id}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" width="11" height="11"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
+      <button class="ibt" onclick="editPt('${p.id}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" width="11" height="11"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
+      <button class="ibt" onclick="delRec('pt','${p.id}','${p.name.replace(/'/g,"\\'")}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" width="11" height="11"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/></svg></button>
+    </div></td></tr>`;}).join('');
+}
+
+// ══ EMR ══
+function saveEMR(){
+  const ptId=document.getElementById('emr-pt').value,date=document.getElementById('emr-date').value;
+  if(!ptId||!date){toast('Patient and date required.','err');return;}
+  const eid=document.getElementById('emr-eid').value;
+  const o={
+    id:eid||uid(),patientId:ptId,date,type:document.getElementById('emr-type').value,
+    doctor:document.getElementById('emr-doc').value,cc:document.getElementById('emr-cc').value,
+    vaRU:document.getElementById('va-rdu').value,vaLU:document.getElementById('va-ldu').value,
+    vaRNu:document.getElementById('va-rnu').value,vaLNu:document.getElementById('va-lnu').value,
+    vaRD:document.getElementById('va-rdc').value,vaLD:document.getElementById('va-ldc').value,
+    vaRNc:document.getElementById('va-rnc').value,vaLNc:document.getElementById('va-lnc').value,
+    rxRS:document.getElementById('rx-rs').value,rxRC:document.getElementById('rx-rc').value,rxRA:document.getElementById('rx-ra').value,rxRAd:document.getElementById('rx-rad').value,rxRP:document.getElementById('rx-rp').value,
+    rxLS:document.getElementById('rx-ls').value,rxLC:document.getElementById('rx-lc').value,rxLA:document.getElementById('rx-la').value,rxLAd:document.getElementById('rx-lad').value,rxLP:document.getElementById('rx-lp').value,
+    iopR:document.getElementById('iop-r').value,iopL:document.getElementById('iop-l').value,iopM:document.getElementById('iop-m').value,
+    antR:document.getElementById('ant-r').value,antL:document.getElementById('ant-l').value,
+    fundR:document.getElementById('fund-r').value,fundL:document.getElementById('fund-l').value,
+    diagnosis:document.getElementById('emr-dx').value,plan:document.getElementById('emr-plan').value,
+    followUp:document.getElementById('emr-fu').value,spec:document.getElementById('emr-spec').value,
+  };
+  if(eid){const i=emrs.findIndex(x=>x.id===eid);if(i>-1)emrs[i]=o;}else emrs.push(o);
+  saveAll();closeMod('emr');toast(eid?'Examination updated!':'Examination saved!');renderDash();renderEMR();renderPts();
+}
+function editEMR(id){
+  const e=emrs.find(x=>x.id===id);if(!e)return;
+  const sel=document.getElementById('emr-pt');sel.innerHTML='<option value="">Select patient…</option>';
+  pts.forEach(p=>{const o=document.createElement('option');o.value=p.id;o.textContent=p.name;sel.appendChild(o);});
+  document.getElementById('emrMT').textContent='Edit Examination';
+  document.getElementById('emr-eid').value=e.id;document.getElementById('emr-pt').value=e.patientId;document.getElementById('emr-date').value=e.date;document.getElementById('emr-type').value=e.type;document.getElementById('emr-doc').value=e.doctor||'';document.getElementById('emr-cc').value=e.cc||'';
+  document.getElementById('va-rdu').value=e.vaRU||'';document.getElementById('va-ldu').value=e.vaLU||'';document.getElementById('va-rnu').value=e.vaRNu||'';document.getElementById('va-lnu').value=e.vaLNu||'';
+  document.getElementById('va-rdc').value=e.vaRD||'';document.getElementById('va-ldc').value=e.vaLD||'';document.getElementById('va-rnc').value=e.vaRNc||'';document.getElementById('va-lnc').value=e.vaLNc||'';
+  document.getElementById('rx-rs').value=e.rxRS||'';document.getElementById('rx-rc').value=e.rxRC||'';document.getElementById('rx-ra').value=e.rxRA||'';document.getElementById('rx-rad').value=e.rxRAd||'';document.getElementById('rx-rp').value=e.rxRP||'';
+  document.getElementById('rx-ls').value=e.rxLS||'';document.getElementById('rx-lc').value=e.rxLC||'';document.getElementById('rx-la').value=e.rxLA||'';document.getElementById('rx-lad').value=e.rxLAd||'';document.getElementById('rx-lp').value=e.rxLP||'';
+  document.getElementById('iop-r').value=e.iopR||'';document.getElementById('iop-l').value=e.iopL||'';document.getElementById('iop-m').value=e.iopM||'Non-contact tonometry';
+  document.getElementById('ant-r').value=e.antR||'';document.getElementById('ant-l').value=e.antL||'';document.getElementById('fund-r').value=e.fundR||'';document.getElementById('fund-l').value=e.fundL||'';
+  document.getElementById('emr-dx').value=e.diagnosis||'';document.getElementById('emr-plan').value=e.plan||'';document.getElementById('emr-fu').value=e.followUp||'';document.getElementById('emr-spec').value=e.spec||'No';
+  document.getElementById('mod-emr').classList.add('open');
+}
+function viewEMR(id){
+  const e=emrs.find(x=>x.id===id);if(!e)return;
+  const p=pts.find(x=>x.id===e.patientId)||{name:'Unknown'};
+  const iopColor=(v)=>!v?'var(--muted)':(Number(v)>21?'var(--rose)':Number(v)>17?'var(--amber)':'var(--cyan-d)');
+  document.getElementById('emrDetailBody').innerHTML=`
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;">
+      <div><div style="font-size:15px;font-weight:700;">${p.name}</div><div style="font-size:12px;color:var(--muted);">${e.type} · ${fmtD(e.date)} · ${e.doctor||'—'}</div></div>
+      <span class="bdg b-cy">${e.type}</span>
+    </div>
+    ${e.cc?`<div style="background:var(--s2);border-radius:9px;padding:11px;margin-bottom:14px;"><div style="font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:3px;">Chief Complaint</div><div style="font-size:13px;">${e.cc}</div></div>`:''}
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;">
+      <div style="background:var(--s2);border-radius:9px;padding:11px;"><div style="font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;">Visual Acuity — Unaided</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;font-size:12px;"><span style="color:var(--muted);">RE Dist</span><span style="font-weight:600;">${e.vaRU||'—'}</span><span style="color:var(--muted);">LE Dist</span><span style="font-weight:600;">${e.vaLU||'—'}</span><span style="color:var(--muted);">RE Near</span><span style="font-weight:600;">${e.vaRNu||'—'}</span><span style="color:var(--muted);">LE Near</span><span style="font-weight:600;">${e.vaLNu||'—'}</span></div>
+      </div>
+      <div style="background:var(--s2);border-radius:9px;padding:11px;"><div style="font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;">Visual Acuity — Best Corrected</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;font-size:12px;"><span style="color:var(--muted);">RE Dist</span><span style="font-weight:600;">${e.vaRD||'—'}</span><span style="color:var(--muted);">LE Dist</span><span style="font-weight:600;">${e.vaLD||'—'}</span><span style="color:var(--muted);">RE Near</span><span style="font-weight:600;">${e.vaRNc||'—'}</span><span style="color:var(--muted);">LE Near</span><span style="font-weight:600;">${e.vaLNc||'—'}</span></div>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;">
+      <div style="background:var(--s2);border-radius:9px;padding:11px;"><div style="font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;">Refraction — Right Eye</div>
+        <div style="font-size:12px;font-weight:600;">Sph ${e.rxRS||'—'} / Cyl ${e.rxRC||'—'} × ${e.rxRA||'—'}°${e.rxRAd?' Add '+e.rxRAd:''}</div>
+      </div>
+      <div style="background:var(--s2);border-radius:9px;padding:11px;"><div style="font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;">Refraction — Left Eye</div>
+        <div style="font-size:12px;font-weight:600;">Sph ${e.rxLS||'—'} / Cyl ${e.rxLC||'—'} × ${e.rxLA||'—'}°${e.rxLAd?' Add '+e.rxLAd:''}</div>
+      </div>
+    </div>
+    ${(e.iopR||e.iopL)?`<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:14px;">
+      <div style="background:var(--s2);border-radius:9px;padding:11px;text-align:center;"><div style="font-size:10px;font-weight:600;color:var(--muted);margin-bottom:4px;">IOP Right Eye</div><div style="font-size:22px;font-weight:700;color:${iopColor(e.iopR)};">${e.iopR||'—'}</div><div style="font-size:10px;color:var(--muted);">mmHg</div></div>
+      <div style="background:var(--s2);border-radius:9px;padding:11px;text-align:center;"><div style="font-size:10px;font-weight:600;color:var(--muted);margin-bottom:4px;">IOP Left Eye</div><div style="font-size:22px;font-weight:700;color:${iopColor(e.iopL)};">${e.iopL||'—'}</div><div style="font-size:10px;color:var(--muted);">mmHg</div></div>
+      <div style="background:var(--s2);border-radius:9px;padding:11px;text-align:center;"><div style="font-size:10px;font-weight:600;color:var(--muted);margin-bottom:4px;">Method</div><div style="font-size:11.5px;font-weight:600;margin-top:6px;">${e.iopM||'—'}</div></div>
+    </div>`:''}
+    ${e.diagnosis?`<div style="background:var(--cbg);border-radius:9px;padding:12px;margin-bottom:10px;border:1px solid rgba(0,207,168,0.15);"><div style="font-size:10px;font-weight:600;color:var(--cyan-d);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;">Diagnosis</div><div style="font-size:13px;font-weight:600;">${e.diagnosis}</div></div>`:''}
+    ${e.plan?`<div style="background:var(--s2);border-radius:9px;padding:12px;margin-bottom:10px;"><div style="font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;">Management Plan</div><div style="font-size:12.5px;">${e.plan}</div></div>`:''}
+    ${e.spec&&e.spec!=='No'?`<div style="display:inline-flex;align-items:center;gap:6px;margin-bottom:14px;"><span class="bdg b-vi">Spectacles: ${e.spec}</span>${e.followUp?`<span class="bdg b-am">F/U: ${e.followUp} weeks</span>`:''}</div>`:''}
+    <div style="display:flex;gap:8px;margin-top:8px;">
+      <button class="btn btn-ghost" style="flex:1;" onclick="closeMod('emrDetail');editEMR('${e.id}')">Edit</button>
+      <button class="btn btn-danger" onclick="closeMod('emrDetail');delRec('emr','${e.id}','examination')">Delete</button>
+    </div>`;
+  document.getElementById('mod-emrDetail').classList.add('open');
+}
+function renderEMR(search=''){
+  const typeF=document.getElementById('emrFilter')?.value||'';
+  const tb=document.getElementById('emrBody');
+  const list=emrs.filter(e=>{
+    const p=pts.find(x=>x.id===e.patientId)||{name:''};const q=(search||'').toLowerCase();
+    return(!q||p.name.toLowerCase().includes(q)||(e.diagnosis||'').toLowerCase().includes(q))&&(!typeF||e.type===typeF);
+  }).sort((a,b)=>b.date.localeCompare(a.date));
+  if(!list.length){tb.innerHTML=`<tr><td colspan="8"><div class="empty" style="padding:28px;"><p>No examinations found.</p></div></td></tr>`;return;}
+  tb.innerHTML=list.map(e=>{
+    const p=pts.find(x=>x.id===e.patientId)||{name:'Unknown'};
+    const iopH=(r,l)=>r||l?`${r||'—'}/${l||'—'}`:'—';
+    return `<tr><td><div style="display:flex;align-items:center;gap:8px;"><div class="av" style="width:26px;height:26px;font-size:9.5px;background:${avc(p.name)};">${ini(p.name)}</div><span style="font-size:12.5px;font-weight:600;">${p.name}</span></div></td>
+    <td style="font-size:12px;color:var(--muted);">${fmtD(e.date)}</td>
+    <td><span class="bdg b-te" style="font-size:10px;">${e.type}</span></td>
+    <td style="font-size:12px;font-family:monospace;">${e.vaRD||e.vaRU||'—'}/${e.vaLD||e.vaLU||'—'}</td>
+    <td style="font-size:12px;font-family:monospace;">${iopH(e.iopR,e.iopL)}</td>
+    <td style="font-size:11.5px;max-width:130px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${(e.diagnosis||'—').slice(0,30)}</td>
+    <td style="font-size:11.5px;color:var(--muted);">${e.doctor||'—'}</td>
+    <td><div style="display:flex;gap:3px;">
+      <button class="ibt" onclick="viewEMR('${e.id}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" width="11" height="11"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
+      <button class="ibt" onclick="editEMR('${e.id}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" width="11" height="11"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
+      <button class="ibt" onclick="delRec('emr','${e.id}','examination')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" width="11" height="11"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/></svg></button>
+    </div></td></tr>`;}).join('');
+}
+
+// ══ SURGICAL ══
+function saveSurg(){
+  const ptId=document.getElementById('surg-pt').value;if(!ptId){toast('Select a patient.','err');return;}
+  const eid=document.getElementById('surg-eid').value;
+  const o={id:eid||uid(),patientId:ptId,procedure:document.getElementById('surg-proc').value,eye:document.getElementById('surg-eye').value,date:document.getElementById('surg-date').value,surgeon:document.getElementById('surg-surg').value,alR:document.getElementById('surg-alr').value,alL:document.getElementById('surg-all').value,kerR:document.getElementById('surg-kr').value,kerL:document.getElementById('surg-kl').value,target:document.getElementById('surg-tgt').value,iolR:document.getElementById('surg-iolr').value,iolL:document.getElementById('surg-ioll').value,formula:document.getElementById('surg-form').value,iolModel:document.getElementById('surg-iolm').value,anae:document.getElementById('surg-anae').value,investigations:document.getElementById('surg-inv').value,preop:document.getElementById('surg-preop').value,postop:document.getElementById('surg-postop').value,status:document.getElementById('surg-stat').value,outcomeVA:document.getElementById('surg-outva').value};
+  if(eid){const i=surgs.findIndex(x=>x.id===eid);if(i>-1)surgs[i]=o;}else surgs.push(o);
+  saveAll();closeMod('surgical');toast(eid?'Surgical plan updated!':'Surgical plan saved!');renderDash();renderSurg();
+}
+function editSurg(id){
+  const s=surgs.find(x=>x.id===id);if(!s)return;
+  const sel=document.getElementById('surg-pt');sel.innerHTML='<option value="">Select patient…</option>';
+  pts.forEach(p=>{const o=document.createElement('option');o.value=p.id;o.textContent=p.name;sel.appendChild(o);});
+  document.getElementById('surgMT').textContent='Edit Surgical Plan';
+  document.getElementById('surg-eid').value=s.id;document.getElementById('surg-pt').value=s.patientId;document.getElementById('surg-proc').value=s.procedure;document.getElementById('surg-eye').value=s.eye;document.getElementById('surg-date').value=s.date||'';document.getElementById('surg-surg').value=s.surgeon||'';document.getElementById('surg-alr').value=s.alR||'';document.getElementById('surg-all').value=s.alL||'';document.getElementById('surg-kr').value=s.kerR||'';document.getElementById('surg-kl').value=s.kerL||'';document.getElementById('surg-tgt').value=s.target||'';document.getElementById('surg-iolr').value=s.iolR||'';document.getElementById('surg-ioll').value=s.iolL||'';document.getElementById('surg-form').value=s.formula||'SRK/T';document.getElementById('surg-iolm').value=s.iolModel||'';document.getElementById('surg-anae').value=s.anae||'Topical';document.getElementById('surg-inv').value=s.investigations||'Ordered';document.getElementById('surg-preop').value=s.preop||'';document.getElementById('surg-postop').value=s.postop||'';document.getElementById('surg-stat').value=s.status||'Planned';document.getElementById('surg-outva').value=s.outcomeVA||'';
+  document.getElementById('mod-surgical').classList.add('open');
+}
+function renderSurg(search=''){
+  const stF=document.getElementById('surgFilter')?.value||'';
+  const tb=document.getElementById('surgBody');
+  const list=surgs.filter(s=>{const p=pts.find(x=>x.id===s.patientId)||{name:''};const q=(search||'').toLowerCase();return(!q||p.name.toLowerCase().includes(q)||(s.procedure||'').toLowerCase().includes(q))&&(!stF||s.status===stF);}).sort((a,b)=>(b.date||'').localeCompare(a.date||''));
+  if(!list.length){tb.innerHTML=`<tr><td colspan="9"><div class="empty" style="padding:28px;"><p>No surgical plans found.</p></div></td></tr>`;return;}
+  tb.innerHTML=list.map(s=>{
+    const p=pts.find(x=>x.id===s.patientId)||{name:'Unknown'};
+    const sc=s.status==='Completed'?'b-gn':s.status==='Scheduled'?'b-cy':s.status==='Cancelled'?'b-ro':'b-am';
+    const iolDisp=s.iolR||s.iolL?`${s.iolR||'—'}D / ${s.iolL||'—'}D`:'—';
+    const kerDisp=s.kerR||s.kerL?`${s.kerR||'—'}`:'—';
+    return `<tr><td><div style="display:flex;align-items:center;gap:8px;"><div class="av" style="width:26px;height:26px;font-size:9.5px;background:${avc(p.name)};">${ini(p.name)}</div><span style="font-size:12.5px;font-weight:600;">${p.name}</span></div></td>
+    <td style="font-size:12px;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${s.procedure}</td>
+    <td><span class="bdg b-vi" style="font-size:10px;">${s.eye.replace('Right Eye (OD)','OD').replace('Left Eye (OS)','OS').replace('Both Eyes (OU)','OU')}</span></td>
+    <td style="font-size:12px;font-family:monospace;">${iolDisp}</td>
+    <td style="font-size:11.5px;color:var(--muted);">${kerDisp}</td>
+    <td style="font-size:12px;font-family:monospace;">${s.alR||s.alL?`${s.alR||'—'}/${s.alL||'—'}`:'—'}</td>
+    <td style="font-size:11.5px;color:var(--muted);">${fmtD(s.date)}</td>
+    <td><span class="bdg ${sc}">${s.status}</span></td>
+    <td><div style="display:flex;gap:3px;">
+      <button class="ibt" onclick="editSurg('${s.id}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" width="11" height="11"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
+      <button class="ibt" onclick="delRec('surg','${s.id}','surgical plan')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" width="11" height="11"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/></svg></button>
+    </div></td></tr>`;}).join('');
+}
+
+// ══ APPOINTMENTS ══
+function saveAppt(){
+  const ptId=document.getElementById('appt-pt').value,date=document.getElementById('appt-dt').value;
+  if(!ptId||!date){toast('Patient and date required.','err');return;}
+  const eid=document.getElementById('appt-eid').value;
+  const o={id:eid||uid(),patientId:ptId,date,time:document.getElementById('appt-tm').value,type:document.getElementById('appt-vt').value,status:document.getElementById('appt-st').value,reminder:document.getElementById('appt-rem').value,notes:document.getElementById('appt-nt').value};
+  if(eid){const i=appts.findIndex(a=>a.id===eid);if(i>-1)appts[i]=o;}else appts.push(o);
+  saveAll();closeMod('appointment');toast(eid?'Appointment updated!':'Appointment booked!');renderDash();renderCal();updBadge();
+}
+function editAppt(id){
+  const a=appts.find(x=>x.id===id);if(!a)return;
+  const sel=document.getElementById('appt-pt');sel.innerHTML='<option value="">Select patient…</option>';
+  pts.forEach(p=>{const o=document.createElement('option');o.value=p.id;o.textContent=p.name;sel.appendChild(o);});
+  document.getElementById('apptMT').textContent='Edit Appointment';
+  document.getElementById('appt-eid').value=a.id;document.getElementById('appt-pt').value=a.patientId;document.getElementById('appt-dt').value=a.date;document.getElementById('appt-tm').value=a.time;document.getElementById('appt-vt').value=a.type;document.getElementById('appt-st').value=a.status||'Scheduled';document.getElementById('appt-rem').value=a.reminder||'Not sent';document.getElementById('appt-nt').value=a.notes||'';
+  document.getElementById('mod-appointment').classList.add('open');
+}
+function chMon(d){calMon+=d;if(calMon>11){calMon=0;calYr++;}if(calMon<0){calMon=11;calYr--;}renderCal();}
+function renderCal(){
+  document.getElementById('calLbl').textContent=MONTHS[calMon]+' '+calYr;
+  const first=new Date(calYr,calMon,1).getDay(),dim=new Date(calYr,calMon+1,0).getDate(),prev=new Date(calYr,calMon,0).getDate(),now=new Date();
+  const aDays=new Set(appts.filter(a=>{const d=new Date(a.date+'T00:00:00');return d.getMonth()===calMon&&d.getFullYear()===calYr;}).map(a=>new Date(a.date+'T00:00:00').getDate()));
+  let h='';
+  for(let i=0;i<first;i++)h+=`<div class="cc om">${prev-first+1+i}</div>`;
+  for(let d=1;d<=dim;d++){
+    const iT=d===now.getDate()&&calMon===now.getMonth()&&calYr===now.getFullYear();
+    const iS=d===selD&&calMon===selM&&calYr===selY;
+    h+=`<div class="cc${iT?' tod':''}${iS&&!iT?' sel':''}${aDays.has(d)?' ha':''}" onclick="selDay(${d})">${d}</div>`;
+  }
+  const rem=(7-(first+dim)%7)%7;for(let i=1;i<=rem;i++)h+=`<div class="cc om">${i}</div>`;
+  document.getElementById('calGrid').innerHTML=h;
+  renderSlots();renderUpcoming();renderReminders();
+}
+function selDay(d){selD=d;selM=calMon;selY=calYr;renderCal();}
+function renderSlots(){
+  const dStr=`${selY}-${String(selM+1).padStart(2,'0')}-${String(selD).padStart(2,'0')}`;
+  const dayA=appts.filter(a=>a.date===dStr).sort((a,b)=>a.time.localeCompare(b.time));
+  document.getElementById('slotLbl').textContent=`${DAYS[new Date(dStr+'T00:00:00').getDay()]}, ${selD} ${MONTHS[selM]} ${selY}`;
+  const el=document.getElementById('slotList');
+  if(!dayA.length){el.innerHTML='<div style="font-size:12px;color:var(--muted);padding:12px 0;text-align:center;">No appointments this day.</div>';return;}
+  el.innerHTML=dayA.map(a=>{
+    const p=pts.find(x=>x.id===a.patientId)||{name:'Unknown'};
+    const c=a.status==='Done'?'#009e82':a.status==='In Progress'?'#f0990a':a.status==='No-Show'?'#ff3d5a':a.status==='Cancelled'?'#6b7590':'#3361ff';
+    const remC=a.reminder==='Not sent'?'b-gr':'b-cy';
+    return `<div style="display:flex;gap:10px;align-items:flex-start;margin-bottom:8px;">
+      <div style="font-size:11px;font-weight:700;color:var(--blue);min-width:50px;padding-top:9px;">${a.time}</div>
+      <div style="flex:1;border-radius:9px;padding:9px 12px;background:${c}12;border-left:3px solid ${c};">
+        <div style="font-size:12.5px;font-weight:600;">${p.name}</div>
+        <div style="font-size:11px;color:var(--muted);">${a.type}</div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-top:5px;">
+          <div style="display:flex;gap:4px;flex-wrap:wrap;">
+            <span class="bdg" style="background:${c}20;color:${c};font-size:10px;">${a.status}</span>
+            <span class="bdg ${remC}" style="font-size:10px;">${a.reminder}</span>
+          </div>
+          <div style="display:flex;gap:3px;">
+            <button class="ibt" onclick="editAppt('${a.id}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" width="10" height="10"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
+            <button class="ibt" onclick="delRec('appt','${a.id}','appointment')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" width="10" height="10"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/></svg></button>
+          </div>
+        </div>
+      </div>
+    </div>`;}).join('');
+}
+function renderUpcoming(){
+  const el=document.getElementById('upcomingList');
+  const list=appts.filter(a=>a.date>=td()).sort((a,b)=>a.date.localeCompare(b.date)||a.time.localeCompare(b.time)).slice(0,10);
+  if(!list.length){el.innerHTML='<div style="font-size:12px;color:var(--muted);padding:8px 0;text-align:center;">No upcoming appointments.</div>';return;}
+  el.innerHTML=list.map(a=>{
+    const p=pts.find(x=>x.id===a.patientId)||{name:'Unknown'};
+    const sc=a.status==='Done'?'b-cy':a.status==='No-Show'?'b-ro':a.status==='Cancelled'?'b-gr':'b-bl';
+    return `<div style="display:flex;align-items:center;gap:9px;padding:9px 0;border-bottom:1px solid var(--border);">
+      <div class="av" style="width:28px;height:28px;font-size:10px;background:${avc(p.name)};">${ini(p.name)}</div>
+      <div style="flex:1;min-width:0;"><div style="font-size:12px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${p.name}</div><div style="font-size:10.5px;color:var(--muted);">${a.type}</div><div style="font-size:10px;color:var(--blue);font-weight:600;">${fmtD(a.date)} · ${a.time}</div></div>
+      <span class="bdg ${sc}" style="font-size:10px;">${a.status}</span>
+    </div>`;}).join('');
+}
+function renderReminders(){
+  const el=document.getElementById('remindersPanel');
+  const needRem=appts.filter(a=>a.date>=td()&&a.reminder==='Not sent').slice(0,5);
+  if(!needRem.length){el.innerHTML='<div class="ct" style="margin-bottom:10px;">Reminders</div><div style="font-size:12px;color:var(--muted);text-align:center;padding:10px 0;">All reminders sent ✓</div>';return;}
+  el.innerHTML=`<div class="ct" style="margin-bottom:10px;">Pending Reminders <span class="bdg b-am" style="margin-left:4px;">${needRem.length}</span></div>`+
+  needRem.map(a=>{const p=pts.find(x=>x.id===a.patientId)||{name:'Unknown'};return `<div class="rem-chip"><div class="rem-dot" style="background:var(--amber);"></div><div style="flex:1;"><div style="font-size:12px;font-weight:600;">${p.name}</div><div style="font-size:10.5px;color:var(--muted);">${fmtD(a.date)} · ${a.time}</div></div><button class="btn btn-sm btn-amber" onclick="markRemSent('${a.id}')">Send</button></div>`;}).join('');
+}
+function markRemSent(id){const i=appts.findIndex(a=>a.id===id);if(i>-1){appts[i].reminder='SMS sent';saveAll();renderCal();renderDash();toast('Reminder marked sent.');}}
+function sendAllReminders(){appts.forEach(a=>{if(a.date>=td()&&a.reminder==='Not sent')a.reminder='SMS sent';});saveAll();closeMod('reminder');toast('All reminders marked sent!');renderCal();renderDash();}
+function openRemModal(){
+  const needRem=appts.filter(a=>a.date>=td()&&a.reminder==='Not sent');
+  const el=document.getElementById('remModalList');
+  if(!needRem.length){el.innerHTML='<div style="text-align:center;color:var(--muted);padding:20px;">No pending reminders. All appointments have been notified.</div>';return;}
+  el.innerHTML=needRem.map(a=>{const p=pts.find(x=>x.id===a.patientId)||{name:'Unknown'};return `<div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border);"><div class="av" style="width:30px;height:30px;font-size:11px;background:${avc(p.name)};">${ini(p.name)}</div><div style="flex:1;"><div style="font-size:13px;font-weight:600;">${p.name}</div><div style="font-size:11.5px;color:var(--muted);">${fmtD(a.date)} at ${a.time} — ${a.type}</div></div><button class="btn btn-sm btn-amber" onclick="markRemSent('${a.id}');openRemModal()">Mark Sent</button></div>`;}).join('');
+}
+// reminder button wired inline above
+
+// ══ INVENTORY ══
+const catColors={frames:{bg:'var(--vbg)',c:'var(--violet)',icon:'<path d="M4 10h16M8 6l-4 4 4 4M16 6l4 4-4 4"/>'},lenses:{bg:'var(--cbg)',c:'var(--cyan-d)',icon:'<circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/>'},contacts:{bg:'var(--bbg)',c:'var(--blue)',icon:'<circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4"/>'},consumables:{bg:'var(--abg)',c:'var(--amber)',icon:'<path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>'}};
+function switchInvTab(tab,el){invTab=tab;document.querySelectorAll('#invTabs .tab').forEach(t=>t.classList.remove('active'));el.classList.add('active');renderInv();}
+function saveInvItem(){
+  const name=document.getElementById('inv-name').value.trim(),qty=document.getElementById('inv-qty').value;
+  if(!name||qty===''){toast('Name and stock quantity required.','err');return;}
+  const eid=document.getElementById('inv-eid').value;
+  const o={id:eid||uid(),name,category:document.getElementById('inv-cat').value,brand:document.getElementById('inv-brand').value,sku:document.getElementById('inv-sku').value,qty:Number(qty),minQty:Number(document.getElementById('inv-min').value||5),cost:Number(document.getElementById('inv-cost').value||0),price:Number(document.getElementById('inv-price').value||0),description:document.getElementById('inv-desc').value,supplier:document.getElementById('inv-supp').value,restocked:document.getElementById('inv-rst').value};
+  if(eid){const i=invItems.findIndex(x=>x.id===eid);if(i>-1)invItems[i]=o;}else invItems.push(o);
+  saveAll();closeMod('invItem');toast(eid?'Item updated!':'Item added!');renderInv();renderDash();updInvBadge();
+}
+function editInvItem(id){
+  const it=invItems.find(x=>x.id===id);if(!it)return;
+  document.getElementById('invMT').textContent='Edit Inventory Item';
+  document.getElementById('inv-eid').value=it.id;document.getElementById('inv-name').value=it.name;document.getElementById('inv-cat').value=it.category||'frames';document.getElementById('inv-brand').value=it.brand||'';document.getElementById('inv-sku').value=it.sku||'';document.getElementById('inv-qty').value=it.qty;document.getElementById('inv-min').value=it.minQty||5;document.getElementById('inv-cost').value=it.cost||'';document.getElementById('inv-price').value=it.price||'';document.getElementById('inv-desc').value=it.description||'';document.getElementById('inv-supp').value=it.supplier||'';document.getElementById('inv-rst').value=it.restocked||'';
+  document.getElementById('mod-invItem').classList.add('open');
+}
+function adjustStock(id,delta){
+  const i=invItems.findIndex(x=>x.id===id);if(i<0)return;
+  invItems[i].qty=Math.max(0,invItems[i].qty+delta);
+  saveAll();renderInv();renderDash();updInvBadge();
+  toast(`Stock ${delta>0?'increased':'decreased'}: ${invItems[i].name} now ${invItems[i].qty} units.`);
+}
+function renderInv(){
+  const search=document.getElementById('invSearch')?.value.toLowerCase()||'';
+  const stF=document.getElementById('invStockFilter')?.value||'';
+  const thr=lowStockThreshold();
+  const list=invItems.filter(it=>{
+    const matchCat=it.category===invTab;
+    const matchS=!search||it.name.toLowerCase().includes(search)||(it.brand||'').toLowerCase().includes(search)||(it.sku||'').toLowerCase().includes(search);
+    const matchSt=!stF||(stF==='low'&&it.qty<=it.minQty)||(stF==='ok'&&it.qty>it.minQty);
+    return matchCat&&matchS&&matchSt;
+  });
+  // alerts
+  const lowAll=invItems.filter(it=>it.qty<=it.minQty);
+  const alertEl=document.getElementById('invAlerts');
+  alertEl.innerHTML=lowAll.length?`<div class="alert alert-warn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg><strong>${lowAll.length} item(s) low on stock:</strong> ${lowAll.map(it=>it.name).slice(0,4).join(', ')}${lowAll.length>4?` + ${lowAll.length-4} more`:''}</div>`:'';
+  const col=catColors[invTab];
+  const el=document.getElementById('invGrid');
+  if(!list.length){el.innerHTML='<div class="empty" style="padding:32px;"><p>No items in this category.</p></div>';return;}
+  el.innerHTML=`<div style="display:flex;flex-direction:column;gap:8px;">`+list.map(it=>{
+    const isLow=it.qty<=it.minQty;const pct=Math.min(100,Math.round(it.qty/(it.minQty*3)*100));
+    const barC=isLow?'var(--rose)':it.qty<it.minQty*2?'var(--amber)':'var(--cyan)';
+    const priceH=isDoc()?`<div style="font-size:11.5px;color:var(--muted);">${fmt(it.price)}</div>`:'';
+    return `<div class="inv-card">
+      <div class="inv-thumb" style="background:${col.bg};"><svg viewBox="0 0 24 24" fill="none" stroke="${col.c}" stroke-width="2" stroke-linecap="round" width="20" height="20">${col.icon}</svg></div>
+      <div class="inv-info">
+        <div class="inv-name">${it.name}${it.brand?` <span style="font-size:10.5px;color:var(--muted);">${it.brand}</span>`:''}</div>
+        <div class="inv-meta">${it.sku?`SKU: ${it.sku} · `:''}${it.supplier?`${it.supplier} · `:''}Last restocked: ${fmtD(it.restocked)}</div>
+        <div class="stock-bar" style="width:120px;margin-top:6px;"><div class="stock-fill" style="width:${pct}%;background:${barC};"></div></div>
+        ${isLow?`<span class="bdg b-ro" style="font-size:10px;margin-top:4px;">Low stock — reorder</span>`:''}
+      </div>
+      <div class="inv-stock">
+        <div class="inv-qty" style="color:${isLow?'var(--rose)':it.qty===0?'var(--rose)':'var(--ink)'}">${it.qty}</div>
+        <div class="inv-qlbl">Min: ${it.minQty}</div>
+        ${priceH}
+        <div style="display:flex;gap:4px;margin-top:6px;justify-content:flex-end;">
+          <button class="ibt" onclick="adjustStock('${it.id}',-1)" title="Remove 1">−</button>
+          <button class="ibt" onclick="adjustStock('${it.id}',1)" title="Add 1">+</button>
+          <button class="ibt" onclick="editInvItem('${it.id}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" width="11" height="11"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
+          <button class="ibt" onclick="delRec('inv','${it.id}','${it.name.replace(/'/g,"\\'")}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" width="11" height="11"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/></svg></button>
+        </div>
+      </div>
+    </div>`;}).join('')+'</div>';
+}
+function updInvBadge(){const low=invItems.filter(it=>it.qty<=it.minQty).length;const b=document.getElementById('invBadge');b.textContent=low;b.style.display=low?'':'none';}
+
+// ══ BILLING ══
+function saveInv2(){
+  const ptId=document.getElementById('bill-pt').value,svc=document.getElementById('bill-svc').value.trim(),amt=document.getElementById('bill-amt').value;
+  if(!ptId||!svc||!amt){toast('Patient, service and amount required.','err');return;}
+  const eid=document.getElementById('bill-eid').value;
+  const o={id:eid||uid(),patientId:ptId,service:svc,amount:Number(amt),date:document.getElementById('bill-dt').value||td(),method:document.getElementById('bill-mth').value,status:document.getElementById('bill-st').value,notes:document.getElementById('bill-nt').value};
+  if(eid){const i=bills.findIndex(x=>x.id===eid);if(i>-1)bills[i]=o;}else bills.push(o);
+  saveAll();closeMod('invoice');toast(eid?'Invoice updated!':'Invoice created!');renderDash();renderBilling();
+}
+function editInv3(id){
+  const b=bills.find(x=>x.id===id);if(!b)return;
+  const sel=document.getElementById('bill-pt');sel.innerHTML='<option value="">Select patient…</option>';
+  pts.forEach(p=>{const o=document.createElement('option');o.value=p.id;o.textContent=p.name;sel.appendChild(o);});
+  document.getElementById('invMdT').textContent='Edit Invoice';
+  document.getElementById('bill-eid').value=b.id;document.getElementById('bill-pt').value=b.patientId;document.getElementById('bill-svc').value=b.service;document.getElementById('bill-amt').value=b.amount;document.getElementById('bill-dt').value=b.date;document.getElementById('bill-mth').value=b.method||'Cash';document.getElementById('bill-st').value=b.status;document.getElementById('bill-nt').value=b.notes||'';
+  document.getElementById('mod-invoice').classList.add('open');
+}
+function renderBilling(search=''){
+  const stF=document.getElementById('billFilter')?.value||'';
+  const total=bills.reduce((s,b)=>s+Number(b.amount||0),0);
+  const paid=bills.filter(b=>b.status==='Paid').reduce((s,b)=>s+Number(b.amount||0),0);
+  const owed=bills.filter(b=>b.status!=='Paid').reduce((s,b)=>s+Number(b.amount||0),0);
+  const owedC=bills.filter(b=>b.status!=='Paid').length;
+  const bs=document.getElementById('billStats');
+  if(isDoc()){
+    bs.innerHTML=`<div class="sc"><div class="sl" style="margin-bottom:5px;">Total Billed</div><div class="sv" style="font-size:19px;">${fmt(total)}</div><div class="sd" style="color:var(--muted);">${bills.length} invoices</div></div>
+    <div class="sc c-cy"><div class="sl" style="margin-bottom:5px;">Collected</div><div class="sv" style="font-size:19px;color:var(--cyan-d);">${fmt(paid)}</div><div class="sd up">${total?Math.round(paid/total*100):0}% rate</div></div>
+    <div class="sc c-ro"><div class="sl" style="margin-bottom:5px;">Outstanding</div><div class="sv" style="font-size:19px;color:var(--rose);">${fmt(owed)}</div><div class="sd dn">${owedC} pending</div></div>`;
+  } else {
+    bs.innerHTML=`<div class="sc"><div class="sl" style="margin-bottom:5px;">Total Invoices</div><div class="sv" style="font-size:19px;">${bills.length}</div></div>
+    <div class="sc c-cy"><div class="sl" style="margin-bottom:5px;">Paid</div><div class="sv" style="font-size:19px;color:var(--cyan-d);">${bills.filter(b=>b.status==='Paid').length}</div></div>
+    <div class="sc locked"><div class="sl" style="margin-bottom:5px;">Revenue</div><div class="lv">₦••••</div><div class="lm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>Doctor only</div></div>`;
+  }
+  const list=bills.filter(b=>{const p=pts.find(x=>x.id===b.patientId)||{name:''};const q=(search||'').toLowerCase();return(!q||p.name.toLowerCase().includes(q)||b.service.toLowerCase().includes(q))&&(!stF||b.status===stF);}).sort((a,b2)=>b2.date.localeCompare(a.date));
+  const el=document.getElementById('billList');
+  if(!list.length){el.innerHTML='<div class="empty" style="padding:28px;"><p>No invoices found.</p></div>';return;}
+  el.innerHTML=list.map(b=>{
+    const p=pts.find(x=>x.id===b.patientId)||{name:'Unknown'};
+    const sc=b.status==='Paid'?{bg:'var(--cbg)',c:'var(--cyan-d)',cls:'b-cy'}:b.status==='Overdue'?{bg:'var(--rbg)',c:'var(--rose)',cls:'b-ro'}:{bg:'var(--abg)',c:'#9a6200',cls:'b-am'};
+    const amtH=isDoc()?`<div style="font-size:14px;font-weight:700;font-family:'Instrument Serif',serif;">${fmt(b.amount)}</div>`:`<div style="font-size:14px;font-weight:700;filter:blur(5px);color:var(--muted2);user-select:none;">₦•••</div>`;
+    return `<div style="display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid var(--border);transition:var(--tr);" onmouseenter="this.style.background='var(--s2)'" onmouseleave="this.style.background=''">
+      <div style="width:34px;height:34px;border-radius:9px;background:${sc.bg};display:flex;align-items:center;justify-content:center;flex-shrink:0;"><svg viewBox="0 0 24 24" fill="none" stroke="${sc.c}" stroke-width="2" stroke-linecap="round" width="14" height="14"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg></div>
+      <div style="flex:1;min-width:0;"><div style="font-size:12.5px;font-weight:600;">${p.name}</div><div style="font-size:11.5px;color:var(--muted);">${b.service.slice(0,55)}${b.service.length>55?'…':''} · ${fmtD(b.date)} · ${b.method}</div></div>
+      <div style="text-align:right;">${amtH}<span class="bdg ${sc.cls}" style="margin-top:3px;">${b.status}</span>
+        <div style="display:flex;gap:3px;margin-top:5px;justify-content:flex-end;">
+          <button class="ibt" onclick="editInv3('${b.id}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" width="11" height="11"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
+          <button class="ibt" onclick="delRec('bill','${b.id}','invoice')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" width="11" height="11"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/></svg></button>
+        </div>
+      </div>
+    </div>`;}).join('');
+}
+
+// ══ DASHBOARD ══
+function renderDash(){
+  const t=td(),now=new Date();
+  const todayA=appts.filter(a=>a.date===t);
+  const upcomingA=todayA.filter(a=>a.status==='Scheduled'||a.status==='Confirmed'||a.status==='In Progress');
+  const paid=bills.filter(b=>b.status==='Paid').reduce((s,b)=>s+Number(b.amount||0),0);
+  const owed=bills.filter(b=>b.status!=='Paid').reduce((s,b)=>s+Number(b.amount||0),0);
+  const owedC=bills.filter(b=>b.status!=='Paid').length;
+  const newPts=pts.filter(p=>p.createdAt===t).length;
+  const lowStock=invItems.filter(it=>it.qty<=it.minQty).length;
+  const pendRem=appts.filter(a=>a.date>=t&&a.reminder==='Not sent').length;
+  document.getElementById('dashDate').textContent=`${DAYS[now.getDay()]}, ${now.getDate()} ${MONTHS[now.getMonth()]} ${now.getFullYear()}`;
+  const statEl=document.getElementById('dashStats');
+  if(isDoc()){
+    statEl.innerHTML=`
+      <div class="sc c-cy"><div class="si" style="background:var(--cbg);color:var(--cyan);"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></div><div class="sv">${pts.length}</div><div class="sl">Total Patients</div><div class="sd up">${newPts?'↑ '+newPts+' today':''}</div></div>
+      <div class="sc c-bl"><div class="si" style="background:var(--bbg);color:var(--blue);"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div><div class="sv">${todayA.length}</div><div class="sl">Today's Appointments</div><div class="sd" style="color:var(--muted);">${upcomingA.length} remaining</div></div>
+      <div class="sc c-am"><div class="si" style="background:var(--abg);color:var(--amber);"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div><div class="sv">${fmt(paid)}</div><div class="sl">Revenue Collected</div><div class="sd up">${bills.filter(b=>b.status==='Paid').length} invoices</div></div>
+      <div class="sc c-ro"><div class="si" style="background:var(--rbg);color:var(--rose);"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div><div class="sv">${fmt(owed)}</div><div class="sl">Outstanding Bills</div><div class="sd dn">${owedC} invoices</div></div>`;
+  } else {
+    statEl.innerHTML=`
+      <div class="sc c-cy"><div class="si" style="background:var(--cbg);color:var(--cyan);"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></div><div class="sv">${pts.length}</div><div class="sl">Total Patients</div><div class="sd up">${newPts?'↑ '+newPts+' today':''}</div></div>
+      <div class="sc c-bl"><div class="si" style="background:var(--bbg);color:var(--blue);"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div><div class="sv">${todayA.length}</div><div class="sl">Today's Appointments</div><div class="sd" style="color:var(--muted);">${upcomingA.length} remaining</div></div>
+      <div class="sc locked"><div class="si" style="background:var(--s3);color:var(--muted2);"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div><div class="lv">₦••••</div><div class="sl">Revenue</div><div class="lm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>Doctor only</div></div>
+      <div class="sc c-vi"><div class="si" style="background:var(--vbg);color:var(--violet);"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg></div><div class="sv">${lowStock||'0'}</div><div class="sl">Low Stock Items</div><div class="sd ${lowStock?'dn':''}">${lowStock?'Needs reorder':'All stocked'}</div></div>`;
+  }
+  // Today's appts
+  const aEl=document.getElementById('dashApptList');
+  if(!todayA.length){aEl.innerHTML='<div style="font-size:12px;color:var(--muted);text-align:center;padding:14px;">No appointments today.</div>';}
+  else aEl.innerHTML=todayA.sort((a,b)=>a.time.localeCompare(b.time)).map(a=>{const p=pts.find(x=>x.id===a.patientId)||{name:'Unknown'};const sc=a.status==='Done'?'b-cy':a.status==='No-Show'?'b-ro':a.status==='Cancelled'?'b-gr':'b-bl';return`<div style="display:flex;align-items:center;gap:9px;padding:9px 0;border-bottom:1px solid var(--border);"><div style="font-size:11px;font-weight:700;color:var(--blue);min-width:44px;">${a.time}</div><div class="av" style="width:26px;height:26px;font-size:9.5px;background:${avc(p.name)};">${ini(p.name)}</div><div style="flex:1;min-width:0;"><div style="font-size:12px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${p.name}</div><div style="font-size:10.5px;color:var(--muted);">${a.type}</div></div><span class="bdg ${sc}" style="font-size:10px;">${a.status}</span></div>`;}).join('');
+  // Quick actions
+  document.getElementById('dashQA').innerHTML=`
+    <button style="padding:12px;border-radius:10px;border:1.5px solid var(--border);background:var(--surface);cursor:pointer;text-align:left;transition:var(--tr);font-family:'Sora',sans-serif;display:flex;align-items:center;gap:10px;" onmouseenter="this.style.borderColor='var(--cyan)';this.style.background='var(--cbg)'" onmouseleave="this.style.borderColor='var(--border)';this.style.background='var(--surface)'" onclick="openMod('patient')"><div style="width:30px;height:30px;border-radius:8px;background:var(--cbg);color:var(--cyan);display:flex;align-items:center;justify-content:center;flex-shrink:0;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" width="14" height="14"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg></div><div><div style="font-size:12px;font-weight:600;">Register Patient</div></div></button>
+    <button style="padding:12px;border-radius:10px;border:1.5px solid var(--border);background:var(--surface);cursor:pointer;text-align:left;transition:var(--tr);font-family:'Sora',sans-serif;display:flex;align-items:center;gap:10px;" onmouseenter="this.style.borderColor='var(--blue)';this.style.background='var(--bbg)'" onmouseleave="this.style.borderColor='var(--border)';this.style.background='var(--surface)'" onclick="openMod('appointment')"><div style="width:30px;height:30px;border-radius:8px;background:var(--bbg);color:var(--blue);display:flex;align-items:center;justify-content:center;flex-shrink:0;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" width="14" height="14"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div><div><div style="font-size:12px;font-weight:600;">Book Appointment</div></div></button>
+    <button style="padding:12px;border-radius:10px;border:1.5px solid var(--border);background:var(--surface);cursor:pointer;text-align:left;transition:var(--tr);font-family:'Sora',sans-serif;display:flex;align-items:center;gap:10px;" onmouseenter="this.style.borderColor='var(--teal)';this.style.background='var(--tbg)'" onmouseleave="this.style.borderColor='var(--border)';this.style.background='var(--surface)'" onclick="openMod('emr')"><div style="width:30px;height:30px;border-radius:8px;background:var(--tbg);color:var(--teal);display:flex;align-items:center;justify-content:center;flex-shrink:0;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" width="14" height="14"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg></div><div><div style="font-size:12px;font-weight:600;">New Examination</div></div></button>
+    <button style="padding:12px;border-radius:10px;border:1.5px solid var(--border);background:var(--surface);cursor:pointer;text-align:left;transition:var(--tr);font-family:'Sora',sans-serif;display:flex;align-items:center;gap:10px;" onmouseenter="this.style.borderColor='var(--amber)';this.style.background='var(--abg)'" onmouseleave="this.style.borderColor='var(--border)';this.style.background='var(--surface)'" onclick="openMod('invoice')"><div style="width:30px;height:30px;border-radius:8px;background:var(--abg);color:var(--amber);display:flex;align-items:center;justify-content:center;flex-shrink:0;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" width="14" height="14"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg></div><div><div style="font-size:12px;font-weight:600;">New Invoice</div></div></button>`;
+  // Low stock card
+  const lsEl=document.getElementById('dashLowStockCard');
+  const lowItems=invItems.filter(it=>it.qty<=it.minQty).slice(0,5);
+  lsEl.innerHTML=`<div class="ch"><div class="ct">Low Stock Alerts</div><button class="btn btn-ghost btn-sm" onclick="goPage('inventory',document.querySelector('[onclick*=inventory]'))">View all →</button></div>`+(lowItems.length?lowItems.map(it=>{const col=catColors[it.category||'frames'];return`<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);"><div style="width:28px;height:28px;border-radius:7px;background:${col.bg};display:flex;align-items:center;justify-content:center;flex-shrink:0;"><svg viewBox="0 0 24 24" fill="none" stroke="${col.c}" stroke-width="2" stroke-linecap="round" width="13" height="13">${col.icon}</svg></div><div style="flex:1;"><div style="font-size:12px;font-weight:600;">${it.name}</div><div style="font-size:10.5px;color:var(--muted);">${it.brand||it.category}</div></div><div style="text-align:right;"><div style="font-size:13px;font-weight:700;color:var(--rose);">${it.qty}</div><div style="font-size:10px;color:var(--muted);">Min: ${it.minQty}</div></div></div>`;}).join(''):`<div style="font-size:12px;color:var(--muted);text-align:center;padding:12px;">All inventory stocked ✓</div>`);
+  // Pending bills
+  const pcEl=document.getElementById('dashPendCard');
+  const pendList=bills.filter(b=>b.status!=='Paid').slice(0,4);
+  if(isDoc()){
+    pcEl.innerHTML=`<div class="ct" style="margin-bottom:12px;">Pending Payments</div>`+(pendList.length?pendList.map(b=>{const p=pts.find(x=>x.id===b.patientId)||{name:'Unknown'};return`<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);"><div><div style="font-size:12px;font-weight:600;">${p.name}</div><div style="font-size:11px;color:var(--muted);">${b.service.slice(0,28)}</div></div><div style="text-align:right;"><div style="font-size:12.5px;font-weight:700;color:var(--rose);">${fmt(b.amount)}</div><span class="bdg ${b.status==='Overdue'?'b-ro':'b-am'}" style="font-size:9.5px;">${b.status}</span></div></div>`;}).join(''):`<div style="font-size:12px;color:var(--muted);text-align:center;padding:10px;">No outstanding bills 🎉</div>`);
+  } else {
+    pcEl.innerHTML=`<div class="ct" style="margin-bottom:12px;">Pending Invoices</div>`+(pendList.length?pendList.map(b=>{const p=pts.find(x=>x.id===b.patientId)||{name:'Unknown'};return`<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);"><div><div style="font-size:12px;font-weight:600;">${p.name}</div><div style="font-size:11px;color:var(--muted);">${b.service.slice(0,28)}</div></div><span class="bdg ${b.status==='Overdue'?'b-ro':'b-am'}" style="font-size:9.5px;">${b.status}</span></div>`;}).join(''):`<div style="font-size:12px;color:var(--muted);text-align:center;padding:10px;">No outstanding invoices.</div>`);
+  }
+  // Reminder nudge
+  const remEl=document.getElementById('dashRemCard');
+  if(pendRem>0){remEl.innerHTML=`<div style="display:flex;align-items:center;gap:12px;"><div style="width:34px;height:34px;border-radius:9px;background:var(--abg);display:flex;align-items:center;justify-content:center;flex-shrink:0;"><svg viewBox="0 0 24 24" fill="none" stroke="var(--amber)" stroke-width="2" stroke-linecap="round" width="15" height="15"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg></div><div style="flex:1;"><div style="font-size:12.5px;font-weight:600;">${pendRem} reminder(s) pending</div><div style="font-size:11px;color:var(--muted);">Upcoming appointments not yet notified</div></div><button class="btn btn-amber btn-sm" onclick="openRemModal();openMod('reminder')">Review</button></div>`;}
+  else remEl.innerHTML='';
+}
+
+// ══ SETTINGS ══
+function saveSettings(){
+  S.s('cv_lsThresh',document.getElementById('sLowStock').value||5);
+  toast('Settings saved!');updInvBadge();
+}
+function loadSettingsUI(){
+  document.getElementById('sLowStock').value=lowStockThreshold();
+  const tb=document.getElementById('accessTable');
+  tb.innerHTML=ACCESS_ROWS.map(r=>`<tr><td style="padding:8px 0;border-top:1px solid var(--border);">${r[0]}</td><td style="text-align:center;padding:8px 12px;border-top:1px solid var(--border);color:${r[1].includes('✓')?'var(--cyan-d)':'var(--rose)'};">${r[1]}</td><td style="text-align:center;padding:8px 12px;border-top:1px solid var(--border);color:${r[2].includes('✓')?'var(--cyan-d)':'var(--rose)'};">${r[2]}</td></tr>`).join('');
+}
+function clearAll(){if(!isDoc()){toast('Only doctors can clear data.','err');return;}cfm('Clear ALL data?','This deletes all patients, exams, appointments, surgical plans, inventory and invoices.',()=>{pts=[];appts=[];emrs=[];surgs=[];invItems=[];bills=[];saveAll();renderDash();renderPts();renderEMR();renderSurg();renderInv();renderBilling();toast('All data cleared.');});}
+
+// ══ BADGES ══
+function updBadge(){const c=appts.filter(a=>a.date===td()&&['Scheduled','Confirmed','In Progress'].includes(a.status)).length;const b=document.getElementById('apptBadge');b.textContent=c;b.style.display=c?'':'none';}
+
+// ══ OFFLINE ══
+function chkOnline(){const b=document.getElementById('offBar');if(!navigator.onLine){b.textContent='⚡ Offline — all changes saved locally';b.classList.add('show');}else b.classList.remove('show');}
+window.addEventListener('online',chkOnline);window.addEventListener('offline',chkOnline);
+
+// ══ INIT ══
+function initApp(){
+  const isD=isDoc();const rc=isD?'var(--gold)':'var(--blue)';const rn=isD?'Doctor':'Receptionist';
+  document.getElementById('sbRoleDot').style.background=rc;document.getElementById('sbRoleName').textContent=rn;document.getElementById('sbRoleSub').textContent=isD?'Full access':'Limited access';
+  document.getElementById('sbAva').style.background=rc;document.getElementById('sbAva').textContent=isD?'DR':'RX';
+  document.getElementById('sbUname').textContent=isD?'Dr. Admin':'Receptionist';document.getElementById('sbUrole').textContent=isD?'Full access':'Limited access';
+  document.getElementById('tbRoleDot').style.background=rc;document.getElementById('tbRoleLbl').textContent=rn;
+  document.getElementById('navSettings').style.display=isD?'flex':'none';
+  document.getElementById('navBilling').style.display='flex';
+  const now=new Date();document.getElementById('tbDate').textContent=`${DAYS[now.getDay()]}, ${now.getDate()} ${MONTHS[now.getMonth()]} ${now.getFullYear()}`;
+  applyS();renderDash();renderCal();updBadge();updInvBadge();chkOnline();buildActions('dashboard');loadSettingsUI();
+  document.getElementById('hDoc').textContent=getPin('doctor');
+  document.getElementById('hRec').textContent=getPin('receptionist');
+}
+
+// Init hints on login screen
+document.addEventListener('DOMContentLoaded',()=>{
+  document.getElementById('hDoc').textContent=getPin('doctor');
+  document.getElementById('hRec').textContent=getPin('receptionist');
+});
+</script>
+</body>
+</html>
