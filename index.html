@@ -1638,7 +1638,7 @@ function initApp(){
   document.getElementById('navSettings').style.display=isD?'flex':'none';
   document.getElementById('navBilling').style.display='flex';
   const now=new Date();document.getElementById('tbDate').textContent=`${DAYS[now.getDay()]}, ${now.getDate()} ${MONTHS[now.getMonth()]} ${now.getFullYear()}`;
-  loadSampleData();applyS();renderDash();renderCal();updBadge();updInvBadge();chkOnline();buildActions('dashboard');loadSettingsUI();
+  loadSampleData();loadPortalData();applyS();renderDash();renderCal();updBadge();updInvBadge();chkOnline();buildActions('dashboard');loadSettingsUI();
   document.getElementById('hDoc').textContent=getPin('doctor');
   document.getElementById('hRec').textContent=getPin('receptionist');
 }
@@ -1777,6 +1777,352 @@ document.addEventListener('DOMContentLoaded',()=>{
   document.getElementById('hDoc').textContent=getPin('doctor');
   document.getElementById('hRec').textContent=getPin('receptionist');
 });
+
+// ══════════════════════════════════════════════
+// PORTAL — Patient Portal Page
+// ══════════════════════════════════════════════
+let portalPatientId = null;
+let followUps = [];
+let messages = [];
+
+function loadPortalData() {
+  followUps = S.g('cv_fus') || [];
+  messages  = S.g('cv_msgs') || [];
+}
+function savePortalData() {
+  S.s('cv_fus', followUps);
+  S.s('cv_msgs', messages);
+}
+
+function portalSearch(q) {
+  const list = document.getElementById('portalPickList');
+  if (!q || q.length < 1) { list.innerHTML = ''; return; }
+  const matches = pts.filter(p =>
+    p.name.toLowerCase().includes(q.toLowerCase()) ||
+    p.phone.includes(q)
+  ).slice(0, 8);
+  if (!matches.length) {
+    list.innerHTML = `<div style="font-size:12.5px;color:var(--muted);padding:8px 0;">No patients found.</div>`;
+    return;
+  }
+  list.innerHTML = matches.map(p => {
+    const sc = p.status === 'Active' ? 'b-cy' : p.status === 'New' ? 'b-am' : 'b-gr';
+    return `<div onclick="openPortal('${p.id}')" style="display:flex;align-items:center;gap:12px;padding:10px 14px;border-radius:10px;border:1px solid var(--border);background:var(--surface);margin-bottom:6px;cursor:pointer;transition:var(--tr);" onmouseenter="this.style.borderColor='var(--cyan)';this.style.background='var(--cbg)'" onmouseleave="this.style.borderColor='var(--border)';this.style.background='var(--surface)'">
+      <div class="av" style="width:34px;height:34px;font-size:11px;background:${avc(p.name)};">${ini(p.name)}</div>
+      <div style="flex:1;"><div style="font-size:13px;font-weight:600;">${p.name}</div><div style="font-size:11.5px;color:var(--muted);">${p.phone}${p.dob?' · Age '+Math.floor((Date.now()-new Date(p.dob))/(365.25*864e5)):''}</div></div>
+      <span class="bdg ${sc}">${p.status}</span>
+    </div>`;
+  }).join('');
+}
+
+function openPortal(ptId) {
+  portalPatientId = ptId;
+  document.getElementById('portalPickList').innerHTML = '';
+  document.getElementById('portalSearch').value = '';
+  document.getElementById('portalDetail').style.display = 'block';
+  // Reset tabs
+  document.querySelectorAll('#portalTabs .tab').forEach((t,i) => t.classList.toggle('active', i===0));
+  renderPortalHeader();
+  switchPortalTab('summary', document.querySelector('#portalTabs .tab'));
+}
+
+function renderPortalHeader() {
+  const p = pts.find(x => x.id === portalPatientId); if (!p) return;
+  const age = p.dob ? Math.floor((Date.now()-new Date(p.dob))/(365.25*864e5)) : '—';
+  const ptA = appts.filter(a => a.patientId === p.id);
+  const ptE = emrs.filter(e => e.patientId === p.id);
+  const nextA = ptA.filter(a => a.date >= td()).sort((a,b) => a.date.localeCompare(b.date))[0];
+  const sc = p.status === 'Active' ? 'b-cy' : p.status === 'New' ? 'b-am' : 'b-gr';
+  document.getElementById('portalHeader').innerHTML = `
+    <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
+      <div class="av" style="width:52px;height:52px;font-size:16px;flex-shrink:0;background:${avc(p.name)};">${ini(p.name)}</div>
+      <div style="flex:1;min-width:0;">
+        <div style="font-size:17px;font-weight:700;letter-spacing:-0.3px;">${p.name}</div>
+        <div style="font-size:12px;color:var(--muted);margin-top:2px;">${p.phone}${p.email?' · '+p.email:''}</div>
+        <div style="display:flex;gap:6px;margin-top:6px;flex-wrap:wrap;">
+          <span class="bdg ${sc}">${p.status}</span>
+          ${p.blood?`<span class="bdg b-vi">${p.blood}</span>`:''}
+          ${p.allergies&&p.allergies!=='None'?`<span class="bdg b-ro">⚠ ${p.allergies}</span>`:''}
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;text-align:center;flex-shrink:0;">
+        <div style="background:var(--s2);border-radius:9px;padding:10px 14px;">
+          <div style="font-size:18px;font-weight:700;font-family:'Instrument Serif',serif;">${ptE.length}</div>
+          <div style="font-size:10px;color:var(--muted);">Examinations</div>
+        </div>
+        <div style="background:var(--s2);border-radius:9px;padding:10px 14px;">
+          <div style="font-size:18px;font-weight:700;font-family:'Instrument Serif',serif;">${ptA.length}</div>
+          <div style="font-size:10px;color:var(--muted);">Appointments</div>
+        </div>
+        <div style="background:var(--s2);border-radius:9px;padding:10px 14px;">
+          <div style="font-size:12px;font-weight:700;color:${nextA?'var(--blue)':'var(--muted)'};">${nextA?nextA.date.slice(5):'None'}</div>
+          <div style="font-size:10px;color:var(--muted);">Next Appt</div>
+        </div>
+      </div>
+      <div style="display:flex;gap:6px;flex-shrink:0;">
+        <button class="btn btn-ghost btn-sm" onclick="openFUModal('${p.id}')">+ Follow-Up</button>
+        <button class="btn btn-ghost btn-sm" onclick="openMsgModal('${p.id}')">✉ Message</button>
+        <button class="btn btn-primary btn-sm" onclick="closeMod('ptDetail');openNewExam('${p.id}')">+ Exam</button>
+      </div>
+    </div>`;
+}
+
+function switchPortalTab(tab, el) {
+  document.querySelectorAll('#portalTabs .tab').forEach(t => t.classList.remove('active'));
+  if (el) el.classList.add('active');
+  const p = pts.find(x => x.id === portalPatientId); if (!p) return;
+  const el2 = document.getElementById('portalTabContent');
+  const ptE = emrs.filter(e => e.patientId === p.id).sort((a,b) => b.date.localeCompare(a.date));
+  const ptA = appts.filter(a => a.patientId === p.id).sort((a,b) => b.date.localeCompare(a.date));
+  const ptB = bills.filter(b => b.patientId === p.id).sort((a,b) => b.date.localeCompare(a.date));
+  const ptS = surgs.filter(s => s.patientId === p.id);
+  const ptFU = followUps.filter(f => f.patientId === p.id).sort((a,b) => b.date.localeCompare(a.date));
+  const ptMsg = messages.filter(m => m.patientId === p.id).sort((a,b) => b.date.localeCompare(a.date));
+
+  const rowCss = 'display:flex;align-items:flex-start;gap:12px;padding:12px 0;border-bottom:1px solid var(--border);';
+  const emptyHtml = `<div style="text-align:center;padding:32px;color:var(--muted);font-size:12.5px;">Nothing recorded yet.</div>`;
+
+  if (tab === 'summary') {
+    const lastE = ptE[0];
+    const age = p.dob ? Math.floor((Date.now()-new Date(p.dob))/(365.25*864e5)) : '—';
+    el2.innerHTML = `
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;">
+        ${[['Full Name',p.name],['Age / DoB',`${age!=='—'?age+'y':''} ${fmtD(p.dob)}`],['Gender',p.gender||'—'],['Blood Group',p.blood||'Unknown'],['Occupation',p.occupation||'—'],['Address',p.address||'—']].map(([l,v])=>`<div style="background:var(--s2);border-radius:9px;padding:11px 13px;"><div style="font-size:9.5px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:3px;">${l}</div><div style="font-size:13px;font-weight:600;">${v}</div></div>`).join('')}
+        <div style="background:var(--s2);border-radius:9px;padding:11px 13px;grid-column:1/-1;"><div style="font-size:9.5px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:3px;">Allergies</div><div style="font-size:13px;font-weight:600;color:${p.allergies&&p.allergies!=='None'?'var(--rose)':'var(--muted)'};">${p.allergies||'None known'}</div></div>
+        <div style="background:var(--s2);border-radius:9px;padding:11px 13px;grid-column:1/-1;"><div style="font-size:9.5px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:3px;">Medical History</div><div style="font-size:12.5px;color:var(--muted);">${p.notes||'No history recorded.'}</div></div>
+      </div>
+      ${lastE?`<div style="background:var(--cbg);border-radius:10px;padding:14px;border:1px solid rgba(0,207,168,0.15);">
+        <div style="font-size:10px;font-weight:700;color:var(--cyan-d);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px;">Latest Examination — ${fmtD(lastE.date)}</div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;font-size:12px;">
+          <div><div style="color:var(--muted);margin-bottom:2px;">VA (Best Corrected)</div><div style="font-weight:700;font-family:monospace;">${lastE.vaRD||'—'} / ${lastE.vaLD||'—'}</div></div>
+          <div><div style="color:var(--muted);margin-bottom:2px;">IOP</div><div style="font-weight:700;font-family:monospace;">${lastE.iopR||'—'} / ${lastE.iopL||'—'} mmHg</div></div>
+          <div><div style="color:var(--muted);margin-bottom:2px;">Spectacles</div><div style="font-weight:600;">${lastE.spec||'—'}</div></div>
+          <div style="grid-column:1/-1;"><div style="color:var(--muted);margin-bottom:2px;">Diagnosis</div><div style="font-weight:600;">${lastE.diagnosis||'—'}</div></div>
+        </div>
+      </div>`:''}`;
+
+  } else if (tab === 'history') {
+    el2.innerHTML = ptE.length ? `<div class="card"><div class="tw2"><table><thead><tr><th>Date</th><th>Type</th><th>VA (BC)</th><th>IOP</th><th>Diagnosis</th><th>Doctor</th><th></th></tr></thead><tbody>${
+      ptE.map(e=>`<tr><td>${fmtD(e.date)}</td><td><span class="bdg b-te" style="font-size:10px;">${e.type}</span></td><td style="font-family:monospace;font-size:12px;">${e.vaRD||'—'}/${e.vaLD||'—'}</td><td style="font-family:monospace;font-size:12px;">${e.iopR||'—'}/${e.iopL||'—'}</td><td style="max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${(e.diagnosis||'—').slice(0,40)}</td><td style="font-size:11.5px;color:var(--muted);">${e.doctor||'—'}</td><td><button class="ibt" onclick="viewEMR('${e.id}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" width="11" height="11"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button></td></tr>`).join('')
+    }</tbody></table></div></div>` : emptyHtml;
+
+  } else if (tab === 'prescriptions') {
+    const rxEmrs = ptE.filter(e => e.rxRS || e.rxLS || (e.spec && e.spec !== 'No'));
+    el2.innerHTML = rxEmrs.length ? rxEmrs.map(e => `
+      <div class="card cp" style="margin-bottom:12px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+          <div><div style="font-size:13px;font-weight:700;">${fmtD(e.date)}</div><div style="font-size:11.5px;color:var(--muted);">${e.type} · ${e.doctor||'—'}</div></div>
+          <span class="bdg b-vi">${e.spec||'Spectacles'}</span>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+          <div style="background:var(--s2);border-radius:9px;padding:11px;">
+            <div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;margin-bottom:8px;">Right Eye (OD)</div>
+            <div style="font-size:12px;font-family:monospace;font-weight:600;">Sph ${e.rxRS||'—'} / Cyl ${e.rxRC||'—'} × ${e.rxRA||'—'}°${e.rxRAd?' Add '+e.rxRAd:''}</div>
+          </div>
+          <div style="background:var(--s2);border-radius:9px;padding:11px;">
+            <div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;margin-bottom:8px;">Left Eye (OS)</div>
+            <div style="font-size:12px;font-family:monospace;font-weight:600;">Sph ${e.rxLS||'—'} / Cyl ${e.rxLC||'—'} × ${e.rxLA||'—'}°${e.rxLAd?' Add '+e.rxLAd:''}</div>
+          </div>
+        </div>
+      </div>`).join('') : emptyHtml;
+
+  } else if (tab === 'appointments') {
+    el2.innerHTML = ptA.length ? `<div class="card"><div class="tw2"><table><thead><tr><th>Date</th><th>Time</th><th>Type</th><th>Status</th><th>Reminder</th><th>Notes</th></tr></thead><tbody>${
+      ptA.map(a=>{
+        const sc=a.status==='Done'?'b-cy':a.status==='No-Show'?'b-ro':a.status==='Cancelled'?'b-gr':'b-bl';
+        const rc=a.reminder==='Not sent'?'b-gr':'b-cy';
+        return `<tr><td>${fmtD(a.date)}</td><td style="font-size:12px;color:var(--blue);font-weight:600;">${a.time}</td><td style="font-size:12px;">${a.type}</td><td><span class="bdg ${sc}">${a.status}</span></td><td><span class="bdg ${rc}" style="font-size:10px;">${a.reminder}</span></td><td style="font-size:11.5px;color:var(--muted);max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${a.notes||'—'}</td></tr>`;
+      }).join('')
+    }</tbody></table></div></div>` : emptyHtml;
+
+  } else if (tab === 'billing') {
+    if (!isDoc()) {
+      el2.innerHTML = `<div style="text-align:center;padding:36px;"><div style="font-size:32px;margin-bottom:12px;">🔒</div><div style="font-size:13px;font-weight:600;color:var(--muted);">Billing details visible to doctors only.</div></div>`;
+      return;
+    }
+    const total = ptB.reduce((s,b)=>s+Number(b.amount||0),0);
+    const paid = ptB.filter(b=>b.status==='Paid').reduce((s,b)=>s+Number(b.amount||0),0);
+    el2.innerHTML = `
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px;">
+        <div class="sc"><div class="sl" style="margin-bottom:4px;">Total Billed</div><div class="sv">${fmt(total)}</div></div>
+        <div class="sc c-cy"><div class="sl" style="margin-bottom:4px;">Collected</div><div class="sv" style="color:var(--cyan-d);">${fmt(paid)}</div></div>
+        <div class="sc c-ro"><div class="sl" style="margin-bottom:4px;">Outstanding</div><div class="sv" style="color:var(--rose);">${fmt(total-paid)}</div></div>
+      </div>
+      ${ptB.length ? `<div class="card"><div class="tw2"><table><thead><tr><th>Date</th><th>Service</th><th>Amount</th><th>Method</th><th>Status</th></tr></thead><tbody>${
+        ptB.map(b=>{const sc=b.status==='Paid'?'b-cy':b.status==='Overdue'?'b-ro':'b-am';return`<tr><td>${fmtD(b.date)}</td><td style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${b.service}</td><td style="font-weight:700;font-family:'Instrument Serif',serif;">${fmt(b.amount)}</td><td style="font-size:12px;color:var(--muted);">${b.method}</td><td><span class="bdg ${sc}">${b.status}</span></td></tr>`;}).join('')
+      }</tbody></table></div></div>` : emptyHtml}`;
+
+  } else if (tab === 'followup') {
+    el2.innerHTML = `
+      <div style="display:flex;justify-content:flex-end;margin-bottom:12px;">
+        <button class="btn btn-primary btn-sm" onclick="openFUModal('${p.id}')">+ Add Follow-Up</button>
+      </div>
+      ${ptFU.length ? ptFU.map(f => {
+        const pc=f.priority==='Urgent'?'b-ro':f.priority==='High'?'b-am':'b-gr';
+        return `<div class="card cp" style="margin-bottom:10px;">
+          <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:8px;">
+            <div><div style="font-size:13px;font-weight:600;">${f.type}</div><div style="font-size:11.5px;color:var(--muted);">${fmtD(f.date)}${f.next?' · Next: '+fmtD(f.next):''}</div></div>
+            <div style="display:flex;gap:6px;align-items:center;">
+              <span class="bdg ${pc}">${f.priority}</span>
+              <button class="ibt" onclick="delRec('fu','${f.id}','follow-up note')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" width="11" height="11"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/></svg></button>
+            </div>
+          </div>
+          <div style="font-size:12.5px;">${f.note}</div>
+          ${f.staffNote?`<div style="font-size:11px;color:var(--muted);margin-top:6px;padding-top:6px;border-top:1px solid var(--border);">📋 ${f.staffNote}</div>`:''}
+        </div>`;
+      }).join('') : emptyHtml}`;
+
+  } else if (tab === 'messages') {
+    el2.innerHTML = `
+      <div style="display:flex;justify-content:flex-end;margin-bottom:12px;">
+        <button class="btn btn-primary btn-sm" onclick="openMsgModal('${p.id}')">✉ Send Message</button>
+      </div>
+      ${ptMsg.length ? ptMsg.map(m => {
+        const chColors={'SMS':'b-bl','WhatsApp':'b-gn','Email':'b-vi','Phone Call':'b-am','In-App Log':'b-gr'};
+        return `<div style="display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--border);">
+          <div style="width:34px;height:34px;border-radius:50%;background:var(--s3);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:16px;">
+            ${m.channel==='SMS'?'📱':m.channel==='WhatsApp'?'💬':m.channel==='Email'?'✉️':m.channel==='Phone Call'?'📞':'📋'}
+          </div>
+          <div style="flex:1;min-width:0;">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
+              <span class="bdg ${chColors[m.channel]||'b-gr'}" style="font-size:10px;">${m.channel}</span>
+              <span class="bdg b-te" style="font-size:10px;">${m.category}</span>
+              <span style="font-size:11px;color:var(--muted);">${fmtD(m.date)}</span>
+            </div>
+            <div style="font-size:12.5px;">${m.body}</div>
+          </div>
+        </div>`;
+      }).join('') : emptyHtml}`;
+  }
+}
+
+// ══ FOLLOW-UP MODAL ══
+function openFUModal(ptId) {
+  loadPortalData();
+  const p = pts.find(x => x.id === ptId); if (!p) return;
+  document.getElementById('fu-pid').value = ptId;
+  document.getElementById('fu-eid').value = '';
+  document.getElementById('fu-ptname').value = p.name;
+  document.getElementById('fuMT').textContent = 'Add Follow-Up Note — ' + p.name;
+  document.getElementById('fu-date').value = td();
+  document.getElementById('fu-type').value = 'General Follow-Up';
+  document.getElementById('fu-note').value = '';
+  document.getElementById('fu-next').value = '';
+  document.getElementById('fu-prio').value = 'Normal';
+  document.getElementById('fu-staff').value = '';
+  document.getElementById('mod-followup').classList.add('open');
+}
+
+function saveFU() {
+  const note = document.getElementById('fu-note').value.trim();
+  if (!note) { toast('Follow-up note is required.', 'err'); return; }
+  loadPortalData();
+  const obj = {
+    id: uid(),
+    patientId: document.getElementById('fu-pid').value,
+    date: document.getElementById('fu-date').value || td(),
+    type: document.getElementById('fu-type').value,
+    note,
+    next: document.getElementById('fu-next').value,
+    priority: document.getElementById('fu-prio').value,
+    staffNote: document.getElementById('fu-staff').value,
+  };
+  followUps.push(obj);
+  savePortalData();
+  closeMod('followup');
+  toast('Follow-up note saved!');
+  if (portalPatientId === obj.patientId) {
+    switchPortalTab('followup', document.querySelector('#portalTabs .tab:nth-child(6)'));
+  }
+}
+
+// ══ MESSAGE MODAL ══
+function openMsgModal(ptId) {
+  loadPortalData();
+  const p = pts.find(x => x.id === ptId); if (!p) return;
+  document.getElementById('msg-pid').value = ptId;
+  document.getElementById('msg-to').value = p.name + (p.phone ? ' · ' + p.phone : '');
+  document.getElementById('msg-ch').value = 'In-App Log';
+  document.getElementById('msg-cat').value = 'Appointment Reminder';
+  document.getElementById('msg-body').value = '';
+  document.getElementById('mod-message').classList.add('open');
+}
+
+function sendMsg() {
+  const body = document.getElementById('msg-body').value.trim();
+  if (!body) { toast('Message cannot be empty.', 'err'); return; }
+  loadPortalData();
+  const obj = {
+    id: uid(),
+    patientId: document.getElementById('msg-pid').value,
+    date: td(),
+    channel: document.getElementById('msg-ch').value,
+    category: document.getElementById('msg-cat').value,
+    body,
+  };
+  messages.push(obj);
+  savePortalData();
+  closeMod('message');
+  toast('Message logged!');
+  if (portalPatientId === obj.patientId) {
+    switchPortalTab('messages', document.querySelector('#portalTabs .tab:last-child'));
+  }
+}
+
+// ══ EXTEND delRec for fu/msg ══
+const _origDelRec = delRec;
+function delRec(type, id, name) {
+  if (type === 'fu') {
+    cfm(`Delete follow-up?`, 'This cannot be undone.', () => {
+      loadPortalData();
+      followUps = followUps.filter(x => x.id !== id);
+      savePortalData();
+      toast('Deleted.');
+      switchPortalTab('followup', document.querySelector('#portalTabs .tab:nth-child(6)'));
+    });
+    return;
+  }
+  if (type === 'msg') {
+    cfm(`Delete message?`, 'This cannot be undone.', () => {
+      loadPortalData();
+      messages = messages.filter(x => x.id !== id);
+      savePortalData();
+      toast('Deleted.');
+      switchPortalTab('messages', document.querySelector('#portalTabs .tab:last-child'));
+    });
+    return;
+  }
+  _origDelRec(type, id, name);
+}
+
+// ══ WIRE PORTAL INTO goPage ══
+const _origGoPage = goPage;
+function goPage(id, el) {
+  _origGoPage(id, el);
+  if (id === 'portal') {
+    document.getElementById('tbTitle').textContent = 'Patient Portal';
+    loadPortalData();
+    document.getElementById('portalDetail').style.display = 'none';
+    document.getElementById('portalPickList').innerHTML = '';
+    document.getElementById('portalSearch').value = '';
+    document.getElementById('portalSearch').focus();
+  }
+}
+
+// ══ PORTAL in PTITLES ══
+PTITLES['portal'] = 'Patient Portal';
+
+// ══ CLEAR ALL extended ══
+const _origClearAll = clearAll;
+function clearAll() {
+  if (!isDoc()) { toast('Only doctors can clear data.', 'err'); return; }
+  cfm('Clear ALL clinic data?', 'This deletes all records including follow-ups and messages.', () => {
+    pts=[];appts=[];emrs=[];surgs=[];invItems=[];bills=[];followUps=[];messages=[];
+    saveAll();savePortalData();
+    renderDash();renderPts();renderEMR();renderSurg();renderInv();renderBilling();
+    toast('All data cleared.');
+  });
+}
 
 </script>
 </body>
