@@ -2,13 +2,29 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="theme-color" content="#060c1a">
+<meta name="description" content="ClearVision Eye Clinic EMR — Complete ophthalmology practice management system">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="ClearVision">
 <title>ClearVision — Eye Clinic EMR</title>
+<!-- Inline SVG favicon -->
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23060c1a'/%3E%3Cellipse cx='16' cy='16' rx='12' ry='7' stroke='%2300cfa8' stroke-width='2' fill='none'/%3E%3Ccircle cx='16' cy='16' r='4' fill='%2300cfa8'/%3E%3Ccircle cx='16' cy='16' r='1.8' fill='%23060c1a'/%3E%3Ccircle cx='17.2' cy='14.8' r='1' fill='rgba(255,255,255,0.6)'/%3E%3C/svg%3E">
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'%3E%3Crect width='180' height='180' rx='40' fill='%23060c1a'/%3E%3Cellipse cx='90' cy='90' rx='70' ry='42' stroke='%2300cfa8' stroke-width='10' fill='none'/%3E%3Ccircle cx='90' cy='90' r='26' fill='%2300cfa8'/%3E%3Ccircle cx='90' cy='90' r='12' fill='%23060c1a'/%3E%3Ccircle cx='98' cy='82' r='7' fill='rgba(255,255,255,0.5)'/%3E%3C/svg%3E">
+<!-- PWA Manifest (inline) -->
+<link rel="manifest" href="data:application/manifest+json,%7B%22name%22%3A%22ClearVision%20Eye%20Clinic%20EMR%22%2C%22short_name%22%3A%22ClearVision%22%2C%22description%22%3A%22Complete%20ophthalmology%20practice%20management%22%2C%22start_url%22%3A%22.%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%23060c1a%22%2C%22theme_color%22%3A%22%23060c1a%22%2C%22orientation%22%3A%22any%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22data%3Aimage%2Fsvg%2Bxml%2C%253Csvg%2520xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%2520viewBox%3D'0%25200%2520192%2520192'%253E%253Crect%2520width%3D'192'%2520height%3D'192'%2520rx%3D'42'%2520fill%3D'%2523060c1a'%2F%253E%253Cellipse%2520cx%3D'96'%2520cy%3D'96'%2520rx%3D'76'%2520ry%3D'46'%2520stroke%3D'%252300cfa8'%2520stroke-width%3D'10'%2520fill%3D'none'%2F%253E%253Ccircle%2520cx%3D'96'%2520cy%3D'96'%2520r%3D'28'%2520fill%3D'%252300cfa8'%2F%253E%253Ccircle%2520cx%3D'96'%2520cy%3D'96'%2520r%3D'13'%2520fill%3D'%2523060c1a'%2F%253E%253C%2Fsvg%253E%22%2C%22sizes%22%3A%22192x192%22%2C%22type%22%3A%22image%2Fsvg%2Bxml%22%7D%5D%7D">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box;}
+/* Global text overflow prevention */
+*{word-wrap:break-word;overflow-wrap:break-word;}
+/* Specific elements that should NOT wrap */
+.bdg,.btn,.pin-chip,.pk{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+/* Table cells word-break */
+td,th{word-break:break-word;max-width:0;}
 :root{
   --ink:#060c1a;--ink2:#111827;--ink3:#1f2d45;
   --surface:#fff;--s2:#f5f7fc;--s3:#e8ecf5;
@@ -84,8 +100,16 @@ html,body{height:100%;font-family:'Sora',sans-serif;background:var(--s2);color:v
 #appShell.hidden{display:none;}
 
 /* SIDEBAR */
-.sidebar{position:fixed;top:0;left:0;height:100vh;width:var(--sw);background:var(--ink2);z-index:300;display:flex;flex-direction:column;transition:var(--tr);overflow:hidden;}
+.sidebar{position:fixed;top:0;left:0;height:100vh;width:var(--sw);background:var(--ink2);z-index:300;display:flex;flex-direction:column;transition:width 0.22s cubic-bezier(.4,0,.2,1);overflow:hidden;}
 .sidebar.collapsed{width:var(--swc);}
+/* Keep top bar always visible in collapsed state */
+.sidebar .sb-top{flex-shrink:0;}
+.sidebar.collapsed .sb-brand{opacity:0;width:0;overflow:hidden;}
+.sidebar.collapsed .sb-tog{margin-left:0;}
+/* Expanded icon visible state for collapsed sidebar */
+.sb-tog{margin-left:auto;background:rgba(255,255,255,0.06);border:none;width:26px;height:26px;border-radius:7px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:var(--tr);color:rgba(255,255,255,0.4);}
+.sb-tog:hover{background:rgba(255,255,255,0.14);color:#fff;}
+.sb-tog svg{width:13px;height:13px;}
 .sb-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:299;backdrop-filter:blur(3px);}
 .sb-overlay.show{display:block;}
 .sb-top{padding:14px 12px;display:flex;align-items:center;gap:10px;border-bottom:1px solid rgba(255,255,255,0.05);min-height:62px;}
@@ -437,6 +461,7 @@ tbody tr:hover td{background:var(--s2);}
       <div class="sb-sect">
         <div class="sb-sect-lbl">Clinical</div>
         <div class="ni" onclick="goPage('patients',this)"><div class="ni-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></div><span class="ni-lbl">Patients</span><span class="sb-tip">Patients</span></div>
+        <div class="ni" onclick="goPage('portal',this)"><div class="ni-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div><span class="ni-lbl">Patient Portal</span><span class="sb-tip">Patient Portal</span></div>
         <div class="ni" onclick="goPage('emr',this)"><div class="ni-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg></div><span class="ni-lbl">Eye Examinations</span><span class="sb-tip">Examinations</span></div>
         <div class="ni" onclick="goPage('surgical',this)"><div class="ni-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg></div><span class="ni-lbl">Surgical Planning</span><span class="sb-tip">Surgical</span></div>
         <div class="ni" onclick="goPage('appointments',this)"><div class="ni-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div><span class="ni-lbl">Appointments</span><span class="ni-badge red" id="apptBadge" style="display:none;">0</span><span class="sb-tip">Appointments</span></div>
@@ -492,7 +517,7 @@ tbody tr:hover td{background:var(--s2);}
     <div id="page-patients" class="page content">
       <div class="sbar">
         <div class="swrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input class="fi spl" type="text" placeholder="Search patients…" oninput="renderPts(this.value)"></div>
-        <select class="fsel" style="width:130px;" onchange="renderPts()"><option value="">All Status</option><option>Active</option><option>New</option><option>Inactive</option></select>
+        <select class="fsel" style="width:130px;" id="ptStatusFilter" onchange="renderPts()"><option value="">All Status</option><option>Active</option><option>New</option><option>Inactive</option></select>
         <button class="btn btn-primary" onclick="openMod('patient')"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Register</button>
       </div>
       <div class="card"><div class="tw2"><table><thead><tr><th>Patient</th><th>Age</th><th>Phone</th><th>Last Exam</th><th>Diagnosis</th><th>Status</th><th></th></tr></thead><tbody id="ptBody"></tbody></table></div></div>
@@ -566,6 +591,36 @@ tbody tr:hover td{background:var(--s2);}
         <button class="btn btn-primary" onclick="openMod('invoice')"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>New Invoice</button>
       </div>
       <div class="card"><div id="billList"></div></div>
+    </div>
+
+    <!-- PATIENT PORTAL / FOLLOW-UP & ENGAGEMENT -->
+    <div id="page-portal" class="page content">
+      <!-- Search & Select Patient -->
+      <div class="sbar" style="margin-bottom:16px;">
+        <div class="swrap" style="flex:1;max-width:400px;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input class="fi spl" type="text" id="portalSearch" placeholder="Search patient by name or phone…" oninput="portalSearch(this.value)">
+        </div>
+        <div style="font-size:12px;color:var(--muted);align-self:center;">Select a patient to view their portal</div>
+      </div>
+      <!-- Patient picker list -->
+      <div id="portalPickList" style="margin-bottom:18px;"></div>
+      <!-- Portal detail (shown when patient selected) -->
+      <div id="portalDetail" style="display:none;">
+        <!-- Patient header -->
+        <div class="card cp" style="margin-bottom:14px;" id="portalHeader"></div>
+        <!-- Tabs -->
+        <div class="tabs" id="portalTabs">
+          <div class="tab active" onclick="switchPortalTab('summary',this)">Summary</div>
+          <div class="tab" onclick="switchPortalTab('history',this)">Medical History</div>
+          <div class="tab" onclick="switchPortalTab('prescriptions',this)">Prescriptions</div>
+          <div class="tab" onclick="switchPortalTab('appointments',this)">Appointments</div>
+          <div class="tab" onclick="switchPortalTab('billing',this)">Billing</div>
+          <div class="tab" onclick="switchPortalTab('followup',this)">Follow-Up</div>
+          <div class="tab" onclick="switchPortalTab('messages',this)">Messages</div>
+        </div>
+        <div id="portalTabContent"></div>
+      </div>
     </div>
 
     <!-- SETTINGS -->
@@ -796,7 +851,34 @@ tbody tr:hover td{background:var(--s2);}
   <div class="ma"><button class="btn btn-ghost" onclick="closeMod('reminder')">Close</button><button class="btn btn-primary" onclick="sendAllReminders()">Mark All Sent</button></div>
 </div></div></div>
 
-<!-- Confirm -->
+<!-- Follow-up Note Modal -->
+<div class="mo" id="mod-followup" onclick="ovClose(event,'followup')"><div class="md"><div class="mh"><div class="mt" id="fuMT">Add Follow-Up Note</div><button class="mc" onclick="closeMod('followup')">✕</button></div><div class="mb">
+  <input type="hidden" id="fu-pid">
+  <input type="hidden" id="fu-eid">
+  <div class="fgrid">
+    <div class="fg full"><label class="flbl">Patient</label><input class="fi" id="fu-ptname" readonly style="background:var(--s2);"></div>
+    <div class="fg"><label class="flbl">Date</label><input class="fi" id="fu-date" type="date"></div>
+    <div class="fg"><label class="flbl">Type</label><select class="fsel" id="fu-type"><option>General Follow-Up</option><option>Post-Op Review</option><option>Medication Check</option><option>Lab Results Review</option><option>Reminder Call</option><option>WhatsApp Check-In</option><option>Patient Concern</option></select></div>
+    <div class="fg full"><label class="flbl">Note / Summary *</label><textarea class="fta" id="fu-note" placeholder="Follow-up findings, patient feedback, next steps…"></textarea></div>
+    <div class="fg"><label class="flbl">Next Follow-Up Date</label><input class="fi" id="fu-next" type="date"></div>
+    <div class="fg"><label class="flbl">Priority</label><select class="fsel" id="fu-prio"><option>Normal</option><option>High</option><option>Urgent</option></select></div>
+    <div class="fg full"><label class="flbl">Staff Note (internal)</label><input class="fi" id="fu-staff" placeholder="Internal note not visible to patient…"></div>
+  </div>
+  <div class="ma"><button class="btn btn-ghost" onclick="closeMod('followup')">Cancel</button><button class="btn btn-primary" onclick="saveFU()">Save Follow-Up</button></div>
+</div></div></div>
+
+<!-- Message Modal -->
+<div class="mo" id="mod-message" onclick="ovClose(event,'message')"><div class="md"><div class="mh"><div class="mt">Send Message / Notification</div><button class="mc" onclick="closeMod('message')">✕</button></div><div class="mb">
+  <input type="hidden" id="msg-pid">
+  <div class="alert alert-info" style="margin-bottom:14px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" width="16" height="16"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>Messages are logged in the patient record. Integrate with SMS/WhatsApp gateway in production.</div>
+  <div class="fgrid">
+    <div class="fg full"><label class="flbl">To (Patient)</label><input class="fi" id="msg-to" readonly style="background:var(--s2);"></div>
+    <div class="fg"><label class="flbl">Channel</label><select class="fsel" id="msg-ch"><option>In-App Log</option><option>SMS</option><option>WhatsApp</option><option>Email</option><option>Phone Call</option></select></div>
+    <div class="fg"><label class="flbl">Category</label><select class="fsel" id="msg-cat"><option>Appointment Reminder</option><option>Test Results Ready</option><option>Prescription Ready</option><option>Follow-Up Prompt</option><option>Payment Reminder</option><option>General Info</option></select></div>
+    <div class="fg full"><label class="flbl">Message *</label><textarea class="fta" id="msg-body" placeholder="Type message to patient…"></textarea></div>
+  </div>
+  <div class="ma"><button class="btn btn-ghost" onclick="closeMod('message')">Cancel</button><button class="btn btn-primary" onclick="sendMsg()">Log Message</button></div>
+</div></div></div>
 <div class="mo" id="mod-confirm"><div class="md" style="max-width:340px;"><div style="text-align:center;padding:28px;">
   <div style="width:52px;height:52px;border-radius:50%;background:var(--rbg);display:flex;align-items:center;justify-content:center;margin:0 auto 14px;"><svg viewBox="0 0 24 24" fill="none" stroke="var(--rose)" stroke-width="2" stroke-linecap="round" width="22" height="22"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg></div>
   <div style="font-size:15px;font-weight:700;margin-bottom:6px;" id="cfTitle">Delete?</div>
@@ -888,13 +970,28 @@ function chgPin(r){
 }
 
 // ══ SIDEBAR ══
-let sbC=S.g('cv_sbc')||false;
+let sbC=S.g('cv_sbc')===true;
 function applyS(){
   const sb=document.getElementById('sidebar'),m=document.getElementById('main');
-  if(window.innerWidth>768){sb.classList.remove('mob-open');document.getElementById('sbOvl').classList.remove('show');sb.classList.toggle('collapsed',sbC);m.classList.toggle('exp',sbC);}
-  else{sb.classList.remove('collapsed');m.classList.remove('exp');}
+  if(window.innerWidth>768){
+    sb.classList.remove('mob-open');
+    document.getElementById('sbOvl').classList.remove('show');
+    if(sbC){sb.classList.add('collapsed');m.classList.add('exp');}
+    else{sb.classList.remove('collapsed');m.classList.remove('exp');}
+  } else {
+    sb.classList.remove('collapsed');
+    m.classList.remove('exp');
+  }
 }
-function togSB(){if(window.innerWidth>768){sbC=!sbC;S.s('cv_sbc',sbC);applyS();}else openMobSB();}
+function togSB(){
+  if(window.innerWidth>768){
+    sbC=!sbC;
+    S.s('cv_sbc',sbC);
+    applyS();
+  } else {
+    openMobSB();
+  }
+}
 function openMobSB(){document.getElementById('sidebar').classList.add('mob-open');document.getElementById('sbOvl').classList.add('show');}
 function closeMobSB(){document.getElementById('sidebar').classList.remove('mob-open');document.getElementById('sbOvl').classList.remove('show');}
 window.addEventListener('resize',applyS);
@@ -915,6 +1012,7 @@ function goPage(id,el){
   if(id==='appointments')renderCal();
   if(id==='inventory')renderInv();
   if(id==='billing')renderBilling();
+  if(id==='settings'){loadSettingsUI();}
   buildActions(id);
 }
 function buildActions(pg){
@@ -1019,7 +1117,7 @@ function openNewExam(ptId){
   setTimeout(()=>{const sel=document.getElementById('emr-pt');if(sel)sel.value=ptId;},50);
 }
 function renderPts(search=''){
-  const stF=document.querySelector('#page-patients select')?.value||'';
+  const stF=document.getElementById('ptStatusFilter')?.value||'';
   const tb=document.getElementById('ptBody');
   const list=pts.filter(p=>{const q=(search||'').toLowerCase();return(!q||p.name.toLowerCase().includes(q)||p.phone.includes(q)||(p.email||'').toLowerCase().includes(q))&&(!stF||p.status===stF);});
   if(!list.length){tb.innerHTML=`<tr><td colspan="7"><div class="empty" style="padding:28px;"><p>No patients found.</p></div></td></tr>`;return;}
@@ -1158,6 +1256,45 @@ function editSurg(id){
   document.getElementById('surg-eid').value=s.id;document.getElementById('surg-pt').value=s.patientId;document.getElementById('surg-proc').value=s.procedure;document.getElementById('surg-eye').value=s.eye;document.getElementById('surg-date').value=s.date||'';document.getElementById('surg-surg').value=s.surgeon||'';document.getElementById('surg-alr').value=s.alR||'';document.getElementById('surg-all').value=s.alL||'';document.getElementById('surg-kr').value=s.kerR||'';document.getElementById('surg-kl').value=s.kerL||'';document.getElementById('surg-tgt').value=s.target||'';document.getElementById('surg-iolr').value=s.iolR||'';document.getElementById('surg-ioll').value=s.iolL||'';document.getElementById('surg-form').value=s.formula||'SRK/T';document.getElementById('surg-iolm').value=s.iolModel||'';document.getElementById('surg-anae').value=s.anae||'Topical';document.getElementById('surg-inv').value=s.investigations||'Ordered';document.getElementById('surg-preop').value=s.preop||'';document.getElementById('surg-postop').value=s.postop||'';document.getElementById('surg-stat').value=s.status||'Planned';document.getElementById('surg-outva').value=s.outcomeVA||'';
   document.getElementById('mod-surgical').classList.add('open');
 }
+function viewSurg(id){
+  const s=surgs.find(x=>x.id===id);if(!s)return;
+  const p=pts.find(x=>x.id===s.patientId)||{name:'Unknown'};
+  const sc=s.status==='Completed'?'b-gn':s.status==='Scheduled'?'b-cy':s.status==='Cancelled'?'b-ro':'b-am';
+  document.getElementById('surgDetailBody').innerHTML=`
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;">
+      <div><div style="font-size:15px;font-weight:700;">${p.name}</div>
+      <div style="font-size:12px;color:var(--muted);">${s.procedure} · ${s.eye}</div></div>
+      <span class="bdg ${sc}">${s.status}</span>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;">
+      <div style="background:var(--s2);border-radius:9px;padding:11px;"><div style="font-size:9.5px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:3px;">Surgery Date</div><div style="font-size:13px;font-weight:600;">${fmtD(s.date)}</div></div>
+      <div style="background:var(--s2);border-radius:9px;padding:11px;"><div style="font-size:9.5px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:3px;">Surgeon</div><div style="font-size:13px;font-weight:600;">${s.surgeon||'—'}</div></div>
+      <div style="background:var(--s2);border-radius:9px;padding:11px;"><div style="font-size:9.5px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:3px;">Anaesthesia</div><div style="font-size:13px;font-weight:600;">${s.anae||'—'}</div></div>
+      <div style="background:var(--s2);border-radius:9px;padding:11px;"><div style="font-size:9.5px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:3px;">Investigations</div><div style="font-size:13px;font-weight:600;">${s.investigations||'—'}</div></div>
+    </div>
+    <div style="background:var(--s2);border-radius:9px;padding:12px;margin-bottom:12px;">
+      <div style="font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px;">Biometry &amp; IOL</div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;">
+        <div><div style="font-size:10px;color:var(--muted);">Axial Length RE</div><div style="font-size:13px;font-weight:600;">${s.alR||'—'} mm</div></div>
+        <div><div style="font-size:10px;color:var(--muted);">Axial Length LE</div><div style="font-size:13px;font-weight:600;">${s.alL||'—'} mm</div></div>
+        <div><div style="font-size:10px;color:var(--muted);">Target Refraction</div><div style="font-size:13px;font-weight:600;">${s.target||'—'} D</div></div>
+        <div><div style="font-size:10px;color:var(--muted);">Keratometry RE</div><div style="font-size:13px;font-weight:600;">${s.kerR||'—'}</div></div>
+        <div><div style="font-size:10px;color:var(--muted);">Keratometry LE</div><div style="font-size:13px;font-weight:600;">${s.kerL||'—'}</div></div>
+        <div><div style="font-size:10px;color:var(--muted);">IOL Formula</div><div style="font-size:13px;font-weight:600;">${s.formula||'—'}</div></div>
+        <div><div style="font-size:10px;color:var(--muted);">IOL Power RE</div><div style="font-size:14px;font-weight:700;color:var(--cyan-d);">${s.iolR||'—'} D</div></div>
+        <div><div style="font-size:10px;color:var(--muted);">IOL Power LE</div><div style="font-size:14px;font-weight:700;color:var(--cyan-d);">${s.iolL||'—'} D</div></div>
+        <div><div style="font-size:10px;color:var(--muted);">IOL Model</div><div style="font-size:12px;font-weight:600;">${s.iolModel||'—'}</div></div>
+      </div>
+    </div>
+    ${s.preop?`<div style="background:var(--s2);border-radius:9px;padding:11px;margin-bottom:10px;"><div style="font-size:9.5px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;">Pre-op Notes</div><div style="font-size:12.5px;">${s.preop}</div></div>`:''}
+    ${s.postop?`<div style="background:var(--s2);border-radius:9px;padding:11px;margin-bottom:10px;"><div style="font-size:9.5px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;">Post-op Instructions</div><div style="font-size:12.5px;">${s.postop}</div></div>`:''}
+    ${s.outcomeVA?`<div style="background:var(--gbg);border-radius:9px;padding:11px;margin-bottom:14px;border:1px solid rgba(5,150,105,0.15);"><div style="font-size:9.5px;font-weight:600;color:var(--green);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;">Outcome VA</div><div style="font-size:14px;font-weight:700;color:var(--green);">${s.outcomeVA}</div></div>`:''}
+    <div style="display:flex;gap:8px;margin-top:8px;">
+      <button class="btn btn-ghost" style="flex:1;" onclick="closeMod('surgDetail');editSurg('${s.id}')">Edit</button>
+      <button class="btn btn-danger" onclick="closeMod('surgDetail');delRec('surg','${s.id}','surgical plan')">Delete</button>
+    </div>`;
+  document.getElementById('mod-surgDetail').classList.add('open');
+}
 function renderSurg(search=''){
   const stF=document.getElementById('surgFilter')?.value||'';
   const tb=document.getElementById('surgBody');
@@ -1177,6 +1314,7 @@ function renderSurg(search=''){
     <td style="font-size:11.5px;color:var(--muted);">${fmtD(s.date)}</td>
     <td><span class="bdg ${sc}">${s.status}</span></td>
     <td><div style="display:flex;gap:3px;">
+      <button class="ibt" onclick="viewSurg('${s.id}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" width="11" height="11"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
       <button class="ibt" onclick="editSurg('${s.id}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" width="11" height="11"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
       <button class="ibt" onclick="delRec('surg','${s.id}','surgical plan')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" width="11" height="11"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/></svg></button>
     </div></td></tr>`;}).join('');
@@ -1476,16 +1614,146 @@ function initApp(){
   document.getElementById('navSettings').style.display=isD?'flex':'none';
   document.getElementById('navBilling').style.display='flex';
   const now=new Date();document.getElementById('tbDate').textContent=`${DAYS[now.getDay()]}, ${now.getDate()} ${MONTHS[now.getMonth()]} ${now.getFullYear()}`;
-  applyS();renderDash();renderCal();updBadge();updInvBadge();chkOnline();buildActions('dashboard');loadSettingsUI();
+  loadSampleData();applyS();renderDash();renderCal();updBadge();updInvBadge();chkOnline();buildActions('dashboard');loadSettingsUI();
   document.getElementById('hDoc').textContent=getPin('doctor');
   document.getElementById('hRec').textContent=getPin('receptionist');
 }
 
-// Init hints on login screen
+
+// ══ SAMPLE DATA ══
+function loadSampleData(){
+  if(S.g('cv_sample_loaded'))return;
+  const now=new Date();
+  const dStr=(offset=0)=>{const d=new Date(now);d.setDate(d.getDate()+offset);return`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;};
+  pts=[
+    {id:'pt001',name:'Amaka Okafor',dob:'1985-03-14',gender:'Female',phone:'+234 803 456 7890',email:'amaka@email.com',address:'12 Ada George Rd, Port Harcourt',blood:'O+',status:'Active',allergies:'Penicillin',occupation:'Nurse',notes:'Diabetic patient, annual screening required. Family history of glaucoma.',createdAt:dStr(-90)},
+    {id:'pt002',name:'Chukwuemeka Nwosu',dob:'1972-07-22',gender:'Male',phone:'+234 806 123 4567',email:'emeka.nwosu@gmail.com',address:'45 Trans-Amadi Rd, Port Harcourt',blood:'A+',status:'Active',allergies:'None',occupation:'Engineer',notes:'High myopia, wearing -6.50 OU. Follow up every 6 months.',createdAt:dStr(-60)},
+    {id:'pt003',name:'Fatima Al-Hassan',dob:'1990-11-05',gender:'Female',phone:'+234 812 987 6543',email:'fatima.h@yahoo.com',address:'7 Rumuola Rd, Port Harcourt',blood:'B+',status:'Active',allergies:'Sulfonamides',occupation:'Teacher',notes:'Glaucoma suspect OD. IOP borderline. Monitor closely.',createdAt:dStr(-45)},
+    {id:'pt004',name:'Biodun Adeyemi',dob:'1968-09-30',gender:'Male',phone:'+234 905 678 9012',email:'biodun@adeyemi.com',address:'23 Woji Rd, Port Harcourt',blood:'AB+',status:'Active',allergies:'None',occupation:'Retired',notes:'Cataract OU. OD scheduled for surgery. Post-op OD doing well.',createdAt:dStr(-120)},
+    {id:'pt005',name:'Ngozi Eze',dob:'2005-01-18',gender:'Female',phone:'+234 801 234 5678',email:'',address:'5 Stadium Rd, Port Harcourt',blood:'O-',status:'New',allergies:'None',occupation:'Student',notes:'First visit. Complaints of eyestrain and headaches. Likely myopia.',createdAt:dStr(-3)},
+    {id:'pt006',name:'Tunde Fashola',dob:'1955-06-12',gender:'Male',phone:'+234 808 765 4321',email:'tunde.fashola@outlook.com',address:'88 Rumuomasi Rd, Port Harcourt',blood:'A-',status:'Active',allergies:'Aspirin',occupation:'Businessman',notes:'Diabetic retinopathy. Requires quarterly monitoring. NPDR both eyes.',createdAt:dStr(-200)},
+    {id:'pt007',name:'Chisom Obi',dob:'1995-04-27',gender:'Female',phone:'+234 813 456 7890',email:'chisom.obi@gmail.com',address:'14 Old GRA, Port Harcourt',blood:'B-',status:'Active',allergies:'None',occupation:'Pharmacist',notes:'Contact lens wearer. Mild dry eye syndrome. Using Systane drops.',createdAt:dStr(-30)},
+    {id:'pt008',name:'Emeka Dike',dob:'1980-12-08',gender:'Male',phone:'+234 907 234 5678',email:'emeka.dike@company.ng',address:'33 Aggrey Rd, Port Harcourt',blood:'O+',status:'Inactive',allergies:'None',occupation:'Lawyer',notes:'Last seen 14 months ago. Reading glasses Rx +1.50 OU.',createdAt:dStr(-400)},
+  ];
+  appts=[
+    {id:'ap001',patientId:'pt001',date:dStr(0),time:'8:30 AM',type:'Eye Examination',status:'Scheduled',reminder:'SMS sent',notes:'Annual diabetic eye screening'},
+    {id:'ap002',patientId:'pt002',date:dStr(0),time:'9:00 AM',type:'Refraction',status:'In Progress',reminder:'WhatsApp sent',notes:'Recheck prescription'},
+    {id:'ap003',patientId:'pt004',date:dStr(0),time:'10:00 AM',type:'Post-op Review',status:'Scheduled',reminder:'SMS sent',notes:'1-week post-op OD cataract review'},
+    {id:'ap004',patientId:'pt006',date:dStr(0),time:'11:30 AM',type:'Retinal Assessment',status:'Scheduled',reminder:'Not sent',notes:'Q3 diabetic retinopathy monitoring'},
+    {id:'ap005',patientId:'pt005',date:dStr(0),time:'2:00 PM',type:'Eye Examination',status:'Scheduled',reminder:'Not sent',notes:'New patient first visit'},
+    {id:'ap006',patientId:'pt003',date:dStr(1),time:'9:30 AM',type:'Glaucoma Check',status:'Scheduled',reminder:'Not sent',notes:'IOP recheck + VF test'},
+    {id:'ap007',patientId:'pt007',date:dStr(1),time:'11:00 AM',type:'Contact Lens Fitting',status:'Scheduled',reminder:'SMS sent',notes:'New monthly toric lenses'},
+    {id:'ap008',patientId:'pt001',date:dStr(3),time:'10:30 AM',type:'Follow-up',status:'Scheduled',reminder:'Not sent',notes:'Review blood sugar and eye correlation'},
+    {id:'ap009',patientId:'pt002',date:dStr(-2),time:'9:00 AM',type:'Eye Examination',status:'Done',reminder:'SMS sent',notes:''},
+    {id:'ap010',patientId:'pt004',date:dStr(-7),time:'8:00 AM',type:'Pre-op Assessment',status:'Done',reminder:'WhatsApp sent',notes:'Pre-op cataract surgery OD'},
+  ];
+  emrs=[
+    {id:'em001',patientId:'pt001',date:dStr(-90),type:'Eye Examination',doctor:'Dr. Adaeze Obi',cc:'Blurred vision especially at night',vaRU:'6/18',vaLU:'6/12',vaRNu:'N10',vaLNu:'N8',vaRD:'6/9',vaLD:'6/6',vaRNc:'N6',vaLNc:'N6',rxRS:'-1.50',rxRC:'-0.75',rxRA:'170',rxRAd:'',rxRP:'',rxLS:'-1.25',rxLC:'-0.50',rxLA:'10',rxLAd:'',rxLP:'',iopR:'16',iopL:'15',iopM:'Non-contact tonometry',antR:'Cornea clear, lens transparent, AC deep',antL:'Cornea clear, lens transparent, AC deep',fundR:'CDR 0.3, macula healthy',fundL:'CDR 0.3, mild dot haemorrhage',diagnosis:'Myopia OU. Mild NPDR LE.',plan:'New spectacles prescribed. Refer for HbA1c review. Review in 6 months.',followUp:'24',spec:'Distance only'},
+    {id:'em002',patientId:'pt002',date:dStr(-60),type:'Refraction',doctor:'Dr. Adaeze Obi',cc:'Current glasses not working well',vaRU:'6/60',vaLU:'6/60',vaRNu:'N36',vaLNu:'N36',vaRD:'6/6',vaLD:'6/6',vaRNc:'N5',vaLNc:'N5',rxRS:'-6.50',rxRC:'-1.25',rxRA:'180',rxRAd:'+2.00',rxRP:'',rxLS:'-6.25',rxLC:'-1.00',rxLA:'175',rxLAd:'+2.00',rxLP:'',iopR:'14',iopL:'13',iopM:'Non-contact tonometry',antR:'Cornea clear, mild lens opacification peripherally',antL:'Cornea clear, lens clear',fundR:'CDR 0.4, peripheral lattice degeneration',fundL:'CDR 0.3, healthy macula',diagnosis:'High myopia OU. Presbyopia. Early lattice OD.',plan:'Update to progressive. Counsel on RD symptoms. Annual review.',followUp:'52',spec:'Progressive'},
+    {id:'em003',patientId:'pt003',date:dStr(-45),type:'Glaucoma Assessment',doctor:'Dr. Adaeze Obi',cc:'Referred by GP, no symptoms',vaRU:'6/6',vaLU:'6/6',vaRNu:'N5',vaLNu:'N5',vaRD:'6/6',vaLD:'6/6',vaRNc:'N5',vaLNc:'N5',rxRS:'+0.25',rxRC:'-0.25',rxRA:'90',rxRAd:'',rxRP:'',rxLS:'+0.50',rxLC:'',rxLA:'',rxLAd:'',rxLP:'',iopR:'22',iopL:'21',iopM:'Goldmann applanation',antR:'Cornea clear, angle open 360',antL:'Cornea clear, angle open 360',fundR:'CDR 0.55 suspicious, rim pallor superiorly',fundL:'CDR 0.45 normal',diagnosis:'Glaucoma suspect OD. Borderline IOP OU.',plan:'VF and OCT RNFL. Glaucoma clinic referral. Consider Latanoprost OD.',followUp:'8',spec:'No'},
+    {id:'em004',patientId:'pt006',date:dStr(-30),type:'Retinal Exam',doctor:'Dr. Adaeze Obi',cc:'Floaters and mild distortion right eye',vaRU:'6/18',vaLU:'6/24',vaRNu:'N12',vaLNu:'N14',vaRD:'6/12',vaLD:'6/18',vaRNc:'N8',vaLNc:'N10',rxRS:'+1.00',rxRC:'-0.50',rxRA:'80',rxRAd:'+2.50',rxRP:'',rxLS:'+1.25',rxLC:'-0.75',rxLA:'95',rxLAd:'+2.50',rxLP:'',iopR:'18',iopL:'17',iopM:'Non-contact tonometry',antR:'Cornea clear, early nuclear sclerosis',antL:'Cornea clear, early nuclear sclerosis',fundR:'Multiple blot haemorrhages and microaneurysms. Hard exudates near macula. CSME suspected.',fundL:'Mild dot haemorrhages and microaneurysms.',diagnosis:'Moderate NPDR OU with CSME OD. Early cataracts OU.',plan:'Urgent FFA and possible intravitreal injection OD. Strict glycaemic control. Review 6 weeks.',followUp:'6',spec:'Bifocal'},
+    {id:'em005',patientId:'pt004',date:dStr(-8),type:'Pre-op Assessment',doctor:'Dr. Adaeze Obi',cc:'Severe visual loss right eye',vaRU:'6/60',vaLU:'6/18',vaRNu:'N36',vaLNu:'N12',vaRD:'CF',vaLD:'6/12',vaRNc:'N36',vaLNc:'N8',rxRS:'',rxRC:'',rxRA:'',rxRAd:'',rxRP:'',rxLS:'+2.00',rxLC:'-0.75',rxLA:'75',rxLAd:'+2.50',rxLP:'',iopR:'15',iopL:'14',iopM:'Non-contact tonometry',antR:'Dense posterior subcapsular cataract.',antL:'Mild cortical cataract.',fundR:'Unable to assess',fundL:'CDR 0.3, macula healthy',diagnosis:'Mature cataract OD. Surgical intervention planned.',plan:'Phacoemulsification + IOL OD. Biometry completed. IOL 21.5D target -0.25D.',followUp:'1',spec:'No'},
+  ];
+  surgs=[
+    {id:'sg001',patientId:'pt004',procedure:'Phacoemulsification + IOL',eye:'Right Eye (OD)',date:dStr(-1),surgeon:'Dr. Adaeze Obi',alR:'23.45',alL:'23.12',kerR:'43.75/44.50',kerL:'43.50/44.25',target:'-0.25',iolR:'21.5',iolL:'22.0',formula:'SRK/T',iolModel:'AcrySof IQ SN60WF',anae:'Peribulbar block',investigations:'Completed',preop:'Consent obtained. Risks explained. Pupil dilated to 8mm. Pre-op drops given.',postop:'Uncomplicated. CCC well-centred. IOL in-the-bag. Steroid/antibiotic drops QID.',status:'Completed',outcomeVA:'6/9 unaided'},
+    {id:'sg002',patientId:'pt004',procedure:'Phacoemulsification + IOL',eye:'Left Eye (OS)',date:dStr(14),surgeon:'Dr. Adaeze Obi',alR:'23.45',alL:'23.12',kerR:'43.75/44.50',kerL:'43.50/44.25',target:'-0.50',iolR:'21.5',iolL:'22.0',formula:'SRK/T',iolModel:'AcrySof IQ SN60WF',anae:'Peribulbar block',investigations:'Completed',preop:'Pre-op completed. ECG normal. Patient consented. OD outcome excellent.',postop:'Standard protocol. Steroid taper 4 weeks. F/U Day 1, Week 1, Month 1, 3.',status:'Planned',outcomeVA:''},
+  ];
+  invItems=[
+    {id:'iv001',name:'Ray-Ban RB5154 Clubmaster',category:'frames',brand:'Ray-Ban',sku:'RB5154-BLK',qty:8,minQty:5,cost:18000,price:45000,description:'Black acetate, unisex',supplier:'OptiVision Supplies',restocked:dStr(-30)},
+    {id:'iv002',name:'Essilor Transitions Gen8',category:'lenses',brand:'Essilor',sku:'ESS-TR8-PHG',qty:3,minQty:10,cost:12000,price:28000,description:'Photochromic progressive 1.6, Grey',supplier:'Essilor Nigeria',restocked:dStr(-60)},
+    {id:'iv003',name:'CooperVision Biofinity Monthly',category:'contacts',brand:'CooperVision',sku:'BIO-30D-BC86',qty:24,minQty:12,cost:4500,price:9500,description:'Monthly, silicone hydrogel, BC 8.6',supplier:'Medical Eyes Ltd',restocked:dStr(-14)},
+    {id:'iv004',name:'Zeiss Precision Distance 1.67',category:'lenses',brand:'Zeiss',sku:'ZEI-PRD-167',qty:2,minQty:8,cost:22000,price:55000,description:'Single vision, high index 1.67, AR coat',supplier:'Zeiss Africa',restocked:dStr(-90)},
+    {id:'iv005',name:'Flexon 623 Titanium Frame',category:'frames',brand:'Flexon',sku:'FLX-623-GUN',qty:12,minQty:4,cost:25000,price:65000,description:'Gunmetal titanium, memory flex',supplier:'OptiVision Supplies',restocked:dStr(-20)},
+    {id:'iv006',name:'Bausch+Lomb Ultra Presbyopia',category:'contacts',brand:'Bausch+Lomb',sku:'BLU-30D-PRES',qty:4,minQty:6,cost:7500,price:16000,description:'Monthly multifocal, MoistureSeal',supplier:'Medical Eyes Ltd',restocked:dStr(-45)},
+    {id:'iv007',name:'Visine AF Antihistamine Drops',category:'consumables',brand:'Visine',sku:'VIS-AF-10ML',qty:18,minQty:10,cost:1200,price:2800,description:'10ml, antihistamine + decongestant',supplier:'PharmaCorp NG',restocked:dStr(-7)},
+    {id:'iv008',name:'Tear-Naturale II Lubricant',category:'consumables',brand:'Alcon',sku:'ALN-TN2-15ML',qty:6,minQty:15,cost:2200,price:4500,description:'15ml lubricant, HPMC, preservative-free',supplier:'Alcon Nigeria',restocked:dStr(-50)},
+    {id:'iv009',name:'Xalatan Latanoprost 0.005%',category:'consumables',brand:'Pfizer',sku:'XAL-LAT-2.5ML',qty:9,minQty:8,cost:8500,price:18000,description:'2.5ml prostaglandin analogue',supplier:'PharmaCorp NG',restocked:dStr(-10)},
+    {id:'iv010',name:'Acuvue Oasys 1-Day 90pk',category:'contacts',brand:'J&J',sku:'ACU-1D-90PK',qty:15,minQty:6,cost:12000,price:26000,description:'Daily disposable, HydraLuxe, 90 pack',supplier:'J&J Vision Nigeria',restocked:dStr(-22)},
+    {id:'iv011',name:'Silhouette Rimless Titan',category:'frames',brand:'Silhouette',sku:'SIL-TIT-5515',qty:5,minQty:3,cost:60000,price:145000,description:'Ultra-lightweight rimless titanium',supplier:'Silhouette Africa',restocked:dStr(-60)},
+    {id:'iv012',name:'Tropicamide 1% Minims',category:'consumables',brand:'Chauvin',sku:'TRP-1PC-20PK',qty:2,minQty:10,cost:350,price:800,description:'Single-dose 0.5ml, pack of 20',supplier:'PharmaCorp NG',restocked:dStr(-80)},
+  ];
+  bills=[
+    {id:'bl001',patientId:'pt001',service:'Comprehensive Eye Examination + Refraction',amount:15000,date:dStr(-90),method:'POS',status:'Paid',notes:''},
+    {id:'bl002',patientId:'pt001',service:'Spectacles — Distance lenses + Ray-Ban Frame',amount:52000,date:dStr(-89),method:'Bank Transfer',status:'Paid',notes:''},
+    {id:'bl003',patientId:'pt002',service:'Eye Examination + Progressive Lenses (Essilor Transitions)',amount:68000,date:dStr(-60),method:'POS',status:'Paid',notes:''},
+    {id:'bl004',patientId:'pt003',service:'Glaucoma Assessment + Goldmann Tonometry + OCT RNFL',amount:35000,date:dStr(-45),method:'Cash',status:'Paid',notes:''},
+    {id:'bl005',patientId:'pt004',service:'Pre-op Biometry + Phacoemulsification OD + IOL',amount:280000,date:dStr(-8),method:'Bank Transfer',status:'Paid',notes:'Package includes surgery and 3 post-op visits'},
+    {id:'bl006',patientId:'pt004',service:'Cataract Surgery OS — 50% Deposit',amount:100000,date:dStr(-1),method:'Bank Transfer',status:'Paid',notes:''},
+    {id:'bl007',patientId:'pt006',service:'Retinal Examination + FFA Referral + Consultation',amount:42000,date:dStr(-30),method:'Insurance',status:'Pending',notes:'Insurance pre-authorization pending'},
+    {id:'bl008',patientId:'pt005',service:'First-Visit Eye Examination',amount:8000,date:dStr(-3),method:'Cash',status:'Pending',notes:'Patient to pay on next visit'},
+    {id:'bl009',patientId:'pt007',service:'Contact Lens Fitting + Monthly Toric CL x3 months',amount:31500,date:dStr(-15),method:'POS',status:'Paid',notes:''},
+    {id:'bl010',patientId:'pt006',service:'Intravitreal Injection OD (Anti-VEGF)',amount:120000,date:dStr(-5),method:'Insurance',status:'Overdue',notes:'Insurance rejected. Patient notified.'},
+  ];
+  saveAll();
+  S.s('cv_sample_loaded',true);
+}
+
+// ══ KEYBOARD SHORTCUTS ══
+document.addEventListener('keydown',e=>{
+  if(!role)return;
+  if(e.key==='Escape'){document.querySelectorAll('.mo.open').forEach(m=>m.classList.remove('open'));}
+});
+
+// ══ INTERACTIVE STYLES ══
 document.addEventListener('DOMContentLoaded',()=>{
+  const style=document.createElement('style');
+  style.textContent=`
+    @keyframes ripple{to{transform:scale(3);opacity:0;}}
+    .btn-primary{overflow:hidden;position:relative;}
+    .sc{transition:transform 0.2s,box-shadow 0.2s;}
+    .sc:hover{transform:translateY(-2px);box-shadow:0 6px 24px rgba(6,12,26,0.13);}
+    .inv-card{transition:transform 0.18s,box-shadow 0.18s,border-color 0.18s;}
+    .pin-dot{transition:background 0.15s,box-shadow 0.15s,transform 0.12s;}
+    .pin-dot.on{transform:scale(1.18);}
+    .pk{user-select:none;}
+    .pk:active{transform:scale(0.92)!important;}
+    .tab{transition:color 0.18s,border-color 0.18s;}
+    .ibt{transition:all 0.15s;}
+    tbody tr{transition:background 0.12s;}
+    .mo.open{animation:moFadeIn 0.15s ease;}
+    @keyframes moFadeIn{from{opacity:0;}to{opacity:1;}}
+    @keyframes mdIn{from{opacity:0;transform:scale(0.96) translateY(10px);}to{opacity:1;transform:none;}}
+    .stock-fill{animation:fillBar 0.9s cubic-bezier(.4,0,.2,1);}
+    @keyframes fillBar{from{width:0!important;}to{}}
+    .cc.sel,.cc.tod{transition:transform 0.15s;}
+    .cc.sel:hover,.cc.tod:hover{transform:scale(1.08);}
+    .ni-badge.amber{animation:badgePulse 2.2s ease-in-out infinite;}
+    @keyframes badgePulse{0%,100%{opacity:1;}50%{opacity:0.55;}}
+    ::-webkit-scrollbar{width:5px;height:5px;}
+    ::-webkit-scrollbar-track{background:transparent;}
+    ::-webkit-scrollbar-thumb{background:rgba(6,12,26,0.12);border-radius:3px;}
+    ::-webkit-scrollbar-thumb:hover{background:rgba(6,12,26,0.22);}
+    .page{animation:fadeUp 0.22s ease;}
+    @keyframes fadeUp{from{opacity:0;transform:translateY(7px);}to{opacity:1;transform:none;}}
+    .l-feat{animation:featIn 0.4s ease both;}
+    .l-feat:nth-child(1){animation-delay:0.1s;}
+    .l-feat:nth-child(2){animation-delay:0.2s;}
+    .l-feat:nth-child(3){animation-delay:0.3s;}
+    .l-feat:nth-child(4){animation-delay:0.4s;}
+    .l-feat:nth-child(5){animation-delay:0.5s;}
+    @keyframes featIn{from{opacity:0;transform:translateX(-10px);}to{opacity:1;transform:none;}}
+    .role-card{transition:border-color 0.18s,background 0.18s,box-shadow 0.18s,transform 0.18s;}
+    .role-card:hover{transform:translateY(-2px);}
+    .role-card.active{transform:translateY(-2px);}
+    .btn{transition:all 0.18s;}
+    .btn:active{transform:scale(0.97)!important;}
+    .ibt:hover{transform:scale(1.08);}
+  `;
+  document.head.appendChild(style);
+  document.addEventListener('click',e=>{
+    const b=e.target.closest('.btn-primary');
+    if(!b)return;
+    const r=document.createElement('span');
+    const d=Math.max(b.clientWidth,b.clientHeight);
+    const rect=b.getBoundingClientRect();
+    r.style.cssText=`position:absolute;width:${d}px;height:${d}px;left:${e.clientX-rect.left-d/2}px;top:${e.clientY-rect.top-d/2}px;border-radius:50%;background:rgba(255,255,255,0.22);transform:scale(0);animation:ripple 0.5s linear;pointer-events:none;z-index:0;`;
+    b.style.position='relative';b.style.overflow='hidden';
+    b.appendChild(r);setTimeout(()=>r.remove(),500);
+  });
   document.getElementById('hDoc').textContent=getPin('doctor');
   document.getElementById('hRec').textContent=getPin('receptionist');
 });
+
 </script>
 </body>
 </html>
