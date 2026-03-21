@@ -4313,13 +4313,10 @@ const SB = {
 
   async push(){
     const clinicId = S.g('cv_clinic_id');
-    if(!clinicId) return;
+    if(!clinicId || !this.isUUID(clinicId)) return;
 
-    // Only sync if clinic_id is a real UUID (registered with Supabase)
-    if(!this.isUUID(clinicId)){
-      console.log('[SB push] skipping — clinic_id is not a UUID yet (pending registration)');
-      return;
-    }
+    // Stamp every local record with the current time so Supabase knows this is newest
+    const now = new Date().toISOString();
 
     const portalCombined = {
       id: 'portal',
@@ -4340,43 +4337,58 @@ const SB = {
     for(const [table, arr] of Object.entries(tableData)){
       if(!arr.length) continue;
       const rows = arr.map(item=>{
-        // Convert ID to valid UUID — sample data IDs like 'pt001' become deterministic UUIDs
         const rowId = this.toUUID(item.id || this._id());
         return {
-          id:         rowId,
-          clinic_id:  clinicId,
-          data:       {...item, id: rowId}, // keep consistent ID in data payload
-          updated_at: new Date().toISOString()
+          id:        rowId,
+          clinic_id: clinicId,
+          data:      {...item, id: rowId, _synced: now},
+          updated_at: now   // ← always our current time, so we always win
         };
       });
+      // upsert: if row exists overwrite it completely, if not insert it
       await this.req(table, {
-        method:'POST',
-        prefer:'resolution=merge-duplicates,return=minimal',
-        body: JSON.stringify(rows)
+        method: 'POST',
+        prefer: 'resolution=merge-duplicates,return=minimal',
+        body:   JSON.stringify(rows)
       });
     }
   },
 
-  // ── PULL all remote data from Supabase ──
+  // ── PULL: only fetch records from other devices that we don't have locally ──
   async pull(){
     const clinicId = S.g('cv_clinic_id');
     if(!clinicId) return;
 
     for(const table of this.TABLES){
-      const rows = await this.req(`${table}?clinic_id=eq.${clinicId}&select=data,updated_at&order=updated_at.asc`);
+      const rows = await this.req(
+        `${table}?clinic_id=eq.${clinicId}&select=id,data,updated_at&order=updated_at.desc`
+      );
       if(!rows||!rows.length) continue;
 
       if(table==='portal_data'){
-        // Special: portal_data is one combined record
-        const combined = rows[rows.length-1].data;
+        // Portal: take the newest record from cloud (we just pushed ours, so it wins)
+        const combined = rows[0].data;
         if(combined){
           S.s('cv_fus',  combined.followUps||[]);
           S.s('cv_msgs', combined.messages||[]);
         }
-      } else {
-        const lsKey = this.LS_MAP[table];
-        const localArr = S.g(lsKey)||[];
-        const merged = this._merge(localArr, rows.map(r=>r.data));
+        continue;
+      }
+
+      const lsKey   = this.LS_MAP[table];
+      const localArr = S.g(lsKey)||[];
+
+      // Build a set of IDs we already have locally
+      const localIds = new Set(localArr.map(r=>r.id));
+
+      // Only add records from cloud that are completely missing locally
+      // (deleted records stay deleted, local edits stay as-is)
+      const newFromCloud = rows
+        .map(r=>r.data)
+        .filter(r=>r&&r.id&&!localIds.has(r.id));
+
+      if(newFromCloud.length){
+        const merged = [...localArr, ...newFromCloud];
         S.s(lsKey, merged);
       }
     }
@@ -4410,8 +4422,14 @@ const SB = {
         S.s('cv_approved', true); // update cached value
       }
 
-      await this.push();
+      // Pull first — pick up any records added by another device (e.g. receptionist)
+      // that we don't have locally. This adds missing records to LocalStorage.
       await this.pull();
+
+      // Push second — stamp everything with now() and overwrite Supabase completely.
+      // Local state always wins. Any record the receptionist added is now also in
+      // our LocalStorage (from the pull above) so it gets pushed too.
+      await this.push();
       S.s('cv_sync_dirty', false);
       S.s('cv_sync_last', new Date().toISOString());
       this.setStatus('ok');
