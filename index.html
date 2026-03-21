@@ -832,26 +832,37 @@ body.dark .tab.active{color:#00cfa8;border-color:#00cfa8;}
 
     <!-- DASHBOARD -->
     <div id="page-dashboard" class="page active content">
-      <div style="margin-bottom:4px;display:flex;align-items:center;justify-content:space-between;">
-        <div><div style="font-size:18px;font-weight:800;letter-spacing:-0.5px;" id="dashClinicName">ClearVision Eye Clinic</div><div style="font-size:12px;color:var(--muted);" id="dashDoctorName"></div></div>
-        <button onclick="goPage('settings',document.getElementById('navSettings'))" style="font-size:11px;color:var(--muted);background:none;border:none;cursor:pointer;font-family:'Sora',sans-serif;display:flex;align-items:center;gap:4px;padding:4px 8px;border-radius:6px;transition:var(--tr);" onmouseenter="this.style.background='var(--s3)'" onmouseleave="this.style.background='none'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" width="11" height="11"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>Edit Clinic Info</button>
+      <!-- Header row -->
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+        <div>
+          <div style="font-size:15px;font-weight:800;letter-spacing:-0.4px;line-height:1.2;" id="dashClinicName">ClearVision</div>
+          <div style="font-size:11px;color:var(--muted);" id="dashDoctorName"></div>
+        </div>
+        <div style="font-size:11px;color:var(--muted2);font-weight:500;" id="dashDate"></div>
       </div>
-      <div class="srow srow-4" id="dashStats"></div>
+      <!-- Coloured metric tiles -->
+      <div class="dash-tiles" id="dashTiles"></div>
+      <!-- Two-column body -->
       <div class="dash-main-grid" id="dashGrid">
-        <div style="display:flex;flex-direction:column;gap:14px;">
-          <div class="card cp">
-            <div class="ch"><div><div class="ct">Today's Schedule</div><div class="cs" id="dashDate"></div></div><button class="btn btn-ghost btn-sm" onclick="goPage('appointments',document.querySelector('[onclick*=appointments]'))">View all →</button></div>
+        <!-- Left: Schedule + Low stock -->
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          <div class="card cp" style="padding:14px 16px;">
+            <div class="ch" style="margin-bottom:8px;">
+              <div class="ct" style="font-size:12.5px;">Today's Schedule</div>
+              <button class="btn btn-ghost btn-sm" style="font-size:10.5px;padding:3px 8px;" onclick="goPage('appointments',document.querySelector('[onclick*=appointments]'))">View all →</button>
+            </div>
             <div id="dashApptList"></div>
           </div>
-          <div class="card cp" id="dashLowStockCard"></div>
+          <div id="dashLowStockCard"></div>
         </div>
-        <div style="display:flex;flex-direction:column;gap:14px;">
-          <div class="card cp">
-            <div class="ct" style="margin-bottom:14px;">Quick Actions</div>
-            <div style="display:flex;flex-direction:column;gap:6px;" id="dashQA"></div>
+        <!-- Right: Quick actions + Pending + Reminders -->
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          <div class="card cp" style="padding:14px 16px;">
+            <div class="ct" style="font-size:12.5px;margin-bottom:10px;">Quick Actions</div>
+            <div class="dqa-grid" id="dashQA"></div>
           </div>
-          <div class="card cp" id="dashPendCard"></div>
-          <div class="card cp" id="dashRemCard"></div>
+          <div id="dashPendCard"></div>
+          <div id="dashRemCard"></div>
         </div>
       </div>
     </div>
@@ -2445,96 +2456,190 @@ function renderBilling(search=''){
 
 // ══ DASHBOARD ══
 function renderDash(){
-  const t=td(),now=new Date();
-  const todayA=appts.filter(a=>a.date===t);
-  const upcomingA=todayA.filter(a=>a.status==='Scheduled'||a.status==='Confirmed'||a.status==='In Progress');
-  const paid=bills.filter(b=>b.status==='Paid').reduce((s,b)=>s+Number(b.amount||0),0);
-  const owed=bills.filter(b=>b.status!=='Paid').reduce((s,b)=>s+Number(b.amount||0),0);
-  const owedC=bills.filter(b=>b.status!=='Paid').length;
-  const newPts=pts.filter(p=>p.createdAt===t).length;
-  const lowStock=invItems.filter(it=>it.qty<=it.minQty).length;
-  const pendRem=appts.filter(a=>a.date>=t&&a.reminder==='Not sent').length;
-  document.getElementById('dashDate').textContent=`${DAYS[now.getDay()]}, ${now.getDate()} ${MONTHS[now.getMonth()]} ${now.getFullYear()}`;
-  const statEl=document.getElementById('dashStats');
-  if(isDoc()){
-    statEl.innerHTML=`
-      <div class="sc c-cy"><div class="si" style="background:var(--cbg);color:var(--cyan);"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></div><div class="sv">${pts.length}</div><div class="sl">Total Patients</div><div class="sd up">${newPts?'↑ '+newPts+' today':''}</div></div>
-      <div class="sc c-bl"><div class="si" style="background:var(--bbg);color:var(--blue);"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div><div class="sv">${todayA.length}</div><div class="sl">Today's Appointments</div><div class="sd" style="color:var(--muted);">${upcomingA.length} remaining</div></div>
-      <div class="sc c-am"><div class="si" style="background:var(--abg);color:var(--amber);"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div><div class="sv">${fmt(paid)}</div><div class="sl">Revenue Collected</div><div class="sd up">${bills.filter(b=>b.status==='Paid').length} invoices</div></div>
-      <div class="sc c-ro"><div class="si" style="background:var(--rbg);color:var(--rose);"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div><div class="sv">${fmt(owed)}</div><div class="sl">Outstanding Bills</div><div class="sd dn">${owedC} invoices</div></div>`;
-  } else {
-    statEl.innerHTML=`
-      <div class="sc c-cy"><div class="si" style="background:var(--cbg);color:var(--cyan);"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></div><div class="sv">${pts.length}</div><div class="sl">Total Patients</div><div class="sd up">${newPts?'↑ '+newPts+' today':''}</div></div>
-      <div class="sc c-bl"><div class="si" style="background:var(--bbg);color:var(--blue);"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div><div class="sv">${todayA.length}</div><div class="sl">Today's Appointments</div><div class="sd" style="color:var(--muted);">${upcomingA.length} remaining</div></div>
-      <div class="sc locked"><div class="si" style="background:var(--s3);color:var(--muted2);"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div><div class="lv">₦••••</div><div class="sl">Revenue</div><div class="lm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>Doctor only<span class="locked-tip" style="margin-left:4px;"><span class="locked-tip-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></span><span class="locked-tip-bubble">Contact the doctor for financial details</span></span></div></div>
-      <div class="sc c-vi"><div class="si" style="background:var(--vbg);color:var(--violet);"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg></div><div class="sv">${lowStock||'0'}</div><div class="sl">Low Stock Items</div><div class="sd ${lowStock?'dn':''}">${lowStock?'Needs reorder':'All stocked'}</div></div>`;
-  }
-  // Today's appts
-  const aEl=document.getElementById('dashApptList');
-  if(!todayA.length){aEl.innerHTML=emptyCard('<rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>','No appointments today','Your schedule is clear. Book a new appointment to get started.','Book Appointment',"openMod('appointment')");}
-  else aEl.innerHTML=todayA.sort((a,b)=>a.time.localeCompare(b.time)).map(a=>{
-    const p=pts.find(x=>x.id===a.patientId)||{name:'Unknown'};
-    const sc=a.status==='Done'?'b-cy':a.status==='No-Show'?'b-ro':a.status==='Cancelled'?'b-gr':'b-bl';
-    const canAdvance=APPT_STATUS_ORDER.includes(a.status)&&APPT_STATUS_ORDER.indexOf(a.status)<APPT_STATUS_ORDER.length-1;
-    const nextStatus=canAdvance?APPT_STATUS_ORDER[APPT_STATUS_ORDER.indexOf(a.status)+1]:'';
-    return`<div style="display:flex;align-items:center;gap:9px;padding:9px 0;border-bottom:1px solid var(--border);cursor:pointer;border-radius:8px;padding-left:4px;transition:background 0.15s;" onmouseenter="this.style.background='var(--s2)'" onmouseleave="this.style.background=''" onclick="openNewExam('${a.patientId}')">
-      <div style="font-size:11px;font-weight:700;color:var(--blue);min-width:44px;">${a.time}</div>
-      <div class="av" style="width:26px;height:26px;font-size:9.5px;background:${avc(p.name)};">${ini(p.name)}</div>
-      <div style="flex:1;min-width:0;"><div style="font-size:12px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${p.name}</div><div style="font-size:10.5px;color:var(--muted);">${a.type}</div></div>
-      <span class="bdg ${sc}" style="font-size:10px;">${a.status}</span>
-      ${canAdvance?`<button class="appt-advance-btn" onclick="event.stopPropagation();advanceApptStatus('${a.id}')" title="Advance to ${nextStatus}">→ ${nextStatus}</button>`:''}
-    </div>`;}).join('');
-  // Quick actions
-  const qaStyle='width:100%;padding:10px 12px;border-radius:10px;border:1.5px solid var(--border);background:var(--surface);cursor:pointer;font-family:\'Sora\',sans-serif;display:flex;align-items:center;gap:10px;transition:all 0.18s;min-width:0;box-sizing:border-box;';
-  const qaIcon='width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;';
-  const qaLbl='font-size:12px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;';
-  const qaSub='font-size:10px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;';
-  document.getElementById('dashQA').innerHTML=`
-    <button style="${'$'}{qaStyle}" onmouseenter="this.style.borderColor='var(--cyan)';this.style.background='var(--cbg)'" onmouseleave="this.style.borderColor='var(--border)';this.style.background='var(--surface)'" onclick="openMod('patient')">
-      <div style="${'$'}{qaIcon}background:var(--cbg);color:var(--cyan);"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" width="14" height="14"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg></div>
-      <div style="min-width:0;"><div style="${'$'}{qaLbl}">Register Patient</div><div style="${'$'}{qaSub}">New patient record</div></div>
-    </button>
-    <button style="${'$'}{qaStyle}" onmouseenter="this.style.borderColor='var(--blue)';this.style.background='var(--bbg)'" onmouseleave="this.style.borderColor='var(--border)';this.style.background='var(--surface)'" onclick="openMod('appointment')">
-      <div style="${'$'}{qaIcon}background:var(--bbg);color:var(--blue);"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" width="14" height="14"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
-      <div style="min-width:0;"><div style="${'$'}{qaLbl}">Book Appointment</div><div style="${'$'}{qaSub}">Schedule a visit</div></div>
-    </button>
-    <button style="${'$'}{qaStyle}" onmouseenter="this.style.borderColor='var(--teal)';this.style.background='var(--tbg)'" onmouseleave="this.style.borderColor='var(--border)';this.style.background='var(--surface)'" onclick="openMod('emr')">
-      <div style="${'$'}{qaIcon}background:var(--tbg);color:var(--teal);"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" width="14" height="14"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg></div>
-      <div style="min-width:0;"><div style="${'$'}{qaLbl}">New Examination</div><div style="${'$'}{qaSub}">Eye exam &amp; refraction</div></div>
-    </button>
-    <button style="${'$'}{qaStyle}" onmouseenter="this.style.borderColor='var(--amber)';this.style.background='var(--abg)'" onmouseleave="this.style.borderColor='var(--border)';this.style.background='var(--surface)'" onclick="openMod('invoice')">
-      <div style="${'$'}{qaIcon}background:var(--abg);color:var(--amber);"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" width="14" height="14"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg></div>
-      <div style="min-width:0;"><div style="${'$'}{qaLbl}">New Invoice</div><div style="${'$'}{qaSub}">Create &amp; bill patient</div></div>
+  const t=td(), now=new Date();
+  const todayA   = appts.filter(a=>a.date===t);
+  const upcomingA= todayA.filter(a=>['Scheduled','Confirmed','In Progress'].includes(a.status));
+  const paid     = bills.filter(b=>b.status==='Paid').reduce((s,b)=>s+Number(b.amount||0),0);
+  const owed     = bills.filter(b=>b.status!=='Paid').reduce((s,b)=>s+Number(b.amount||0),0);
+  const owedC    = bills.filter(b=>b.status!=='Paid').length;
+  const newPts   = pts.filter(p=>p.createdAt===t).length;
+  const lowStock = invItems.filter(it=>it.qty<=it.minQty).length;
+  const pendRem  = appts.filter(a=>a.date>=t&&a.reminder==='Not sent').length;
+
+  // Date display
+  const dateEl = document.getElementById('dashDate');
+  if(dateEl) dateEl.textContent=`${DAYS[now.getDay()]}, ${now.getDate()} ${MONTHS[now.getMonth()]} ${now.getFullYear()}`;
+
+  // ── TILE HELPER ──
+  const tile=(cls,icon,val,lbl,sub,nav)=>`
+    <button class="dtile ${cls}" onclick="${nav}" style="width:100%;">
+      <div class="dtile-icon">${icon}</div>
+      <div class="dtile-val">${val}</div>
+      <div class="dtile-lbl">${lbl}</div>
+      <div class="dtile-sub">${sub}</div>
+      <span class="dtile-arr">→</span>
     </button>`;
-  // Low stock card
-  const lsEl=document.getElementById('dashLowStockCard');
-  const lowItems=invItems.filter(it=>it.qty<=it.minQty).slice(0,5);
-  lsEl.innerHTML=`<div class="ch"><div class="ct">Low Stock Alerts</div><button class="btn btn-ghost btn-sm" onclick="goPage('inventory',document.querySelector('[onclick*=inventory]'))">View all →</button></div>`+(lowItems.length?lowItems.map(it=>{const col=catColors[it.category||'frames'];return`<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);"><div style="width:28px;height:28px;border-radius:7px;background:${col.bg};display:flex;align-items:center;justify-content:center;flex-shrink:0;"><svg viewBox="0 0 24 24" fill="none" stroke="${col.c}" stroke-width="2" stroke-linecap="round" width="13" height="13">${col.icon}</svg></div><div style="flex:1;"><div style="font-size:12px;font-weight:600;">${it.name}</div><div style="font-size:10.5px;color:var(--muted);">${it.brand||it.category}</div></div><div style="text-align:right;"><div style="font-size:13px;font-weight:700;color:var(--rose);">${it.qty}</div><div style="font-size:10px;color:var(--muted);">Min: ${it.minQty}</div></div></div>`;}).join(''):`<div style="font-size:12px;color:var(--muted);text-align:center;padding:12px;">All inventory stocked ✓</div>`);
-  // Pending bills
-  const pcEl=document.getElementById('dashPendCard');
-  const pendList=bills.filter(b=>b.status!=='Paid').slice(0,4);
+
+  const ico=(p)=>`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" width="13" height="13">${p}</svg>`;
+  const _nav=(page)=>`goPage('${page}',document.getElementById('nav${page.charAt(0).toUpperCase()+page.slice(1)}')||document.querySelector('[onclick*="${page}"]'))`;
+
+  const tilesEl = document.getElementById('dashTiles');
+
   if(isDoc()){
-    pcEl.innerHTML=`<div class="ct" style="margin-bottom:12px;">Pending Payments</div>`+(pendList.length?pendList.map(b=>{const p=pts.find(x=>x.id===b.patientId)||{name:'Unknown'};return`<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);cursor:pointer;border-radius:6px;padding:6px 4px;transition:background 0.13s;" onmouseenter="this.style.background='var(--s2)'" onmouseleave="this.style.background=''" onclick="goPageBilling('${b.patientId}')"><div><div style="font-size:12px;font-weight:600;">${p.name}</div><div style="font-size:11px;color:var(--muted);">${b.service.slice(0,28)}</div></div><div style="text-align:right;"><div style="font-size:12.5px;font-weight:700;color:var(--rose);">${fmt(b.amount)}</div><span class="bdg ${b.status==='Overdue'?'b-ro':'b-am'}" style="font-size:9.5px;">${b.status}</span></div></div>`;}).join(''):`<div style="font-size:12px;color:var(--muted);text-align:center;padding:10px;">No outstanding bills 🎉</div>`);
+    tilesEl.innerHTML=
+      tile('dtile-pt',
+        ico('<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>'),
+        pts.length, 'Patients', newPts?`+${newPts} today`:'All time',
+        `_nav('patients') /* replaced */`)+
+      tile('dtile-apt',
+        ico('<rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>'),
+        todayA.length, "Today's Appts", `${upcomingA.length} remaining`,
+        `_nav('appointments')`)+
+      tile('dtile-emr',
+        ico('<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/>'),
+        emrs.length, 'Examinations', 'All records',
+        `_nav('emr')`)+
+      tile('dtile-rev',
+        ico('<line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>'),
+        fmt(paid), 'Revenue', `${bills.filter(b=>b.status==='Paid').length} invoices paid`,
+        `_nav('billing')`)+
+      tile('dtile-owe',
+        ico('<circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>'),
+        fmt(owed), 'Outstanding', `${owedC} unpaid invoice${owedC!==1?'s':''}`,
+        `_nav('billing')`)+
+      tile('dtile-surg',
+        ico('<circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/>'),
+        surgs.length, 'Surgical Plans', `${surgs.filter(s=>s.status==='Planned'||s.status==='Scheduled').length} pending`,
+        `_nav('surgical')`)+
+      tile('dtile-inv',
+        ico('<path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>'),
+        invItems.length, 'Inventory Items', lowStock?`⚠ ${lowStock} low stock`:'All stocked',
+        `_nav('inventory')`)+
+      tile('dtile-rem',
+        ico('<path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/>'),
+        pendRem, 'Pending Reminders', pendRem?'Tap to send now':'All sent ✓',
+        `openRemModal();openMod('reminder')`);
   } else {
-    pcEl.innerHTML=`<div class="ct" style="margin-bottom:12px;">Pending Invoices</div>`+(pendList.length?pendList.map(b=>{const p=pts.find(x=>x.id===b.patientId)||{name:'Unknown'};return`<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);cursor:pointer;border-radius:6px;padding:6px 4px;transition:background 0.13s;" onmouseenter="this.style.background='var(--s2)'" onmouseleave="this.style.background=''" onclick="goPageBilling('${b.patientId}')"><div><div style="font-size:12px;font-weight:600;">${p.name}</div><div style="font-size:11px;color:var(--muted);">${b.service.slice(0,28)}</div></div><span class="bdg ${b.status==='Overdue'?'b-ro':'b-am'}" style="font-size:9.5px;">${b.status}</span></div>`;}).join(''):`<div class="locked-tip" style="display:block;text-align:center;padding:10px;font-size:12px;color:var(--muted);">No outstanding invoices.<span class="locked-tip-bubble" style="left:50%;transform:translateX(-50%);">Contact doctor for amounts</span></div>`);
+    // Receptionist view — hide revenue
+    tilesEl.innerHTML=
+      tile('dtile-pt',
+        ico('<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>'),
+        pts.length, 'Patients', newPts?`+${newPts} today`:'All time',
+        `_nav('patients') /* replaced */`)+
+      tile('dtile-apt',
+        ico('<rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>'),
+        todayA.length, "Today's Appts", `${upcomingA.length} remaining`,
+        `_nav('appointments')`)+
+      tile('dtile-emr',
+        ico('<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/>'),
+        emrs.length, 'Examinations', 'All records',
+        `_nav('emr')`)+
+      tile('dtile-inv',
+        ico('<path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>'),
+        invItems.length, 'Inventory', lowStock?`⚠ ${lowStock} low`:'All stocked',
+        `_nav('inventory')`)+
+      tile('dtile-lock','<svg viewBox="0 0 24 24" fill="none" stroke="var(--muted2)" stroke-width="2" stroke-linecap="round" width="13" height="13"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>',
+        '₦ ••••','Revenue','Doctor only','void(0)')+
+      tile('dtile-rem',
+        ico('<path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/>'),
+        pendRem, 'Reminders', pendRem?'Tap to review':'All sent ✓',
+        `openRemModal();openMod('reminder')`);
   }
-  // Reminder nudge
+
+  // ── TODAY'S APPOINTMENTS ──
+  const aEl=document.getElementById('dashApptList');
+  if(!todayA.length){
+    aEl.innerHTML=`<div style="text-align:center;padding:18px 0;color:var(--muted);font-size:12px;">No appointments today<br><button class="btn btn-primary btn-sm" style="margin-top:8px;" onclick="openMod('appointment')">+ Book one</button></div>`;
+  } else {
+    aEl.innerHTML=todayA.sort((a,b)=>a.time.localeCompare(b.time)).map(a=>{
+      const p=pts.find(x=>x.id===a.patientId)||{name:'Unknown'};
+      const statusColors={'Done':'var(--cyan-d)','In Progress':'var(--amber)','No-Show':'var(--rose)','Cancelled':'var(--muted)'};
+      const sc=statusColors[a.status]||'var(--blue)';
+      const canAdv=APPT_STATUS_ORDER.includes(a.status)&&APPT_STATUS_ORDER.indexOf(a.status)<APPT_STATUS_ORDER.length-1;
+      const next=canAdv?APPT_STATUS_ORDER[APPT_STATUS_ORDER.indexOf(a.status)+1]:'';
+      return`<div class="dappt-row" onclick="openNewExam('${a.patientId}')">
+        <span style="font-size:10.5px;font-weight:700;color:var(--blue);min-width:52px;">${a.time}</span>
+        <div class="av" style="width:24px;height:24px;font-size:9px;flex-shrink:0;background:${avc(p.name)};">${ini(p.name)}</div>
+        <div style="flex:1;min-width:0;">
+          <div style="font-size:12px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${p.name}</div>
+          <div style="font-size:10px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${a.type}</div>
+        </div>
+        <span style="font-size:10px;font-weight:700;color:${sc};white-space:nowrap;">${a.status}</span>
+        ${canAdv?`<button class="appt-advance-btn" style="font-size:9.5px;padding:2px 7px;" onclick="event.stopPropagation();advanceApptStatus('${a.id}')">→ ${next}</button>`:''}
+      </div>`;
+    }).join('');
+  }
+
+  // ── QUICK ACTIONS ──
+  const qa=(cls,icon,lbl,sub,action)=>`
+    <button class="dqa-btn" style="border-color:transparent;" onmouseenter="this.style.borderColor='var(--border2)'" onmouseleave="this.style.borderColor='transparent'" onclick="${action}">
+      <div class="dqa-icon" style="background:${cls};">${icon}</div>
+      <div><div class="dqa-lbl">${lbl}</div><div class="dqa-sub">${sub}</div></div>
+    </button>`;
+  document.getElementById('dashQA').innerHTML=
+    qa('rgba(0,207,168,0.12)',ico('<path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/>'),'Register Patient','New record',"openMod('patient')")+
+    qa('rgba(51,97,255,0.12)',ico('<rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>'),'Book Appt','Schedule',"openMod('appointment')")+
+    qa('rgba(14,165,233,0.12)',ico('<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/>'),'New Exam','Eye examination',"openMod('emr')")+
+    qa('rgba(240,153,10,0.12)',ico('<rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/>'),'New Invoice','Bill patient',"openMod('invoice')");
+
+  // ── LOW STOCK ──
+  const lsEl=document.getElementById('dashLowStockCard');
+  const lowItems=invItems.filter(it=>it.qty<=it.minQty).slice(0,4);
+  if(lowItems.length){
+    lsEl.innerHTML=`<div class="card cp" style="padding:12px 14px;border-color:rgba(240,153,10,0.3);background:rgba(240,153,10,0.04);">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+        <div style="font-size:12px;font-weight:700;color:var(--amber);">⚠ Low Stock</div>
+        <button class="btn btn-ghost btn-sm" style="font-size:10px;padding:2px 7px;" onclick="_nav('inventory')">View all →</button>
+      </div>
+      ${lowItems.map(it=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:4px 0;border-bottom:1px solid rgba(240,153,10,0.15);font-size:11px;">
+        <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;color:var(--ink);">${it.name}</span>
+        <span style="font-weight:700;color:var(--rose);margin-left:8px;flex-shrink:0;">${it.qty} left</span>
+      </div>`).join('')}
+    </div>`;
+  } else { lsEl.innerHTML=''; }
+
+  // ── PENDING BILLS ──
+  const pendEl=document.getElementById('dashPendCard');
+  const pendList=bills.filter(b=>b.status!=='Paid').slice(0,3);
+  if(pendList.length){
+    pendEl.innerHTML=`<div class="card cp" style="padding:12px 14px;border-color:rgba(255,61,90,0.2);background:rgba(255,61,90,0.03);">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+        <div style="font-size:12px;font-weight:700;color:var(--rose);">Unpaid Bills</div>
+        <button class="btn btn-ghost btn-sm" style="font-size:10px;padding:2px 7px;" onclick="_nav('billing')">View all →</button>
+      </div>
+      ${pendList.map(b=>{const p=pts.find(x=>x.id===b.patientId)||{name:'?'};return`<div style="display:flex;justify-content:space-between;align-items:center;padding:4px 0;border-bottom:1px solid rgba(255,61,90,0.1);font-size:11px;" onclick="sendInvoiceNudge('${b.id}')" title="Send payment nudge">
+        <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;">${p.name}</span>
+        <span style="font-weight:700;color:var(--rose);margin-left:8px;flex-shrink:0;">${fmt(b.amount)}</span>
+      </div>`}).join('')}
+    </div>`;
+  } else { pendEl.innerHTML=''; }
+
+  // ── REMINDERS ──
   const remEl=document.getElementById('dashRemCard');
-  if(pendRem>0){remEl.innerHTML=`<div style="display:flex;align-items:center;gap:12px;"><div style="width:34px;height:34px;border-radius:9px;background:var(--abg);display:flex;align-items:center;justify-content:center;flex-shrink:0;"><svg viewBox="0 0 24 24" fill="none" stroke="var(--amber)" stroke-width="2" stroke-linecap="round" width="15" height="15"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg></div><div style="flex:1;"><div style="font-size:12.5px;font-weight:600;">${pendRem} reminder(s) pending</div><div style="font-size:11px;color:var(--muted);">Upcoming appointments not yet notified</div></div><button class="btn btn-amber btn-sm" onclick="openRemModal();openMod('reminder')">Review</button></div>`;}
-  else remEl.innerHTML='';
-  // Onboarding checklist card
+  if(pendRem>0){
+    remEl.innerHTML=`<div class="card cp" style="padding:12px 14px;border-color:rgba(0,207,168,0.25);background:rgba(0,207,168,0.04);">
+      <div style="display:flex;align-items:center;justify-content:space-between;">
+        <div>
+          <div style="font-size:12px;font-weight:700;color:var(--cyan-d);">${pendRem} Reminder${pendRem!==1?'s':''} Pending</div>
+          <div style="font-size:10.5px;color:var(--muted);margin-top:1px;">Upcoming appointments not notified</div>
+        </div>
+        <button class="btn btn-sm" style="background:var(--cyan);color:var(--ink);border:none;font-weight:700;" onclick="openRemModal();openMod('reminder')">Send now</button>
+      </div>
+    </div>`;
+  } else { remEl.innerHTML=''; }
+
+  // ── ONBOARDING ──
   const dashGrid=document.getElementById('dashGrid');
   const ob=document.getElementById('dashOnboard');
   if(ob) ob.remove();
   const _obHtml=renderOnboarding();
-  if(_obHtml && dashGrid){
+  if(_obHtml&&dashGrid){
     const _obDiv=document.createElement('div');
     _obDiv.id='dashOnboard';
     _obDiv.innerHTML=_obHtml;
-    dashGrid.parentNode.insertBefore(_obDiv, dashGrid);
+    dashGrid.parentNode.insertBefore(_obDiv,dashGrid);
   }
-  // Notifications
-  setTimeout(genNotifs, 0);
+  setTimeout(genNotifs,0);
 }
 
 // ══ SETTINGS ══
