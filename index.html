@@ -205,12 +205,21 @@ html,body{
   min-height:0;
   overflow-y:auto;
   overflow-x:hidden;
-  padding:18px 20px;
+  padding:14px 18px;
 }
-.content::-webkit-scrollbar{width:8px;}
+.content::-webkit-scrollbar{width:6px;}
 .content::-webkit-scrollbar-track{background:var(--s3);border-radius:4px;}
-.content::-webkit-scrollbar-thumb{background:rgba(6,12,26,0.22);border-radius:4px;border:2px solid var(--s2);background-clip:padding-box;}
+.content::-webkit-scrollbar-thumb{background:rgba(6,12,26,0.22);border-radius:4px;}
 .content::-webkit-scrollbar-thumb:hover{background:rgba(6,12,26,0.4);}
+/* tighter stat cards */
+.sc{background:var(--surface);border-radius:var(--r);border:1px solid var(--border);padding:11px 14px;box-shadow:var(--sh);position:relative;overflow:hidden;}
+.si{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;margin-bottom:8px;}
+.si svg{width:14px;height:14px;}
+.sv{font-size:18px;font-weight:700;letter-spacing:-0.5px;margin-bottom:1px;font-family:'Instrument Serif',serif;}
+.sl{font-size:10.5px;color:var(--muted);font-weight:500;}
+.sd{font-size:10px;margin-top:2px;font-weight:600;}
+/* compact card padding */
+.cp{padding:14px 16px;}
 
 /* ── PAGES ── */
 .page{display:none;}
@@ -239,11 +248,11 @@ html,body{
 .ct{font-size:13px;font-weight:700;letter-spacing:-0.2px;}
 .cs{font-size:11.5px;color:var(--muted);}
 
+
 /* ── STAT CARDS ── */
-.srow{display:grid;gap:12px;margin-bottom:16px;}
-.srow-4{grid-template-columns:repeat(3,1fr);}
+.srow{display:grid;gap:10px;margin-bottom:12px;}
+.srow-4{grid-template-columns:repeat(4,1fr);}
 .srow-3{grid-template-columns:repeat(3,1fr);}
-.sc{background:var(--surface);border-radius:var(--r);border:1px solid var(--border);padding:14px 16px;box-shadow:var(--sh);position:relative;overflow:hidden;}
 .sc::after{content:'';position:absolute;top:-28px;right:-28px;width:88px;height:88px;border-radius:50%;opacity:0.05;}
 .sc.c-cy::after{background:var(--cyan);}
 .sc.c-bl::after{background:var(--blue);}
@@ -253,16 +262,13 @@ html,body{
 .sc.c-gr::after{background:var(--green);}
 .sc.c-te::after{background:var(--teal);}
 .sc.locked{background:var(--s2);}
-.si{width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;margin-bottom:10px;}
-.si svg{width:15px;height:15px;}
-.sv{font-size:20px;font-weight:700;letter-spacing:-0.7px;margin-bottom:2px;font-family:'Instrument Serif',serif;}
-.sl{font-size:11px;color:var(--muted);font-weight:500;}
-.sd{font-size:10.5px;margin-top:3px;font-weight:600;}
+.si svg{width:14px;height:14px;}
 .up{color:var(--cyan-d);}
 .dn{color:var(--rose);}
-.lv{font-size:20px;font-weight:700;letter-spacing:3px;color:var(--muted2);filter:blur(4px);user-select:none;margin-bottom:2px;}
-.lm{font-size:10.5px;color:var(--muted);margin-top:3px;display:flex;align-items:center;gap:4px;}
+.lv{font-size:18px;font-weight:700;letter-spacing:3px;color:var(--muted2);filter:blur(4px);user-select:none;margin-bottom:2px;}
+.lm{font-size:10px;color:var(--muted);margin-top:3px;display:flex;align-items:center;gap:4px;}
 .lm svg{width:11px;height:11px;}
+
 
 /* ── BADGES ── */
 .bdg{display:inline-flex;align-items:center;padding:2px 8px;border-radius:20px;font-size:10.5px;font-weight:600;gap:4px;white-space:nowrap;}
@@ -1086,67 +1092,79 @@ body.dark .tab.active{color:#00cfa8;border-color:#00cfa8;}
 
   <!-- REPORTS -->
   <div id="page-reports" class="page content">
-    <div class="srow srow-4" id="reportStats"></div>
-    <!-- Row 1: Revenue trend + Appointment breakdown -->
-    <div style="display:grid;grid-template-columns:2fr 1fr;gap:14px;margin-bottom:14px;">
-      <div class="card cp">
-        <div class="ch" style="margin-bottom:14px;">
-          <div><div class="ct">Revenue — Last 30 Days</div><div class="cs">Paid invoices by day</div></div>
-          <div style="display:flex;gap:6px;">
-            <select class="fsel" id="revChartRange" style="font-size:11px;padding:4px 8px;" onchange="renderRevenueChart()">
+    <!-- Stats strip -->
+    <div class="srow srow-4" id="reportStats" style="margin-bottom:10px;"></div>
+
+    <!-- Row 1: Revenue (wide) + Appointment donut + Monthly summary -->
+    <div style="display:grid;grid-template-columns:2fr 1fr 1fr;gap:10px;margin-bottom:10px;">
+
+      <!-- Revenue bar -->
+      <div class="card cp" style="padding:12px 14px;">
+        <div class="ch" style="margin-bottom:8px;">
+          <div><div class="ct" style="font-size:12.5px;">Revenue</div><div class="cs">Paid invoices by day</div></div>
+          <div style="display:flex;gap:6px;align-items:center;">
+            <select class="fsel" id="revChartRange" style="font-size:10px;padding:3px 6px;height:26px;" onchange="renderRevenueChart()">
               <option value="30">30 days</option><option value="60">60 days</option><option value="90">90 days</option>
             </select>
-            <button class="export-btn" onclick="exportCSV('bills')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" width="11" height="11"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>CSV</button>
+            <button class="export-btn" onclick="exportCSV('bills')" style="font-size:10px;padding:3px 8px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" width="10" height="10"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>CSV</button>
           </div>
         </div>
-        <div style="position:relative;height:200px;"><canvas id="revChartCanvas"></canvas></div>
+        <div style="position:relative;height:calc(22vh - 20px);min-height:100px;max-height:160px;"><canvas id="revChartCanvas"></canvas></div>
       </div>
-      <div class="card cp">
-        <div class="ch" style="margin-bottom:14px;"><div><div class="ct">Appointments</div><div class="cs">Status breakdown</div></div></div>
-        <div style="position:relative;height:160px;display:flex;align-items:center;justify-content:center;"><canvas id="apptDonut"></canvas></div>
-        <div id="apptDonutLegend" style="margin-top:10px;display:flex;flex-wrap:wrap;gap:6px;justify-content:center;"></div>
+
+      <!-- Appointment donut -->
+      <div class="card cp" style="padding:12px 14px;">
+        <div style="font-size:12.5px;font-weight:700;margin-bottom:6px;">Appointments</div>
+        <div style="position:relative;height:calc(16vh - 10px);min-height:80px;max-height:120px;"><canvas id="apptDonut"></canvas></div>
+        <div id="apptDonutLegend" style="margin-top:6px;display:flex;flex-wrap:wrap;gap:4px;justify-content:center;"></div>
       </div>
-    </div>
-    <!-- Row 2: Exam types + Payment methods + Monthly trend -->
-    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:14px;">
-      <div class="card cp">
-        <div class="ct" style="margin-bottom:4px;">Exam Types</div>
-        <div class="cs" style="margin-bottom:14px;">By category</div>
-        <div style="position:relative;height:160px;"><canvas id="examTypeChart"></canvas></div>
-      </div>
-      <div class="card cp">
-        <div class="ct" style="margin-bottom:4px;">Payment Methods</div>
-        <div class="cs" style="margin-bottom:14px;">All-time split</div>
-        <div style="position:relative;height:160px;"><canvas id="payMethodChart"></canvas></div>
-      </div>
-      <div class="card cp">
-        <div class="ct" style="margin-bottom:4px;">Monthly Revenue</div>
-        <div class="cs" style="margin-bottom:14px;">Last 6 months</div>
-        <div style="position:relative;height:160px;"><canvas id="monthRevChart"></canvas></div>
+
+      <!-- Monthly summary table -->
+      <div class="card cp" style="padding:12px 14px;">
+        <div class="ch" style="margin-bottom:6px;">
+          <div style="font-size:12.5px;font-weight:700;" id="monthlyTitle">This Month</div>
+          <button class="btn btn-ghost btn-sm" style="font-size:10px;padding:2px 7px;" onclick="printMonthlyReport()">Print</button>
+        </div>
+        <div id="monthlyBody"></div>
       </div>
     </div>
-    <!-- Row 3: Patient registrations + Inventory status + Monthly table -->
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;">
-      <div class="card cp">
-        <div class="ch" style="margin-bottom:14px;"><div><div class="ct">New Patients</div><div class="cs">Registrations over 6 months</div></div></div>
-        <div style="position:relative;height:160px;"><canvas id="patientTrendChart"></canvas></div>
+
+    <!-- Row 2: Exam types + Pay methods + Monthly revenue + Patient trend + Export -->
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr 1fr;gap:10px;">
+
+      <div class="card cp" style="padding:12px 14px;">
+        <div style="font-size:11.5px;font-weight:700;color:var(--muted);margin-bottom:6px;">Exam Types</div>
+        <div style="position:relative;height:calc(28vh - 40px);min-height:120px;max-height:200px;"><canvas id="examTypeChart"></canvas></div>
       </div>
-      <div class="card cp">
-        <div class="ch"><div class="ct" id="monthlyTitle">Monthly Summary</div><button class="btn btn-ghost btn-sm" onclick="printMonthlyReport()"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>Print</button></div>
-        <div id="monthlyBody" style="margin-top:12px;"></div>
+
+      <div class="card cp" style="padding:12px 14px;">
+        <div style="font-size:11.5px;font-weight:700;color:var(--muted);margin-bottom:6px;">Payment Methods</div>
+        <div style="position:relative;height:calc(28vh - 40px);min-height:120px;max-height:200px;"><canvas id="payMethodChart"></canvas></div>
       </div>
-    </div>
-    <!-- Export -->
-    <div class="card cp">
-      <div class="ch"><div class="ct">Export Data</div><div class="cs">Download records as CSV</div></div>
-      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:8px;">
-        <button class="btn btn-ghost" style="justify-content:flex-start;gap:10px;" onclick="exportCSV('patients')">Patients</button>
-        <button class="btn btn-ghost" style="justify-content:flex-start;gap:10px;" onclick="exportCSV('emr')">Examinations</button>
-        <button class="btn btn-ghost" style="justify-content:flex-start;gap:10px;" onclick="exportCSV('appointments')">Appointments</button>
-        <button class="btn btn-ghost" style="justify-content:flex-start;gap:10px;" onclick="exportCSV('bills')">Invoices</button>
-        <button class="btn btn-ghost" style="justify-content:flex-start;gap:10px;" onclick="exportCSV('inventory')">Inventory</button>
-        <button class="btn btn-ghost" style="justify-content:flex-start;gap:10px;" onclick="exportCSV('surgical')">Surgical Plans</button>
+
+      <div class="card cp" style="padding:12px 14px;">
+        <div style="font-size:11.5px;font-weight:700;color:var(--muted);margin-bottom:6px;">Monthly Revenue</div>
+        <div style="position:relative;height:calc(28vh - 40px);min-height:120px;max-height:200px;"><canvas id="monthRevChart"></canvas></div>
       </div>
+
+      <div class="card cp" style="padding:12px 14px;">
+        <div style="font-size:11.5px;font-weight:700;color:var(--muted);margin-bottom:6px;">New Patients</div>
+        <div style="position:relative;height:calc(28vh - 40px);min-height:120px;max-height:200px;"><canvas id="patientTrendChart"></canvas></div>
+      </div>
+
+      <!-- Export (compact) -->
+      <div class="card cp" style="padding:12px 14px;">
+        <div style="font-size:11.5px;font-weight:700;color:var(--muted);margin-bottom:8px;">Export CSV</div>
+        <div style="display:flex;flex-direction:column;gap:5px;">
+          <button class="btn btn-ghost btn-sm" style="justify-content:flex-start;font-size:10.5px;padding:4px 8px;" onclick="exportCSV('patients')">Patients</button>
+          <button class="btn btn-ghost btn-sm" style="justify-content:flex-start;font-size:10.5px;padding:4px 8px;" onclick="exportCSV('emr')">Examinations</button>
+          <button class="btn btn-ghost btn-sm" style="justify-content:flex-start;font-size:10.5px;padding:4px 8px;" onclick="exportCSV('appointments')">Appointments</button>
+          <button class="btn btn-ghost btn-sm" style="justify-content:flex-start;font-size:10.5px;padding:4px 8px;" onclick="exportCSV('bills')">Invoices</button>
+          <button class="btn btn-ghost btn-sm" style="justify-content:flex-start;font-size:10.5px;padding:4px 8px;" onclick="exportCSV('inventory')">Inventory</button>
+          <button class="btn btn-ghost btn-sm" style="justify-content:flex-start;font-size:10.5px;padding:4px 8px;" onclick="exportCSV('surgical')">Surgical</button>
+        </div>
+      </div>
+
     </div>
   </div>
 
@@ -3098,6 +3116,12 @@ document.addEventListener('DOMContentLoaded',()=>{
     b.style.position='relative';b.style.overflow='hidden';
     b.appendChild(r);setTimeout(()=>r.remove(),500);
   });
+  // Pre-fill email from last session on page load
+  const _cachedEmail = S.g('cv_clinic_email');
+  if(_cachedEmail){
+    const _emailEl = document.getElementById('loginEmail');
+    if(_emailEl) _emailEl.value = _cachedEmail;
+  }
 });
 
 // ══════════════════════════════════════════════
