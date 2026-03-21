@@ -1468,7 +1468,7 @@ const ACCESS_ROWS=[
 ];
 
 // ══ UTILS ══
-const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,5);
+const uid=()=>'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g,c=>{const r=Math.random()*16|0;return(c==='x'?r:(r&0x3|0x8)).toString(16);});
 const ini=n=>n.trim().split(' ').map(p=>p[0]).join('').toUpperCase().slice(0,2);
 const avc=n=>{let h=0;for(let c of n)h=(h*31+c.charCodeAt(0))%AVC.length;return AVC[h];};
 const fmt=n=>'₦'+Number(n||0).toLocaleString('en-NG');
@@ -1485,7 +1485,37 @@ function toast(msg,type='ok'){
 }
 
 // ══ DATA ══
-function loadData(){pts=S.g('cv_pts')||[];appts=S.g('cv_appts')||[];emrs=S.g('cv_emrs')||[];surgs=S.g('cv_surgs')||[];invItems=S.g('cv_inv')||[];bills=S.g('cv_bills')||[];}
+function loadData(){
+  pts=S.g('cv_pts')||[];appts=S.g('cv_appts')||[];emrs=S.g('cv_emrs')||[];
+  surgs=S.g('cv_surgs')||[];invItems=S.g('cv_inv')||[];bills=S.g('cv_bills')||[];
+
+  // Migrate short IDs (pt001, ap001 etc.) to UUID format required by Supabase
+  const isUUID = id => /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id||'');
+  const shortToUUID = id => {
+    if(!id||isUUID(id)) return id;
+    const h=Array.from(String(id)).map(c=>c.charCodeAt(0).toString(16).padStart(2,'0')).join('').padEnd(32,'0').slice(0,32);
+    return `${h.slice(0,8)}-${h.slice(8,12)}-4${h.slice(13,16)}-8${h.slice(17,20)}-${h.slice(20,32)}`;
+  };
+  const anyShort = arr => arr.some(r=>!isUUID(r.id));
+  if(anyShort(pts)||anyShort(appts)||anyShort(emrs)||anyShort(surgs)||anyShort(invItems)||anyShort(bills)){
+    // Build ID remap table first
+    const remap = {};
+    [...pts,...appts,...emrs,...surgs,...invItems,...bills].forEach(r=>{
+      if(!isUUID(r.id)) remap[r.id]=shortToUUID(r.id);
+    });
+    const remapId = id => remap[id]||id;
+    // Remap all primary IDs and foreign key references
+    pts      = pts.map(r=>({...r, id:remapId(r.id)}));
+    appts    = appts.map(r=>({...r, id:remapId(r.id), patientId:remapId(r.patientId)}));
+    emrs     = emrs.map(r=>({...r, id:remapId(r.id), patientId:remapId(r.patientId)}));
+    surgs    = surgs.map(r=>({...r, id:remapId(r.id), patientId:remapId(r.patientId)}));
+    bills    = bills.map(r=>({...r, id:remapId(r.id), patientId:remapId(r.patientId)}));
+    invItems = invItems.map(r=>({...r, id:remapId(r.id)}));
+    // Save migrated data back to localStorage (without triggering cloud sync)
+    S.s('cv_pts',pts);S.s('cv_appts',appts);S.s('cv_emrs',emrs);
+    S.s('cv_surgs',surgs);S.s('cv_inv',invItems);S.s('cv_bills',bills);
+  }
+}
 function saveAll(){
   S.s('cv_pts',pts);S.s('cv_appts',appts);S.s('cv_emrs',emrs);
   S.s('cv_surgs',surgs);S.s('cv_inv',invItems);S.s('cv_bills',bills);
@@ -4237,11 +4267,29 @@ const SB = {
   },
 
   // ── PUSH all local data to Supabase ──
+  // ── UUID helpers ──
+  isUUID(id){ return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id||''); },
+  toUUID(id){
+    // If already a valid UUID, return as-is
+    if(this.isUUID(id)) return id;
+    // Convert short IDs (pt001, ap001 etc.) to a deterministic UUID via padding
+    // by hashing the string into UUID format
+    const hex = Array.from(id).map(c=>c.charCodeAt(0).toString(16).padStart(2,'0')).join('').padEnd(32,'0').slice(0,32);
+    return `${hex.slice(0,8)}-${hex.slice(8,12)}-4${hex.slice(13,16)}-8${hex.slice(17,20)}-${hex.slice(20,32)}`;
+  },
+
   async push(){
     const clinicId = S.g('cv_clinic_id');
     if(!clinicId) return;
 
+    // Only sync if clinic_id is a real UUID (registered with Supabase)
+    if(!this.isUUID(clinicId)){
+      console.log('[SB push] skipping — clinic_id is not a UUID yet (pending registration)');
+      return;
+    }
+
     const portalCombined = {
+      id: 'portal',
       followUps: S.g('cv_fus')||[],
       messages:  S.g('cv_msgs')||[]
     };
@@ -4258,12 +4306,16 @@ const SB = {
 
     for(const [table, arr] of Object.entries(tableData)){
       if(!arr.length) continue;
-      const rows = arr.map(item=>({
-        id:         item.id || this._id(),
-        clinic_id:  clinicId,
-        data:       item,
-        updated_at: new Date().toISOString()
-      }));
+      const rows = arr.map(item=>{
+        // Convert ID to valid UUID — sample data IDs like 'pt001' become deterministic UUIDs
+        const rowId = this.toUUID(item.id || this._id());
+        return {
+          id:         rowId,
+          clinic_id:  clinicId,
+          data:       {...item, id: rowId}, // keep consistent ID in data payload
+          updated_at: new Date().toISOString()
+        };
+      });
       await this.req(table, {
         method:'POST',
         prefer:'resolution=merge-duplicates,return=minimal',
@@ -4301,7 +4353,14 @@ const SB = {
   async syncNow(trigger='manual'){
     if(this._syncing) return;
     if(!navigator.onLine){ this.setStatus('offline'); return; }
-    if(!S.g('cv_clinic_id')){ this.setStatus('none'); return; }
+    const clinicId = S.g('cv_clinic_id');
+    if(!clinicId){ this.setStatus('none'); return; }
+    // Only sync if we have a real UUID (means Supabase registration succeeded)
+    if(!this.isUUID(clinicId)){
+      this.setStatus('pending');
+      console.log('[SB sync] skipping — clinic not yet registered in Supabase');
+      return;
+    }
     if(!S.g('cv_approved') && trigger!=='login'){ this.setStatus('pending'); return; }
 
     this._syncing = true;
@@ -4312,7 +4371,6 @@ const SB = {
       S.s('cv_sync_dirty', false);
       S.s('cv_sync_last',  new Date().toISOString());
       this.setStatus('ok');
-      // Reload data into app memory and refresh UI
       loadData();
       loadPortalData();
       if(document.getElementById('page-dashboard')?.classList.contains('active')) renderDash();
@@ -4320,7 +4378,7 @@ const SB = {
       if(document.getElementById('page-emr')?.classList.contains('active'))       renderEMR();
       if(document.getElementById('page-billing')?.classList.contains('active'))   renderBilling();
     } catch(e){
-      console.error('[SB sync]', e);
+      console.error('[SB sync]', e.message||e);
       this.setStatus('error');
     } finally {
       this._syncing = false;
@@ -4360,7 +4418,13 @@ const SB = {
     }
     return [...map.values()];
   },
-  _id(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,5); }
+  _id(){
+    // Generate a proper UUID v4 so new records are always Supabase-compatible
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c=>{
+      const r = Math.random()*16|0;
+      return (c==='x'?r:(r&0x3|0x8)).toString(16);
+    });
+  }
 };
 
 // ── Wire connectivity events ──
