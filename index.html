@@ -4245,41 +4245,44 @@ const SB = {
 
   // ── LOGIN (find clinic by email, verify PIN locally) ──
   async login(email, pin, roleType){
-    // First try offline: if we have clinic_id cached and PIN matches local, allow
-    const cachedId = S.g('cv_clinic_id');
-    const cachedEmail = S.g('cv_clinic_email')||'';
+    const cachedId    = S.g('cv_clinic_id');
+    const cachedEmail = (S.g('cv_clinic_email')||'').toLowerCase().trim();
     const localPinKey = roleType==='doctor' ? 'cv_pin_doctor' : 'cv_pin_receptionist';
+    const emailMatch  = cachedId && cachedEmail === email.toLowerCase().trim();
 
-    if(cachedId && cachedEmail.toLowerCase()===email.toLowerCase().trim()){
-      const localPin = S.g(localPinKey)||'';
-      if(localPin===pin){
-        // Offline login success — still try to sync if online
-        if(navigator.onLine) this.syncNow('login').catch(()=>{});
-        return {id:cachedId, name:S.g('cv_clinic_name'), approved:S.g('cv_approved')};
-      } else {
-        throw new Error('Wrong PIN');
+    // ── ONLINE PATH: always verify against Supabase to get fresh approval status ──
+    if(navigator.onLine){
+      try{
+        const rows = await this.req(`clinics?email=eq.${encodeURIComponent(email.toLowerCase().trim())}&select=*`);
+        if(!rows||!rows.length){
+          // Not in Supabase yet — fall through to offline check below
+          throw new Error('not_found');
+        }
+        const clinic = rows[0];
+        const hPin = await this.hash(pin);
+        const pinField = roleType==='doctor' ? 'pin_doctor' : 'pin_recept';
+        if(clinic[pinField] !== hPin) throw new Error('Wrong PIN');
+
+        // Cache everything fresh from Supabase — this is the source of truth
+        S.s('cv_clinic_id',   clinic.id);
+        S.s('cv_clinic_name', clinic.name);
+        S.s('cv_clinic_email',clinic.email);
+        S.s('cv_approved',    clinic.approved);  // ← always fresh from DB
+        S.s(localPinKey,      pin);
+        return clinic;
+      } catch(e){
+        if(e.message !== 'not_found') throw e;
+        // Not in Supabase — fall through to offline/local-only check
       }
     }
 
-    // Online login — fetch clinic from Supabase
-    if(!navigator.onLine) throw new Error('No internet and no cached login. Please connect to log in for the first time.');
+    // ── OFFLINE PATH: verify against cached PIN ──
+    if(!emailMatch) throw new Error('No internet connection and no cached login for this email. Connect to the internet to log in for the first time.');
+    const localPin = S.g(localPinKey)||'';
+    if(localPin !== pin) throw new Error('Wrong PIN');
 
-    const rows = await this.req(`clinics?email=eq.${encodeURIComponent(email.toLowerCase().trim())}&select=*`);
-    if(!rows||!rows.length) throw new Error('Clinic not found. Check your email or register.');
-    const clinic = rows[0];
-
-    const hPin = await this.hash(pin);
-    const pinField = roleType==='doctor' ? 'pin_doctor' : 'pin_recept';
-    if(clinic[pinField] !== hPin) throw new Error('Wrong PIN');
-
-    // Cache for offline use
-    S.s('cv_clinic_id',   clinic.id);
-    S.s('cv_clinic_name', clinic.name);
-    S.s('cv_clinic_email',clinic.email);
-    S.s('cv_approved',    clinic.approved);
-    S.s(localPinKey, pin); // cache plain PIN for offline login
-
-    return clinic;
+    // Offline login OK — return cached data
+    return {id:cachedId, name:S.g('cv_clinic_name'), approved:S.g('cv_approved')};
   },
 
   // ── SCHEDULE SAVE (debounced 3s) ──
@@ -4287,8 +4290,12 @@ const SB = {
     S.s('cv_sync_dirty', true);
     clearTimeout(this._timer);
     this._timer = setTimeout(()=>{
-      if(navigator.onLine && S.g('cv_approved')) this.syncNow('auto');
-      else this.setStatus('dirty');
+      const clinicId = S.g('cv_clinic_id');
+      if(navigator.onLine && this.isUUID(clinicId||'') && S.g('cv_approved')){
+        this.syncNow('auto');
+      } else {
+        this.setStatus(S.g('cv_approved') ? 'dirty' : 'pending');
+      }
     }, 3000);
   },
 
@@ -4381,28 +4388,44 @@ const SB = {
     if(!navigator.onLine){ this.setStatus('offline'); return; }
     const clinicId = S.g('cv_clinic_id');
     if(!clinicId){ this.setStatus('none'); return; }
-    // Only sync if we have a real UUID (means Supabase registration succeeded)
-    if(!this.isUUID(clinicId)){
-      this.setStatus('pending');
-      console.log('[SB sync] skipping — clinic not yet registered in Supabase');
-      return;
-    }
-    if(!S.g('cv_approved') && trigger!=='login'){ this.setStatus('pending'); return; }
+    if(!this.isUUID(clinicId)){ this.setStatus('pending'); return; }
+
+    // For auto/reconnect triggers, skip if explicitly not approved
+    // For login/manual triggers, always attempt — approval may have just changed
+    const approved = S.g('cv_approved');
+    if(!approved && trigger==='auto'){ this.setStatus('pending'); return; }
+    if(!approved && trigger==='reconnect'){ this.setStatus('pending'); return; }
 
     this._syncing = true;
     this.setStatus('syncing');
     try{
+      // On login, check approval fresh from Supabase in case it changed
+      if(trigger==='login' && !approved){
+        const rows = await this.req(`clinics?id=eq.${clinicId}&select=approved`);
+        if(!rows||!rows[0]||!rows[0].approved){
+          this.setStatus('pending');
+          this._syncing = false;
+          return;
+        }
+        S.s('cv_approved', true); // update cached value
+      }
+
       await this.push();
       await this.pull();
       S.s('cv_sync_dirty', false);
-      S.s('cv_sync_last',  new Date().toISOString());
+      S.s('cv_sync_last', new Date().toISOString());
       this.setStatus('ok');
+
+      // Reload data and refresh all visible pages
       loadData();
       loadPortalData();
-      if(document.getElementById('page-dashboard')?.classList.contains('active')) renderDash();
-      if(document.getElementById('page-patients')?.classList.contains('active'))  renderPts();
-      if(document.getElementById('page-emr')?.classList.contains('active'))       renderEMR();
-      if(document.getElementById('page-billing')?.classList.contains('active'))   renderBilling();
+      const active = id => document.getElementById(id)?.classList.contains('active');
+      if(active('page-dashboard'))  renderDash();
+      if(active('page-patients'))   renderPts();
+      if(active('page-emr'))        renderEMR();
+      if(active('page-billing'))    renderBilling();
+      if(active('page-inventory'))  renderInv();
+      if(active('page-appointments')) renderCal();
     } catch(e){
       console.error('[SB sync]', e.message||e);
       this.setStatus('error');
@@ -4536,30 +4559,62 @@ function skipToOfflineMode(){
 // ── Override checkPin to use email + Supabase login ──
 async function checkPin(){
   const email = document.getElementById('loginEmail')?.value?.trim();
-  if(!email){ document.getElementById('pinErr').textContent='Enter your clinic email first.'; updDots(true); setTimeout(()=>{pinBuf='';updDots();document.getElementById('pinErr').textContent='';},1400); return; }
+  if(!email){
+    document.getElementById('pinErr').textContent='Enter your clinic email first.';
+    updDots(true);
+    setTimeout(()=>{pinBuf='';updDots();document.getElementById('pinErr').textContent='';},1400);
+    return;
+  }
 
-  document.getElementById('pinErr').textContent='Checking…';
+  document.getElementById('pinErr').textContent = navigator.onLine ? 'Verifying…' : 'Checking locally…';
+
   try{
     const clinic = await SB.login(email, pinBuf, pinRole);
     role = pinRole;
 
-    // Store clinic settings into app
+    // Update clinic name in settings if it changed
     if(clinic.name) S.s('cv_cName', clinic.name);
     S.s('cv_approved', clinic.approved);
 
+    // ── Show app immediately with cached data ──
     loadData();
     document.getElementById('loginScreen').classList.add('hidden');
     document.getElementById('appShell').classList.remove('hidden');
     initApp();
 
-    // Sync on login (pull latest from cloud)
-    if(navigator.onLine && clinic.approved) SB.syncNow('login');
-    else SB.setStatus(clinic.approved ? 'offline' : 'pending');
+    // ── Then sync in background and refresh UI when done ──
+    if(navigator.onLine && clinic.approved){
+      SB.setStatus('syncing');
+      // Await the sync so the dashboard shows fresh data
+      await SB.syncNow('login');
+    } else if(!clinic.approved){
+      // Re-check approval from Supabase one more time in background
+      // (handles the case where they were just approved but cached value was stale)
+      if(navigator.onLine){
+        setTimeout(async()=>{
+          try{
+            const rows = await SB.req(`clinics?email=eq.${encodeURIComponent(email.toLowerCase().trim())}&select=approved,id`);
+            if(rows&&rows[0]&&rows[0].approved){
+              S.s('cv_approved', true);
+              S.s('cv_clinic_id', rows[0].id);
+              toast('Your account has been approved! Syncing now…');
+              await SB.syncNow('login');
+            } else {
+              SB.setStatus('pending');
+            }
+          } catch(e){ SB.setStatus('pending'); }
+        }, 800);
+      } else {
+        SB.setStatus('pending');
+      }
+    } else {
+      SB.setStatus('offline');
+    }
 
   } catch(e){
     updDots(true);
     document.getElementById('pinErr').textContent = e.message||'Login failed.';
-    setTimeout(()=>{ pinBuf=''; updDots(); document.getElementById('pinErr').textContent=''; }, 1600);
+    setTimeout(()=>{ pinBuf=''; updDots(); document.getElementById('pinErr').textContent=''; }, 2000);
   }
 }
 
