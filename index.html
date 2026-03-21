@@ -660,34 +660,76 @@ body.dark .tab.active{color:#00cfa8;border-color:#00cfa8;}
       <div class="l-logo-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round"><ellipse cx="12" cy="12" rx="10" ry="6"/><circle cx="12" cy="12" r="3" fill="#fff" stroke="none"/></svg></div>
       <div><div class="l-logo-name">ClearVision</div><div class="l-logo-sub">Eye Clinic EMR</div></div>
     </div>
-    <div style="font-size:14px;font-weight:700;margin-bottom:4px;">Welcome back</div>
-    <div style="font-size:12px;color:var(--muted);margin-bottom:18px;">Select your role and enter PIN to continue</div>
-    <div class="role-grid">
-      <div class="role-card active" id="rc-doctor" onclick="selRole('doctor',this)">
-        <div class="role-card-icon" style="background:var(--gdbg);color:var(--gold);"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></div>
-        <div class="role-card-name">Doctor</div><div class="role-card-sub">Full access</div>
+
+    <!-- ── LOGIN VIEW ── -->
+    <div id="loginView">
+      <div style="font-size:14px;font-weight:700;margin-bottom:4px;" id="loginGreeting">Welcome back</div>
+      <div style="font-size:11.5px;color:var(--muted);margin-bottom:6px;" id="loginClinicDisplay" style="display:none;"></div>
+      <div style="font-size:12px;color:var(--muted);margin-bottom:14px;">Enter your clinic email and PIN to continue</div>
+
+      <!-- Email field (shown when no clinic cached) -->
+      <div id="loginEmailBlock" style="margin-bottom:12px;">
+        <label style="font-size:10.5px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;display:block;margin-bottom:5px;">Clinic Email</label>
+        <input class="fi" id="loginEmail" type="email" placeholder="clinic@example.com" style="margin-bottom:0;">
       </div>
-      <div class="role-card" id="rc-receptionist" onclick="selRole('receptionist',this)">
-        <div class="role-card-icon" style="background:var(--bbg);color:var(--blue);"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
-        <div class="role-card-name">Receptionist</div><div class="role-card-sub">Limited access</div>
+
+      <div class="role-grid">
+        <div class="role-card active" id="rc-doctor" onclick="selRole('doctor',this)">
+          <div class="role-card-icon" style="background:var(--gdbg);color:var(--gold);"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></div>
+          <div class="role-card-name">Doctor</div><div class="role-card-sub">Full access</div>
+        </div>
+        <div class="role-card" id="rc-receptionist" onclick="selRole('receptionist',this)">
+          <div class="role-card-icon" style="background:var(--bbg);color:var(--blue);"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
+          <div class="role-card-name">Receptionist</div><div class="role-card-sub">Limited access</div>
+        </div>
+      </div>
+      <div style="font-size:12px;font-weight:600;margin-bottom:2px;" id="pinLbl">Doctor PIN</div>
+      <div style="font-size:11px;color:var(--muted);margin-bottom:4px;">Enter your 4-digit PIN</div>
+      <div class="pin-row"><div class="pin-dot" id="pd0"></div><div class="pin-dot" id="pd1"></div><div class="pin-dot" id="pd2"></div><div class="pin-dot" id="pd3"></div></div>
+      <div class="pin-err" id="pinErr"></div>
+      <div class="pin-pad">
+        <button class="pk" onclick="pk('1')">1</button><button class="pk" onclick="pk('2')">2</button><button class="pk" onclick="pk('3')">3</button>
+        <button class="pk" onclick="pk('4')">4</button><button class="pk" onclick="pk('5')">5</button><button class="pk" onclick="pk('6')">6</button>
+        <button class="pk" onclick="pk('7')">7</button><button class="pk" onclick="pk('8')">8</button><button class="pk" onclick="pk('9')">9</button>
+        <button class="pk clr" onclick="pkClr()">Clear</button><button class="pk z" onclick="pk('0')">0</button>
+        <button class="pk del" onclick="pkDel()"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 4H8l-7 8 7 8h13a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2z"/><line x1="18" y1="9" x2="12" y2="15"/><line x1="12" y1="9" x2="18" y2="15"/></svg></button>
+      </div>
+      <div style="text-align:center;margin-top:14px;">
+        <button onclick="showRegister()" style="font-size:11.5px;color:var(--cyan-d);background:none;border:none;cursor:pointer;font-family:'Sora',sans-serif;font-weight:600;text-decoration:underline;">New clinic? Register here →</button>
       </div>
     </div>
-    <div style="font-size:12px;font-weight:600;margin-bottom:2px;" id="pinLbl">Doctor PIN</div>
-    <div style="font-size:11px;color:var(--muted);margin-bottom:4px;">Enter your 4-digit PIN</div>
-    <div class="pin-row"><div class="pin-dot" id="pd0"></div><div class="pin-dot" id="pd1"></div><div class="pin-dot" id="pd2"></div><div class="pin-dot" id="pd3"></div></div>
-    <div class="pin-err" id="pinErr"></div>
-    <div class="pin-pad">
-      <button class="pk" onclick="pk('1')">1</button><button class="pk" onclick="pk('2')">2</button><button class="pk" onclick="pk('3')">3</button>
-      <button class="pk" onclick="pk('4')">4</button><button class="pk" onclick="pk('5')">5</button><button class="pk" onclick="pk('6')">6</button>
-      <button class="pk" onclick="pk('7')">7</button><button class="pk" onclick="pk('8')">8</button><button class="pk" onclick="pk('9')">9</button>
-      <button class="pk clr" onclick="pkClr()">Clear</button><button class="pk z" onclick="pk('0')">0</button>
-      <button class="pk del" onclick="pkDel()"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 4H8l-7 8 7 8h13a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2z"/><line x1="18" y1="9" x2="12" y2="15"/><line x1="12" y1="9" x2="18" y2="15"/></svg></button>
+
+    <!-- ── REGISTER VIEW ── -->
+    <div id="registerView" style="display:none;">
+      <div style="font-size:14px;font-weight:700;margin-bottom:4px;">Register Your Clinic</div>
+      <div style="font-size:12px;color:var(--muted);margin-bottom:16px;">Create your account. You'll be able to log in once approved.</div>
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <div class="fg"><label class="flbl">Clinic Name *</label><input class="fi" id="reg-name" placeholder="e.g. ClearVision Eye Clinic"></div>
+        <div class="fg"><label class="flbl">Email Address *</label><input class="fi" id="reg-email" type="email" placeholder="clinic@example.com"></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+          <div class="fg"><label class="flbl">Doctor PIN * (4 digits)</label><input class="fi" id="reg-pin-doc" type="password" maxlength="4" placeholder="••••" style="letter-spacing:4px;font-size:18px;text-align:center;"></div>
+          <div class="fg"><label class="flbl">Receptionist PIN * (4 digits)</label><input class="fi" id="reg-pin-rec" type="password" maxlength="4" placeholder="••••" style="letter-spacing:4px;font-size:18px;text-align:center;"></div>
+        </div>
+        <div style="font-size:10.5px;color:var(--muted);line-height:1.6;background:var(--s2);border-radius:8px;padding:9px 12px;">
+          Your registration will be reviewed and approved within 24 hours. You'll be able to use the app offline immediately and sync to cloud once approved.
+        </div>
+        <div id="regErr" style="font-size:11.5px;color:var(--rose);font-weight:600;display:none;"></div>
+        <button class="btn btn-primary" onclick="registerClinic()" style="width:100%;justify-content:center;" id="regBtn">Create Account</button>
+        <button onclick="showLogin()" style="font-size:11.5px;color:var(--muted);background:none;border:none;cursor:pointer;font-family:'Sora',sans-serif;text-align:center;">← Back to login</button>
+      </div>
     </div>
-    <div class="pin-hint">
-      <div class="pin-hint-title">Default PINs (change in Settings)</div>
-      <div class="pin-hint-row"><span class="pin-hint-label">Doctor</span><span class="pin-chip" id="hDoc">1234</span></div>
-      <div class="pin-hint-row"><span class="pin-hint-label">Receptionist</span><span class="pin-chip" id="hRec">5678</span></div>
+
+    <!-- ── PENDING APPROVAL VIEW ── -->
+    <div id="pendingView" style="display:none;">
+      <div style="text-align:center;padding:20px 0;">
+        <div style="font-size:36px;margin-bottom:14px;">⏳</div>
+        <div style="font-size:14px;font-weight:700;margin-bottom:8px;">Registration Submitted</div>
+        <div style="font-size:12px;color:var(--muted);line-height:1.7;margin-bottom:20px;">Your clinic is pending approval. You can start using the app now — your data will sync to the cloud once approved.</div>
+        <button class="btn btn-primary" style="width:100%;justify-content:center;" onclick="skipToOfflineMode()">Continue in Offline Mode</button>
+        <button onclick="showLogin()" style="font-size:11.5px;color:var(--muted);background:none;border:none;cursor:pointer;font-family:'Sora',sans-serif;margin-top:10px;display:block;width:100%;text-align:center;">← Back</button>
+      </div>
     </div>
+
   </div>
 </div>
 
@@ -741,6 +783,7 @@ body.dark .tab.active{color:#00cfa8;border-color:#00cfa8;}
       <div class="tb-date" id="tbDate"></div>
       <button onclick="openCmd()" title="Search everything (Ctrl+K)" style="display:inline-flex;align-items:center;gap:6px;padding:5px 11px;border-radius:8px;border:1.5px solid var(--border2);background:var(--s2);font-family:'Sora',sans-serif;font-size:11.5px;color:var(--muted);cursor:pointer;transition:var(--tr);" onmouseenter="this.style.borderColor='var(--cyan)'" onmouseleave="this.style.borderColor='var(--border2)'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" width="12" height="12"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><span class="tb-date">Search</span><kbd style="font-size:9px;background:var(--s3);border-radius:4px;padding:1px 5px;font-family:monospace;color:var(--muted2);">⌘K</kbd></button>
       <button class="dark-toggle" id="darkToggleBtn" onclick="toggleDark()" title="Toggle dark mode"><svg id="darkIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></button>
+      <div id="syncIndicator" onclick="syncNow('manual')" title="Click to sync now" style="font-size:10.5px;font-weight:600;cursor:pointer;padding:4px 10px;border-radius:20px;border:1px solid var(--border2);background:var(--s2);color:var(--muted);white-space:nowrap;display:none;transition:var(--tr);" onmouseenter="this.style.borderColor='var(--cyan)'" onmouseleave="this.style.borderColor='var(--border2)'"></div>
       <button class="notif-btn" id="notifBtn" onclick="toggleNotifPanel()" title="Notifications"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg><span class="notif-pip" id="notifPip">0</span></button>
       <div class="tb-role"><div class="tb-role-dot" id="tbRoleDot"></div><span class="tb-role-lbl" id="tbRoleLbl"></span></div>
       <div id="tbActions"></div>
@@ -925,8 +968,57 @@ body.dark .tab.active{color:#00cfa8;border-color:#00cfa8;}
           </div>
           <div class="ma"><button class="btn btn-primary" onclick="saveSettings()">Save Settings</button></div>
         </div>
+
+        <!-- ══ CLOUD SYNC CARD ══ -->
+        <div class="card cp" id="syncCard">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
+            <div class="ct">☁ Cloud Sync</div>
+            <span id="syncStatusBadge" style="font-size:10.5px;font-weight:700;padding:3px 10px;border-radius:20px;background:var(--s3);color:var(--muted);">Not configured</span>
+          </div>
+          <div class="cs" style="margin-bottom:14px;">Your data stays in LocalStorage offline and auto-syncs to the cloud when internet is available. No database needed — just a free JSON storage key.</div>
+
+          <!-- Backend Tabs -->
+          <div style="display:flex;gap:6px;margin-bottom:14px;">
+            <button id="syncTabJsonbin" onclick="selectSyncTab('jsonbin')" style="flex:1;padding:7px;border-radius:8px;border:1.5px solid var(--cyan);background:var(--cbg);color:var(--cyan-d);font-family:'Sora',sans-serif;font-size:11.5px;font-weight:700;cursor:pointer;">JSONBin.io</button>
+            <button id="syncTabGist" onclick="selectSyncTab('gist')" style="flex:1;padding:7px;border-radius:8px;border:1.5px solid var(--border2);background:var(--surface);color:var(--muted);font-family:'Sora',sans-serif;font-size:11.5px;font-weight:600;cursor:pointer;">GitHub Gist</button>
+          </div>
+
+          <!-- JSONBin Panel -->
+          <div id="syncPanelJsonbin">
+            <div style="background:var(--s2);border-radius:8px;padding:10px 12px;font-size:11.5px;color:var(--muted);margin-bottom:12px;line-height:1.7;">
+              <strong style="color:var(--ink);">Setup (1 min):</strong> Go to <strong>jsonbin.io</strong> → Sign up free → Copy your <strong>Master Key</strong> from the API Keys page → paste below. ClearVision creates your clinic's JSON bin automatically on first save.
+            </div>
+            <div class="fgrid">
+              <div class="fg full"><label class="flbl">JSONBin Master Key (X-Master-Key)</label><input class="fi" id="sSyncJsonbinKey" type="password" placeholder="$2b$10$…"></div>
+              <div class="fg full"><label class="flbl">Bin ID <span style="font-weight:400;color:var(--muted);">(auto-filled after first sync)</span></label><input class="fi" id="sSyncJsonbinId" placeholder="Filled automatically…" style="font-family:monospace;font-size:11px;"></div>
+            </div>
+          </div>
+
+          <!-- GitHub Gist Panel -->
+          <div id="syncPanelGist" style="display:none;">
+            <div style="background:var(--s2);border-radius:8px;padding:10px 12px;font-size:11.5px;color:var(--muted);margin-bottom:12px;line-height:1.7;">
+              <strong style="color:var(--ink);">Setup (2 min):</strong> GitHub → Settings → Developer settings → Personal access tokens → Generate new token → tick <strong>gist</strong> scope only → copy token. ClearVision creates your Gist automatically on first save.
+            </div>
+            <div class="fgrid">
+              <div class="fg full"><label class="flbl">GitHub Personal Access Token</label><input class="fi" id="sSyncGistToken" type="password" placeholder="ghp_…"></div>
+              <div class="fg full"><label class="flbl">Gist ID <span style="font-weight:400;color:var(--muted);">(auto-filled after first sync)</span></label><input class="fi" id="sSyncGistId" placeholder="Filled automatically…" style="font-family:monospace;font-size:11px;"></div>
+            </div>
+          </div>
+
+          <!-- Sync actions -->
+          <div style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap;align-items:center;">
+            <button class="btn btn-primary btn-sm" onclick="saveSyncSettings()">Save &amp; Connect</button>
+            <button class="btn btn-ghost btn-sm" onclick="syncNow('manual')" id="syncNowBtn">↻ Sync Now</button>
+            <button class="btn btn-ghost btn-sm" onclick="downloadBackup()">⬇ Download JSON Backup</button>
+            <button class="btn btn-ghost btn-sm" onclick="importBackup()">⬆ Import JSON</button>
+          </div>
+
+          <!-- Sync log -->
+          <div id="syncLog" style="margin-top:12px;font-size:11px;color:var(--muted);line-height:1.7;display:none;"></div>
+        </div>
+
         <div class="card cp">
-          <div class="ct" style="margin-bottom:4px;">Access Levels</div>ss Levels</div>
+          <div class="ct" style="margin-bottom:4px;">Access Levels</div>
           <div class="cs" style="margin-bottom:14px;">Role permissions overview</div>
           <table style="width:100%;border-collapse:collapse;font-size:12px;">
             <thead><tr><th style="text-align:left;padding:7px 0;color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:0.6px;border-bottom:1px solid var(--border);">Feature</th><th style="padding:7px 12px;color:var(--gold);font-size:10px;text-transform:uppercase;border-bottom:1px solid var(--border);">Doctor</th><th style="padding:7px 12px;color:var(--blue);font-size:10px;text-transform:uppercase;border-bottom:1px solid var(--border);">Receptionist</th></tr></thead>
@@ -1394,7 +1486,11 @@ function toast(msg,type='ok'){
 
 // ══ DATA ══
 function loadData(){pts=S.g('cv_pts')||[];appts=S.g('cv_appts')||[];emrs=S.g('cv_emrs')||[];surgs=S.g('cv_surgs')||[];invItems=S.g('cv_inv')||[];bills=S.g('cv_bills')||[];}
-function saveAll(){S.s('cv_pts',pts);S.s('cv_appts',appts);S.s('cv_emrs',emrs);S.s('cv_surgs',surgs);S.s('cv_inv',invItems);S.s('cv_bills',bills);}
+function saveAll(){
+  S.s('cv_pts',pts);S.s('cv_appts',appts);S.s('cv_emrs',emrs);
+  S.s('cv_surgs',surgs);S.s('cv_inv',invItems);S.s('cv_bills',bills);
+  SB.scheduleSave();
+}
 
 // ══ PIN / LOGIN ══
 function getPin(r){return S.g(`cv_pin_${r}`)||(r==='doctor'?'1234':'5678');}
@@ -1403,18 +1499,18 @@ function pk(k){if(pinBuf.length>=4)return;pinBuf+=k;updDots();if(pinBuf.length==
 function pkDel(){if(pinBuf.length>0){pinBuf=pinBuf.slice(0,-1);updDots();}}
 function pkClr(){pinBuf='';updDots();}
 function updDots(err=false){for(let i=0;i<4;i++){const d=document.getElementById('pd'+i);d.className='pin-dot'+(i<pinBuf.length?(err?' err':' on'):'');}}
-function checkPin(){
-  if(pinBuf===getPin(pinRole)){
-    role=pinRole;loadData();
-    document.getElementById('loginScreen').classList.add('hidden');
-    document.getElementById('appShell').classList.remove('hidden');
-    initApp();
-  } else {
-    updDots(true);document.getElementById('pinErr').textContent='Incorrect PIN. Try again.';
-    setTimeout(()=>{pinBuf='';updDots();document.getElementById('pinErr').textContent='';},1000);
-  }
+// checkPin — async Supabase version defined below in sync engine
+function logout(){
+  role=null;pinBuf='';
+  SB.setStatus('none');
+  document.getElementById('appShell').classList.add('hidden');
+  document.getElementById('loginScreen').classList.remove('hidden');
+  updDots();
+  // Restore email for convenience
+  const cachedEmail = S.g('cv_clinic_email');
+  const emailEl = document.getElementById('loginEmail');
+  if(emailEl && cachedEmail) emailEl.value = cachedEmail;
 }
-function logout(){role=null;pinBuf='';document.getElementById('appShell').classList.add('hidden');document.getElementById('loginScreen').classList.remove('hidden');updDots();}
 function chgPin(r){
   if(!isDoc()){toast('Only doctors can change PINs.','err');return;}
   const cur=document.getElementById(r==='doctor'?'dCur':'rCur').value;
@@ -2093,14 +2189,7 @@ function renderReminders(){
   el.innerHTML=`<div class="ct" style="margin-bottom:10px;">Pending Reminders <span class="bdg b-am" style="margin-left:4px;">${needRem.length}</span></div>`+
   needRem.map(a=>{const p=pts.find(x=>x.id===a.patientId)||{name:'Unknown'};return `<div class="rem-chip"><div class="rem-dot" style="background:var(--amber);"></div><div style="flex:1;"><div style="font-size:12px;font-weight:600;">${p.name}</div><div style="font-size:10.5px;color:var(--muted);">${fmtD(a.date)} · ${a.time}</div></div><button class="btn btn-sm btn-amber" onclick="markRemSent('${a.id}')">Send</button></div>`;}).join('');
 }
-function markRemSent(id){const i=appts.findIndex(a=>a.id===id);if(i>-1){appts[i].reminder='SMS sent';saveAll();renderCal();renderDash();toast('Reminder marked sent.');}}
-function sendAllReminders(){appts.forEach(a=>{if(a.date>=td()&&a.reminder==='Not sent')a.reminder='SMS sent';});saveAll();closeMod('reminder');toast('All reminders marked sent!');renderCal();renderDash();}
-function openRemModal(){
-  const needRem=appts.filter(a=>a.date>=td()&&a.reminder==='Not sent');
-  const el=document.getElementById('remModalList');
-  if(!needRem.length){el.innerHTML='<div style="text-align:center;color:var(--muted);padding:20px;">No pending reminders. All appointments have been notified.</div>';return;}
-  el.innerHTML=needRem.map(a=>{const p=pts.find(x=>x.id===a.patientId)||{name:'Unknown'};return `<div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border);"><div class="av" style="width:30px;height:30px;font-size:11px;background:${avc(p.name)};">${ini(p.name)}</div><div style="flex:1;"><div style="font-size:13px;font-weight:600;">${p.name}</div><div style="font-size:11.5px;color:var(--muted);">${fmtD(a.date)} at ${a.time} — ${a.type}</div></div><button class="btn btn-sm btn-amber" onclick="markRemSent('${a.id}');openRemModal()">Mark Sent</button></div>`;}).join('');
-}
+// markRemSent, sendAllReminders, openRemModal — defined in messaging engine below
 // reminder button wired inline above
 
 // ══ INVENTORY ══
@@ -2614,9 +2703,15 @@ function initApp(){
   if(S.g('cv_dark'))applyDark(true);
   loadSampleData();loadPortalData();applyS();renderDash();renderCal();updBadge();updInvBadge();chkOnline();buildActions('dashboard');loadSettingsUI();
   applyBranding();
-  document.getElementById('hDoc').textContent=getPin('doctor');
-  document.getElementById('hRec').textContent=getPin('receptionist');
   updNotif();
+  // Sync indicator
+  const approved = S.g('cv_approved');
+  if(approved) SB.setStatus(navigator.onLine ? 'ok' : 'offline');
+  else if(S.g('cv_clinic_id')) SB.setStatus('pending');
+  // Pre-fill email field on login screen for returning users
+  const cachedEmail = S.g('cv_clinic_email');
+  const emailEl = document.getElementById('loginEmail');
+  if(emailEl && cachedEmail) emailEl.value = cachedEmail;
 }
 
 
@@ -2750,8 +2845,6 @@ document.addEventListener('DOMContentLoaded',()=>{
     b.style.position='relative';b.style.overflow='hidden';
     b.appendChild(r);setTimeout(()=>r.remove(),500);
   });
-  document.getElementById('hDoc').textContent=getPin('doctor');
-  document.getElementById('hRec').textContent=getPin('receptionist');
 });
 
 // ══════════════════════════════════════════════
@@ -4022,6 +4115,388 @@ function showOnboarding(){
       </div>
     </div>`;
   document.body.appendChild(mo);
+}
+
+// ══════════════════════════════════════════════════════════════════
+// SUPABASE SYNC ENGINE
+// ══════════════════════════════════════════════════════════════════
+const SB = {
+  URL:  'https://ymlmvetrlxytvwckqsoy.supabase.co',
+  ANON: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InltbG12ZXRybHh5dHZ3Y2txc295Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQwOTA5OTMsImV4cCI6MjA4OTY2Njk5M30.9wmvNsoFhfAaZ9pN8WoqyJ00kw5-oYFAaK7uyAnvzEo',
+
+  TABLES: ['patients','appointments','emrs','surgs','inventory','bills','portal_data'],
+  LS_MAP: {
+    patients:'cv_pts', appointments:'cv_appts', emrs:'cv_emrs',
+    surgs:'cv_surgs', inventory:'cv_inv', bills:'cv_bills',
+    portal_data:'cv_portal_combined'
+  },
+
+  _timer: null,
+  _syncing: false,
+
+  // ── PIN hashing (SHA-256, hex) ──
+  async hash(pin){
+    const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(pin));
+    return [...new Uint8Array(buf)].map(b=>b.toString(16).padStart(2,'0')).join('');
+  },
+
+  // ── Base fetch helper ──
+  async req(path, opts={}){
+    const clinicId = S.g('cv_clinic_id')||'';
+    const res = await fetch(`${this.URL}/rest/v1/${path}`, {
+      ...opts,
+      headers: {
+        'apikey': this.ANON,
+        'Authorization': `Bearer ${this.ANON}`,
+        'Content-Type': 'application/json',
+        'Prefer': opts.prefer||'',
+        'x-clinic-id': clinicId,
+        ...(opts.headers||{})
+      }
+    });
+    if(!res.ok){
+      const err = await res.text();
+      throw new Error(err);
+    }
+    const text = await res.text();
+    return text ? JSON.parse(text) : null;
+  },
+
+  // ── REGISTER ──
+  async register(clinicName, email, pinDoc, pinRec){
+    const [hDoc, hRec] = await Promise.all([this.hash(pinDoc), this.hash(pinRec)]);
+    const result = await this.req('clinics', {
+      method: 'POST',
+      prefer: 'return=representation',
+      body: JSON.stringify({
+        name: clinicName,
+        email: email.toLowerCase().trim(),
+        pin_doctor: hDoc,
+        pin_recept: hRec,
+        approved: false,
+        plan: 'solo'
+      })
+    });
+    const clinic = Array.isArray(result) ? result[0] : result;
+    S.s('cv_clinic_id',   clinic.id);
+    S.s('cv_clinic_name', clinic.name);
+    S.s('cv_clinic_email',clinic.email);
+    S.s('cv_approved',    false);
+    S.s('cv_pin_doctor',  pinDoc);
+    S.s('cv_pin_receptionist', pinRec);
+    return clinic;
+  },
+
+  // ── LOGIN (find clinic by email, verify PIN locally) ──
+  async login(email, pin, roleType){
+    // First try offline: if we have clinic_id cached and PIN matches local, allow
+    const cachedId = S.g('cv_clinic_id');
+    const cachedEmail = S.g('cv_clinic_email')||'';
+    const localPinKey = roleType==='doctor' ? 'cv_pin_doctor' : 'cv_pin_receptionist';
+
+    if(cachedId && cachedEmail.toLowerCase()===email.toLowerCase().trim()){
+      const localPin = S.g(localPinKey)||'';
+      if(localPin===pin){
+        // Offline login success — still try to sync if online
+        if(navigator.onLine) this.syncNow('login').catch(()=>{});
+        return {id:cachedId, name:S.g('cv_clinic_name'), approved:S.g('cv_approved')};
+      } else {
+        throw new Error('Wrong PIN');
+      }
+    }
+
+    // Online login — fetch clinic from Supabase
+    if(!navigator.onLine) throw new Error('No internet and no cached login. Please connect to log in for the first time.');
+
+    const rows = await this.req(`clinics?email=eq.${encodeURIComponent(email.toLowerCase().trim())}&select=*`);
+    if(!rows||!rows.length) throw new Error('Clinic not found. Check your email or register.');
+    const clinic = rows[0];
+
+    const hPin = await this.hash(pin);
+    const pinField = roleType==='doctor' ? 'pin_doctor' : 'pin_recept';
+    if(clinic[pinField] !== hPin) throw new Error('Wrong PIN');
+
+    // Cache for offline use
+    S.s('cv_clinic_id',   clinic.id);
+    S.s('cv_clinic_name', clinic.name);
+    S.s('cv_clinic_email',clinic.email);
+    S.s('cv_approved',    clinic.approved);
+    S.s(localPinKey, pin); // cache plain PIN for offline login
+
+    return clinic;
+  },
+
+  // ── SCHEDULE SAVE (debounced 3s) ──
+  scheduleSave(){
+    S.s('cv_sync_dirty', true);
+    clearTimeout(this._timer);
+    this._timer = setTimeout(()=>{
+      if(navigator.onLine && S.g('cv_approved')) this.syncNow('auto');
+      else this.setStatus('dirty');
+    }, 3000);
+  },
+
+  // ── PUSH all local data to Supabase ──
+  async push(){
+    const clinicId = S.g('cv_clinic_id');
+    if(!clinicId) return;
+
+    const portalCombined = {
+      followUps: S.g('cv_fus')||[],
+      messages:  S.g('cv_msgs')||[]
+    };
+
+    const tableData = {
+      patients:     S.g('cv_pts')  ||[],
+      appointments: S.g('cv_appts')||[],
+      emrs:         S.g('cv_emrs') ||[],
+      surgs:        S.g('cv_surgs')||[],
+      inventory:    S.g('cv_inv')  ||[],
+      bills:        S.g('cv_bills')||[],
+      portal_data:  [portalCombined]
+    };
+
+    for(const [table, arr] of Object.entries(tableData)){
+      if(!arr.length) continue;
+      const rows = arr.map(item=>({
+        id:         item.id || this._id(),
+        clinic_id:  clinicId,
+        data:       item,
+        updated_at: new Date().toISOString()
+      }));
+      await this.req(table, {
+        method:'POST',
+        prefer:'resolution=merge-duplicates,return=minimal',
+        body: JSON.stringify(rows)
+      });
+    }
+  },
+
+  // ── PULL all remote data from Supabase ──
+  async pull(){
+    const clinicId = S.g('cv_clinic_id');
+    if(!clinicId) return;
+
+    for(const table of this.TABLES){
+      const rows = await this.req(`${table}?clinic_id=eq.${clinicId}&select=data,updated_at&order=updated_at.asc`);
+      if(!rows||!rows.length) continue;
+
+      if(table==='portal_data'){
+        // Special: portal_data is one combined record
+        const combined = rows[rows.length-1].data;
+        if(combined){
+          S.s('cv_fus',  combined.followUps||[]);
+          S.s('cv_msgs', combined.messages||[]);
+        }
+      } else {
+        const lsKey = this.LS_MAP[table];
+        const localArr = S.g(lsKey)||[];
+        const merged = this._merge(localArr, rows.map(r=>r.data));
+        S.s(lsKey, merged);
+      }
+    }
+  },
+
+  // ── MAIN SYNC ──
+  async syncNow(trigger='manual'){
+    if(this._syncing) return;
+    if(!navigator.onLine){ this.setStatus('offline'); return; }
+    if(!S.g('cv_clinic_id')){ this.setStatus('none'); return; }
+    if(!S.g('cv_approved') && trigger!=='login'){ this.setStatus('pending'); return; }
+
+    this._syncing = true;
+    this.setStatus('syncing');
+    try{
+      await this.push();
+      await this.pull();
+      S.s('cv_sync_dirty', false);
+      S.s('cv_sync_last',  new Date().toISOString());
+      this.setStatus('ok');
+      // Reload data into app memory and refresh UI
+      loadData();
+      loadPortalData();
+      if(document.getElementById('page-dashboard')?.classList.contains('active')) renderDash();
+      if(document.getElementById('page-patients')?.classList.contains('active'))  renderPts();
+      if(document.getElementById('page-emr')?.classList.contains('active'))       renderEMR();
+      if(document.getElementById('page-billing')?.classList.contains('active'))   renderBilling();
+    } catch(e){
+      console.error('[SB sync]', e);
+      this.setStatus('error');
+    } finally {
+      this._syncing = false;
+    }
+  },
+
+  // ── STATUS INDICATOR ──
+  setStatus(state){
+    const el = document.getElementById('syncIndicator');
+    if(!el) return;
+    const cfg = {
+      ok:      { text:'✓ Synced',      color:'var(--cyan-d)',  show:true  },
+      syncing: { text:'↻ Syncing…',    color:'var(--blue)',    show:true  },
+      dirty:   { text:'● Unsaved',     color:'var(--amber)',   show:true  },
+      offline: { text:'⚡ Offline',     color:'var(--amber)',   show:true  },
+      error:   { text:'⚠ Sync failed', color:'var(--rose)',    show:true  },
+      pending: { text:'⏳ Awaiting approval', color:'var(--muted)', show:true },
+      none:    { text:'',              color:'',               show:false },
+    };
+    const c = cfg[state]||cfg.none;
+    el.textContent = c.text;
+    el.style.color  = c.color;
+    el.style.borderColor = c.color;
+    el.style.display = c.show ? '' : 'none';
+    if(state==='ok') setTimeout(()=>{ if(el.textContent==='✓ Synced') el.style.display='none'; }, 4000);
+  },
+
+  // ── HELPERS ──
+  _merge(local, remote){
+    const map = new Map((local||[]).map(r=>[r.id,r]));
+    for(const rem of (remote||[])){
+      if(!rem||!rem.id) continue;
+      const loc = map.get(rem.id);
+      if(!loc || (rem.updatedAt||rem.updated_at||'') > (loc.updatedAt||loc.updated_at||'')) {
+        map.set(rem.id, rem);
+      }
+    }
+    return [...map.values()];
+  },
+  _id(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,5); }
+};
+
+// ── Wire connectivity events ──
+window.addEventListener('online',  ()=>{ if(S.g('cv_sync_dirty')&&S.g('cv_approved')) SB.syncNow('reconnect'); else SB.setStatus(S.g('cv_approved')?'ok':'pending'); });
+window.addEventListener('offline', ()=>SB.setStatus('offline'));
+function showRegister(){ document.getElementById('loginView').style.display='none'; document.getElementById('registerView').style.display=''; document.getElementById('pendingView').style.display='none'; }
+function showLogin(){    document.getElementById('loginView').style.display=''; document.getElementById('registerView').style.display='none'; document.getElementById('pendingView').style.display='none'; }
+function showPending(){  document.getElementById('loginView').style.display='none'; document.getElementById('registerView').style.display='none'; document.getElementById('pendingView').style.display=''; }
+
+async function registerClinic(){
+  const name   = document.getElementById('reg-name')?.value.trim();
+  const email  = document.getElementById('reg-email')?.value.trim();
+  const pinDoc = document.getElementById('reg-pin-doc')?.value.trim();
+  const pinRec = document.getElementById('reg-pin-rec')?.value.trim();
+  const errEl  = document.getElementById('regErr');
+  const btn    = document.getElementById('regBtn');
+
+  errEl.style.display='none';
+  if(!name||!email||!pinDoc||!pinRec){ errEl.textContent='All fields are required.'; errEl.style.display=''; return; }
+  if(!/^\d{4}$/.test(pinDoc)||!/^\d{4}$/.test(pinRec)){ errEl.textContent='PINs must be exactly 4 digits.'; errEl.style.display=''; return; }
+  if(pinDoc===pinRec){ errEl.textContent='Doctor and Receptionist PINs must be different.'; errEl.style.display=''; return; }
+
+  btn.textContent='Setting up…'; btn.disabled=true;
+
+  // ── Step 1: Save locally immediately — works whether online or not ──
+  const localId = uid();
+  S.s('cv_clinic_id',          localId);
+  S.s('cv_clinic_name',        name);
+  S.s('cv_clinic_email',       email.toLowerCase().trim());
+  S.s('cv_approved',           false);
+  S.s('cv_pin_doctor',         pinDoc);
+  S.s('cv_pin_receptionist',   pinRec);
+  S.s('cv_sync_dirty',         true);
+  localStorage.removeItem('cv_sample_loaded');
+
+  // ── Step 2: Try Supabase in background — don't block if it fails ──
+  if(navigator.onLine){
+    btn.textContent='Registering online…';
+    try{
+      const clinic = await SB.register(name, email, pinDoc, pinRec);
+      // Update local ID with real Supabase ID
+      S.s('cv_clinic_id', clinic.id);
+      showPending();
+    } catch(e){
+      // Network failed or SQL tables not set up yet — still let them in offline
+      console.warn('[SB register failed]', e.message);
+      // Show a softer message — they can still use the app
+      showPending();
+      // Show note about SQL setup needed
+      const msg = e.message.includes('fetch')||e.message.includes('network')||e.message.includes('Failed')
+        ? '⚠ Could not reach cloud — using offline mode. Run the SQL in Supabase dashboard to enable cloud sync.'
+        : e.message.includes('duplicate')||e.message.includes('unique')
+          ? '⚠ Email already registered in cloud. You can still log in using your PIN.'
+          : '⚠ Cloud sync not available yet: ' + e.message;
+      // Show warning toast but don't block
+      setTimeout(()=>toast(msg, 'warn'), 400);
+    }
+  } else {
+    // Offline — save locally, will sync when online
+    showPending();
+    setTimeout(()=>toast('Saved offline. Will sync to cloud when connected.', 'warn'), 400);
+  }
+
+  btn.textContent='Create Account'; btn.disabled=false;
+}
+
+function skipToOfflineMode(){
+  const pinDoc = S.g('cv_pin_doctor') || '1234';
+  const pinRec = S.g('cv_pin_receptionist') || '5678';
+  S.s('cv_pin_doctor', pinDoc);
+  S.s('cv_pin_receptionist', pinRec);
+  role = 'doctor';
+  loadData();
+  document.getElementById('loginScreen').classList.add('hidden');
+  document.getElementById('appShell').classList.remove('hidden');
+  initApp();
+  SB.setStatus('pending');
+  toast('Running offline. Cloud sync activates once approved in Supabase dashboard.', 'warn');
+}
+
+// ── Override checkPin to use email + Supabase login ──
+async function checkPin(){
+  const email = document.getElementById('loginEmail')?.value?.trim();
+  if(!email){ document.getElementById('pinErr').textContent='Enter your clinic email first.'; updDots(true); setTimeout(()=>{pinBuf='';updDots();document.getElementById('pinErr').textContent='';},1400); return; }
+
+  document.getElementById('pinErr').textContent='Checking…';
+  try{
+    const clinic = await SB.login(email, pinBuf, pinRole);
+    role = pinRole;
+
+    // Store clinic settings into app
+    if(clinic.name) S.s('cv_cName', clinic.name);
+    S.s('cv_approved', clinic.approved);
+
+    loadData();
+    document.getElementById('loginScreen').classList.add('hidden');
+    document.getElementById('appShell').classList.remove('hidden');
+    initApp();
+
+    // Sync on login (pull latest from cloud)
+    if(navigator.onLine && clinic.approved) SB.syncNow('login');
+    else SB.setStatus(clinic.approved ? 'offline' : 'pending');
+
+  } catch(e){
+    updDots(true);
+    document.getElementById('pinErr').textContent = e.message||'Login failed.';
+    setTimeout(()=>{ pinBuf=''; updDots(); document.getElementById('pinErr').textContent=''; }, 1600);
+  }
+}
+
+// ── Registration flow views ──
+
+// ── Manual sync from Settings ──
+async function syncNow(trigger='manual'){
+  await SB.syncNow(trigger);
+  toast(navigator.onLine ? 'Synced to cloud ✓' : 'Offline — data saved locally');
+}
+
+// ── Download JSON backup ──
+function downloadBackup(){
+  const data = {
+    clinic: S.g('cv_clinic_name'),
+    exported: new Date().toISOString(),
+    pts: S.g('cv_pts')||[], appts: S.g('cv_appts')||[],
+    emrs: S.g('cv_emrs')||[], surgs: S.g('cv_surgs')||[],
+    inv: S.g('cv_inv')||[], bills: S.g('cv_bills')||[],
+    followUps: S.g('cv_fus')||[], messages: S.g('cv_msgs')||[]
+  };
+  const blob = new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href = url;
+  a.download = `clearvision-backup-${new Date().toISOString().slice(0,10)}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+  toast('Backup downloaded!');
 }
 
 </script>
