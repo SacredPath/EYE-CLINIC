@@ -628,7 +628,45 @@ body.dark .tab.active{color:#00cfa8;border-color:#00cfa8;}
 .msg-send-email:hover{background:#2550e8;}
 .bulk-msg-row{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);}
 .bulk-msg-check{width:16px;height:16px;accent-color:var(--cyan);cursor:pointer;}
+/* ── COMPACT DASHBOARD TILES ── */
+.dash-tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px;}
+.dtile{border-radius:12px;padding:13px 15px;cursor:pointer;position:relative;overflow:hidden;transition:transform 0.15s,box-shadow 0.15s;text-decoration:none;display:block;border:none;text-align:left;font-family:'Sora',sans-serif;width:100%;}
+.dtile:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,0.18);}
+.dtile:active{transform:scale(0.97);}
+.dtile::after{content:'';position:absolute;top:-24px;right:-24px;width:90px;height:90px;border-radius:50%;background:rgba(255,255,255,0.1);}
+.dtile-icon{width:28px;height:28px;border-radius:7px;background:rgba(255,255,255,0.18);display:flex;align-items:center;justify-content:center;margin-bottom:9px;flex-shrink:0;}
+.dtile-icon svg{width:13px;height:13px;color:#fff;}
+.dtile-val{font-family:'Instrument Serif',serif;font-size:22px;font-weight:400;color:#fff;line-height:1;margin-bottom:2px;}
+.dtile-lbl{font-size:10px;font-weight:600;color:rgba(255,255,255,0.68);text-transform:uppercase;letter-spacing:0.4px;margin-bottom:1px;}
+.dtile-sub{font-size:10px;color:rgba(255,255,255,0.48);font-weight:500;}
+.dtile-arr{position:absolute;top:11px;right:11px;color:rgba(255,255,255,0.3);font-size:13px;}
+.dtile-pt  {background:linear-gradient(135deg,#008f75 0%,#00cfa8 100%);}
+.dtile-apt {background:linear-gradient(135deg,#1e40c4 0%,#3361ff 100%);}
+.dtile-rev {background:linear-gradient(135deg,#b36e00 0%,#f0990a 100%);}
+.dtile-owe {background:linear-gradient(135deg,#b8112e 0%,#ff3d5a 100%);}
+.dtile-inv {background:linear-gradient(135deg,#4c1a96 0%,#7c3aed 100%);}
+.dtile-emr {background:linear-gradient(135deg,#0369a1 0%,#0ea5e9 100%);}
+.dtile-surg{background:linear-gradient(135deg,#065f46 0%,#10b981 100%);}
+.dtile-rem {background:linear-gradient(135deg,#78350f 0%,#f59e0b 100%);}
+.dtile-lock{background:var(--s2)!important;border:1.5px solid var(--border2)!important;cursor:default;}
+.dtile-lock .dtile-val{color:var(--muted)!important;font-size:18px;}
+.dtile-lock .dtile-lbl{color:var(--muted2)!important;}
+.dtile-lock .dtile-sub{color:var(--muted2)!important;}
+.dtile-lock::after{display:none;}
+/* compact dash appt rows */
+.dappt-row{display:flex;align-items:center;gap:8px;padding:6px 4px;border-bottom:1px solid var(--border);cursor:pointer;border-radius:6px;transition:background 0.12s;}
+.dappt-row:hover{background:var(--s2);}
+.dappt-row:last-child{border-bottom:none;}
+/* compact quick actions */
+.dqa-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;}
+.dqa-btn{padding:8px 10px;border-radius:9px;border:1.5px solid var(--border2);background:var(--surface);cursor:pointer;font-family:'Sora',sans-serif;display:flex;align-items:center;gap:8px;transition:all 0.15s;text-align:left;width:100%;}
+.dqa-btn:hover{transform:translateY(-1px);}
+.dqa-icon{width:24px;height:24px;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.dqa-icon svg{width:11px;height:11px;}
+.dqa-lbl{font-size:11px;font-weight:700;line-height:1.3;}
+.dqa-sub{font-size:9.5px;color:var(--muted);}
 </style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 </head>
 <body>
 <!-- ══ LOGIN ══ -->
@@ -1038,19 +1076,56 @@ body.dark .tab.active{color:#00cfa8;border-color:#00cfa8;}
   <!-- REPORTS -->
   <div id="page-reports" class="page content">
     <div class="srow srow-4" id="reportStats"></div>
+    <!-- Row 1: Revenue trend + Appointment breakdown -->
+    <div style="display:grid;grid-template-columns:2fr 1fr;gap:14px;margin-bottom:14px;">
+      <div class="card cp">
+        <div class="ch" style="margin-bottom:14px;">
+          <div><div class="ct">Revenue — Last 30 Days</div><div class="cs">Paid invoices by day</div></div>
+          <div style="display:flex;gap:6px;">
+            <select class="fsel" id="revChartRange" style="font-size:11px;padding:4px 8px;" onchange="renderRevenueChart()">
+              <option value="30">30 days</option><option value="60">60 days</option><option value="90">90 days</option>
+            </select>
+            <button class="export-btn" onclick="exportCSV('bills')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" width="11" height="11"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>CSV</button>
+          </div>
+        </div>
+        <div style="position:relative;height:200px;"><canvas id="revChartCanvas"></canvas></div>
+      </div>
+      <div class="card cp">
+        <div class="ch" style="margin-bottom:14px;"><div><div class="ct">Appointments</div><div class="cs">Status breakdown</div></div></div>
+        <div style="position:relative;height:160px;display:flex;align-items:center;justify-content:center;"><canvas id="apptDonut"></canvas></div>
+        <div id="apptDonutLegend" style="margin-top:10px;display:flex;flex-wrap:wrap;gap:6px;justify-content:center;"></div>
+      </div>
+    </div>
+    <!-- Row 2: Exam types + Payment methods + Monthly trend -->
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:14px;">
+      <div class="card cp">
+        <div class="ct" style="margin-bottom:4px;">Exam Types</div>
+        <div class="cs" style="margin-bottom:14px;">By category</div>
+        <div style="position:relative;height:160px;"><canvas id="examTypeChart"></canvas></div>
+      </div>
+      <div class="card cp">
+        <div class="ct" style="margin-bottom:4px;">Payment Methods</div>
+        <div class="cs" style="margin-bottom:14px;">All-time split</div>
+        <div style="position:relative;height:160px;"><canvas id="payMethodChart"></canvas></div>
+      </div>
+      <div class="card cp">
+        <div class="ct" style="margin-bottom:4px;">Monthly Revenue</div>
+        <div class="cs" style="margin-bottom:14px;">Last 6 months</div>
+        <div style="position:relative;height:160px;"><canvas id="monthRevChart"></canvas></div>
+      </div>
+    </div>
+    <!-- Row 3: Patient registrations + Inventory status + Monthly table -->
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;">
       <div class="card cp">
-        <div class="ch">
-          <div><div class="ct">Revenue — Last 30 Days</div><div class="cs">Daily collections</div></div>
-          <button class="export-btn" onclick="exportCSV('bills')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" width="12" height="12"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>CSV</button>
-        </div>
-        <div class="chart-wrap" id="revChart"></div>
+        <div class="ch" style="margin-bottom:14px;"><div><div class="ct">New Patients</div><div class="cs">Registrations over 6 months</div></div></div>
+        <div style="position:relative;height:160px;"><canvas id="patientTrendChart"></canvas></div>
       </div>
       <div class="card cp">
         <div class="ch"><div class="ct" id="monthlyTitle">Monthly Summary</div><button class="btn btn-ghost btn-sm" onclick="printMonthlyReport()"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>Print</button></div>
-        <div id="monthlyBody"></div>
+        <div id="monthlyBody" style="margin-top:12px;"></div>
       </div>
     </div>
+    <!-- Export -->
     <div class="card cp">
       <div class="ch"><div class="ct">Export Data</div><div class="cs">Download records as CSV</div></div>
       <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:8px;">
@@ -3753,29 +3828,210 @@ function renderReports(){
     <div class="sc c-am"><div class="si" style="background:var(--abg);color:var(--amber);"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div><div class="sv">${fmt(paid)}</div><div class="sl">Revenue Collected</div><div class="sd">${bills.filter(b=>b.status==='Paid').length} paid invoices</div></div>
     <div class="sc c-ro"><div class="si" style="background:var(--rbg);color:var(--rose);"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div><div class="sv">${fmt(owed)}</div><div class="sl">Outstanding</div><div class="sd dn">${bills.filter(b=>b.status!=='Paid').length} unpaid</div></div>`;
   renderRevenueChart();
+  renderApptDonut();
+  renderExamTypeChart();
+  renderPayMethodChart();
+  renderMonthRevChart();
+  renderPatientTrendChart();
   renderMonthlyReport();
 }
 
+// ── Chart.js shared defaults ──
+const _chartDefaults = {
+  responsive: true,
+  maintainAspectRatio: false,
+  plugins: { legend: { display: false }, tooltip: {
+    backgroundColor: '#060c1a', titleColor: '#fff', bodyColor: 'rgba(255,255,255,0.7)',
+    padding: 10, cornerRadius: 8, titleFont: { family: 'Sora', size: 11, weight: '700' },
+    bodyFont: { family: 'Sora', size: 11 }
+  }},
+  scales: {}
+};
+const _axisStyle = {
+  grid: { color: 'rgba(6,12,26,0.06)', drawBorder: false },
+  ticks: { color: '#9ea6bf', font: { family: 'Sora', size: 10 }, maxTicksLimit: 6 },
+  border: { display: false }
+};
+
+// destroy existing chart on a canvas safely
+const _charts = {};
+function _mkChart(id, cfg){
+  if(_charts[id]){ try{ _charts[id].destroy(); }catch(e){} }
+  const canvas = document.getElementById(id);
+  if(!canvas) return;
+  _charts[id] = new Chart(canvas, cfg);
+}
+
+// ── 1. Revenue bar chart ──
 function renderRevenueChart(){
-  const el = document.getElementById('revChart'); if(!el) return;
-  const days = 30;
+  const days = parseInt(document.getElementById('revChartRange')?.value||'30');
   const buckets = {};
+  const labels = [];
   for(let i=days-1;i>=0;i--){
     const d=new Date(); d.setDate(d.getDate()-i);
     const k=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
     buckets[k]=0;
+    labels.push(i%Math.ceil(days/8)===0 ? k.slice(5) : '');
   }
   bills.filter(b=>b.status==='Paid'&&buckets[b.date]!==undefined).forEach(b=>buckets[b.date]+=Number(b.amount||0));
   const vals = Object.values(buckets);
   const keys = Object.keys(buckets);
-  const maxV = Math.max(...vals,1);
-  const barColor = (v)=>v===0?'var(--s3)':'var(--cyan)';
-  el.innerHTML=`<div class="chart-bar-row">${keys.map((k,i)=>{
-    const v=vals[i]; const pct=Math.max(2,(v/maxV)*100);
-    const lbl=i%5===0?k.slice(8):'';
-    return `<div class="chart-bar" style="height:${pct}%;background:${barColor(v)};opacity:${v?1:0.3};" data-tip="${fmtD(k)}: ${fmt(v)}"><span class="chart-bar-lbl">${lbl}</span></div>`;
-  }).join('')}</div>
-  <div class="chart-axis"><span>${fmtD(keys[0])}</span><span>${fmtD(keys[keys.length-1])}</span></div>`;
+  _mkChart('revChartCanvas', {
+    type: 'bar',
+    data: {
+      labels: keys.map(k=>k.slice(5)),
+      datasets: [{
+        data: vals,
+        backgroundColor: vals.map(v=>v>0?'rgba(0,207,168,0.85)':'rgba(6,12,26,0.06)'),
+        borderRadius: 4,
+        borderSkipped: false,
+        hoverBackgroundColor: '#00cfa8'
+      }]
+    },
+    options: {
+      ..._chartDefaults,
+      plugins: {
+        ..._chartDefaults.plugins,
+        tooltip: { ..._chartDefaults.plugins.tooltip,
+          callbacks: { label: ctx=>' ₦'+Number(ctx.raw).toLocaleString('en-NG') }
+        }
+      },
+      scales: {
+        x: { ..._axisStyle, ticks: { ..._axisStyle.ticks, maxRotation: 0 }},
+        y: { ..._axisStyle, ticks: { ..._axisStyle.ticks,
+          callback: v => v>=1000 ? '₦'+(v/1000).toFixed(0)+'k' : '₦'+v
+        }}
+      }
+    }
+  });
+}
+
+// ── 2. Appointment status donut ──
+function renderApptDonut(){
+  const statuses = ['Scheduled','Confirmed','In Progress','Done','No-Show','Cancelled'];
+  const colors   = ['#3361ff','#00cfa8','#f0990a','#059669','#ff3d5a','#9ea6bf'];
+  const counts   = statuses.map(s=>appts.filter(a=>a.status===s).length);
+  const total    = counts.reduce((a,b)=>a+b,0);
+  if(!total){ document.getElementById('apptDonut').style.display='none'; return; }
+  _mkChart('apptDonut', {
+    type: 'doughnut',
+    data: { labels: statuses, datasets: [{ data: counts, backgroundColor: colors, borderWidth: 2, borderColor: '#fff', hoverOffset: 4 }]},
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      cutout: '68%',
+      plugins: {
+        legend: { display: false },
+        tooltip: { ..._chartDefaults.plugins.tooltip,
+          callbacks: { label: ctx => ` ${ctx.label}: ${ctx.raw} (${Math.round(ctx.raw/total*100)}%)` }
+        }
+      }
+    }
+  });
+  document.getElementById('apptDonutLegend').innerHTML = statuses
+    .map((s,i)=>counts[i]?`<span style="display:flex;align-items:center;gap:4px;font-size:10px;font-weight:600;color:var(--muted);"><span style="width:8px;height:8px;border-radius:50%;background:${colors[i]};flex-shrink:0;"></span>${s} <strong style="color:var(--ink);">${counts[i]}</strong></span>`:'')
+    .join('');
+}
+
+// ── 3. Exam types horizontal bar ──
+function renderExamTypeChart(){
+  const typeCounts = {};
+  emrs.forEach(e=>{ const t=e.type||'Other'; typeCounts[t]=(typeCounts[t]||0)+1; });
+  const sorted = Object.entries(typeCounts).sort((a,b)=>b[1]-a[1]).slice(0,6);
+  if(!sorted.length){ document.getElementById('examTypeChart').parentElement.innerHTML='<div style="text-align:center;padding:40px 0;color:var(--muted);font-size:12px;">No exam data yet</div>'; return; }
+  const palette = ['#00cfa8','#3361ff','#f0990a','#7c3aed','#0ea5e9','#10b981'];
+  _mkChart('examTypeChart', {
+    type: 'bar',
+    data: {
+      labels: sorted.map(([k])=>k.length>18?k.slice(0,16)+'…':k),
+      datasets: [{ data: sorted.map(([,v])=>v), backgroundColor: palette, borderRadius: 5, borderSkipped: false }]
+    },
+    options: {
+      indexAxis: 'y', ..._chartDefaults,
+      plugins: { ..._chartDefaults.plugins, tooltip: { ..._chartDefaults.plugins.tooltip, callbacks: { label: ctx=>` ${ctx.raw} exams` }}},
+      scales: {
+        x: { ..._axisStyle, ticks: { ..._axisStyle.ticks, stepSize: 1 }},
+        y: { ..._axisStyle, grid: { display: false }}
+      }
+    }
+  });
+}
+
+// ── 4. Payment methods pie ──
+function renderPayMethodChart(){
+  const methods = {};
+  bills.filter(b=>b.status==='Paid').forEach(b=>{ const m=b.method||'Cash'; methods[m]=(methods[m]||0)+Number(b.amount||0); });
+  const entries = Object.entries(methods).sort((a,b)=>b[1]-a[1]);
+  if(!entries.length){ document.getElementById('payMethodChart').parentElement.innerHTML='<div style="text-align:center;padding:40px 0;color:var(--muted);font-size:12px;">No billing data yet</div>'; return; }
+  const colors = ['#00cfa8','#3361ff','#f0990a','#ff3d5a','#7c3aed','#059669'];
+  const total = entries.reduce((s,[,v])=>s+v,0);
+  _mkChart('payMethodChart', {
+    type: 'pie',
+    data: { labels: entries.map(([k])=>k), datasets: [{ data: entries.map(([,v])=>v), backgroundColor: colors, borderWidth: 2, borderColor: '#fff' }]},
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { display: true, position: 'bottom', labels: { font: { family:'Sora', size:10 }, color:'#6b7590', boxWidth: 10, padding: 8 }},
+        tooltip: { ..._chartDefaults.plugins.tooltip, callbacks: { label: ctx=>` ${ctx.label}: ₦${Number(ctx.raw).toLocaleString('en-NG')} (${Math.round(ctx.raw/total*100)}%)` }}
+      }
+    }
+  });
+}
+
+// ── 5. Monthly revenue line ──
+function renderMonthRevChart(){
+  const months = [];
+  const labels = [];
+  for(let i=5;i>=0;i--){
+    const d = new Date(); d.setDate(1); d.setMonth(d.getMonth()-i);
+    const k = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+    const total = bills.filter(b=>b.status==='Paid'&&b.date&&b.date.startsWith(k)).reduce((s,b)=>s+Number(b.amount||0),0);
+    months.push(total);
+    labels.push(MONTHS[d.getMonth()].slice(0,3)+' '+String(d.getFullYear()).slice(2));
+  }
+  _mkChart('monthRevChart', {
+    type: 'line',
+    data: { labels, datasets: [{
+      data: months, borderColor: '#00cfa8', backgroundColor: 'rgba(0,207,168,0.12)',
+      fill: true, tension: 0.4, pointRadius: 4, pointBackgroundColor: '#00cfa8',
+      pointBorderColor: '#fff', pointBorderWidth: 2, borderWidth: 2.5
+    }]},
+    options: {
+      ..._chartDefaults,
+      plugins: { ..._chartDefaults.plugins, tooltip: { ..._chartDefaults.plugins.tooltip, callbacks: { label: ctx=>' ₦'+Number(ctx.raw).toLocaleString('en-NG') }}},
+      scales: {
+        x: { ..._axisStyle, grid: { display: false }},
+        y: { ..._axisStyle, ticks: { ..._axisStyle.ticks, callback: v=>v>=1000?'₦'+(v/1000).toFixed(0)+'k':'₦'+v }}
+      }
+    }
+  });
+}
+
+// ── 6. Patient registrations trend ──
+function renderPatientTrendChart(){
+  const months = [];
+  const labels = [];
+  for(let i=5;i>=0;i--){
+    const d = new Date(); d.setDate(1); d.setMonth(d.getMonth()-i);
+    const k = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+    months.push(pts.filter(p=>p.createdAt&&p.createdAt.startsWith(k)).length);
+    labels.push(MONTHS[d.getMonth()].slice(0,3));
+  }
+  _mkChart('patientTrendChart', {
+    type: 'bar',
+    data: { labels, datasets: [{
+      data: months,
+      backgroundColor: months.map((_,i)=>i===months.length-1?'#3361ff':'rgba(51,97,255,0.35)'),
+      borderRadius: 5, borderSkipped: false
+    }]},
+    options: {
+      ..._chartDefaults,
+      plugins: { ..._chartDefaults.plugins, tooltip: { ..._chartDefaults.plugins.tooltip, callbacks: { label: ctx=>` ${ctx.raw} new patient${ctx.raw!==1?'s':''}` }}},
+      scales: {
+        x: { ..._axisStyle, grid: { display: false }},
+        y: { ..._axisStyle, ticks: { ..._axisStyle.ticks, stepSize: 1 }}
+      }
+    }
+  });
 }
 
 function renderMonthlyReport(){
