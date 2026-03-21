@@ -2747,67 +2747,93 @@ function initApp(){
 
 // ══ SAMPLE DATA ══
 function loadSampleData(){
+  // Sample data is ONLY for the dedicated demo account — never for real clinics
+  const DEMO_EMAIL = 'cuteeyes@gmail.com';
+  const clinicEmail = (S.g('cv_clinic_email')||'').toLowerCase().trim();
+
+  // Real clinic registered with a different email → always start clean
+  if(clinicEmail && clinicEmail !== DEMO_EMAIL){
+    // Safety: if sample data was previously loaded on this device, wipe it
+    if(S.g('cv_sample_loaded')){
+      pts=[];appts=[];emrs=[];surgs=[];invItems=[];bills=[];
+      S.s('cv_pts',pts);S.s('cv_appts',appts);S.s('cv_emrs',emrs);
+      S.s('cv_surgs',surgs);S.s('cv_inv',invItems);S.s('cv_bills',bills);
+      S.s('cv_sample_loaded',false);
+    }
+    return;
+  }
+
+  // No email yet (first load before any registration) — also don't show sample data
+  if(!clinicEmail) return;
+
+  // Demo account — load sample data once
   if(S.g('cv_sample_loaded'))return;
+
   const now=new Date();
   const dStr=(offset=0)=>{const d=new Date(now);d.setDate(d.getDate()+offset);return`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;};
+
+  // Generate stable UUIDs for sample records so cross-references work
+  const _ids={};
+  const sid=k=>{ if(!_ids[k])_ids[k]=uid(); return _ids[k]; };
+
   pts=[
-    {id:'pt001',name:'Amaka Okafor',dob:'1985-03-14',gender:'Female',phone:'+234 803 456 7890',email:'amaka@email.com',address:'12 Ada George Rd, Port Harcourt',blood:'O+',status:'Active',allergies:'Penicillin',occupation:'Nurse',notes:'Diabetic patient, annual screening required. Family history of glaucoma.',createdAt:dStr(-90)},
-    {id:'pt002',name:'Chukwuemeka Nwosu',dob:'1972-07-22',gender:'Male',phone:'+234 806 123 4567',email:'emeka.nwosu@gmail.com',address:'45 Trans-Amadi Rd, Port Harcourt',blood:'A+',status:'Active',allergies:'None',occupation:'Engineer',notes:'High myopia, wearing -6.50 OU. Follow up every 6 months.',createdAt:dStr(-60)},
-    {id:'pt003',name:'Fatima Al-Hassan',dob:'1990-11-05',gender:'Female',phone:'+234 812 987 6543',email:'fatima.h@yahoo.com',address:'7 Rumuola Rd, Port Harcourt',blood:'B+',status:'Active',allergies:'Sulfonamides',occupation:'Teacher',notes:'Glaucoma suspect OD. IOP borderline. Monitor closely.',createdAt:dStr(-45)},
-    {id:'pt004',name:'Biodun Adeyemi',dob:'1968-09-30',gender:'Male',phone:'+234 905 678 9012',email:'biodun@adeyemi.com',address:'23 Woji Rd, Port Harcourt',blood:'AB+',status:'Active',allergies:'None',occupation:'Retired',notes:'Cataract OU. OD scheduled for surgery. Post-op OD doing well.',createdAt:dStr(-120)},
-    {id:'pt005',name:'Ngozi Eze',dob:'2005-01-18',gender:'Female',phone:'+234 801 234 5678',email:'',address:'5 Stadium Rd, Port Harcourt',blood:'O-',status:'New',allergies:'None',occupation:'Student',notes:'First visit. Complaints of eyestrain and headaches. Likely myopia.',createdAt:dStr(-3)},
-    {id:'pt006',name:'Tunde Fashola',dob:'1955-06-12',gender:'Male',phone:'+234 808 765 4321',email:'tunde.fashola@outlook.com',address:'88 Rumuomasi Rd, Port Harcourt',blood:'A-',status:'Active',allergies:'Aspirin',occupation:'Businessman',notes:'Diabetic retinopathy. Requires quarterly monitoring. NPDR both eyes.',createdAt:dStr(-200)},
-    {id:'pt007',name:'Chisom Obi',dob:'1995-04-27',gender:'Female',phone:'+234 813 456 7890',email:'chisom.obi@gmail.com',address:'14 Old GRA, Port Harcourt',blood:'B-',status:'Active',allergies:'None',occupation:'Pharmacist',notes:'Contact lens wearer. Mild dry eye syndrome. Using Systane drops.',createdAt:dStr(-30)},
-    {id:'pt008',name:'Emeka Dike',dob:'1980-12-08',gender:'Male',phone:'+234 907 234 5678',email:'emeka.dike@company.ng',address:'33 Aggrey Rd, Port Harcourt',blood:'O+',status:'Inactive',allergies:'None',occupation:'Lawyer',notes:'Last seen 14 months ago. Reading glasses Rx +1.50 OU.',createdAt:dStr(-400)},
+    {id:sid('pt001'),name:'Amaka Okafor',dob:'1985-03-14',gender:'Female',phone:'+234 803 456 7890',email:'amaka@email.com',address:'12 Ada George Rd, Port Harcourt',blood:'O+',status:'Active',allergies:'Penicillin',occupation:'Nurse',notes:'Diabetic patient, annual screening required. Family history of glaucoma.',createdAt:dStr(-90)},
+    {id:sid('pt002'),name:'Chukwuemeka Nwosu',dob:'1972-07-22',gender:'Male',phone:'+234 806 123 4567',email:'emeka.nwosu@gmail.com',address:'45 Trans-Amadi Rd, Port Harcourt',blood:'A+',status:'Active',allergies:'None',occupation:'Engineer',notes:'High myopia, wearing -6.50 OU. Follow up every 6 months.',createdAt:dStr(-60)},
+    {id:sid('pt003'),name:'Fatima Al-Hassan',dob:'1990-11-05',gender:'Female',phone:'+234 812 987 6543',email:'fatima.h@yahoo.com',address:'7 Rumuola Rd, Port Harcourt',blood:'B+',status:'Active',allergies:'Sulfonamides',occupation:'Teacher',notes:'Glaucoma suspect OD. IOP borderline. Monitor closely.',createdAt:dStr(-45)},
+    {id:sid('pt004'),name:'Biodun Adeyemi',dob:'1968-09-30',gender:'Male',phone:'+234 905 678 9012',email:'biodun@adeyemi.com',address:'23 Woji Rd, Port Harcourt',blood:'AB+',status:'Active',allergies:'None',occupation:'Retired',notes:'Cataract OU. OD scheduled for surgery. Post-op OD doing well.',createdAt:dStr(-120)},
+    {id:sid('pt005'),name:'Ngozi Eze',dob:'2005-01-18',gender:'Female',phone:'+234 801 234 5678',email:'',address:'5 Stadium Rd, Port Harcourt',blood:'O-',status:'New',allergies:'None',occupation:'Student',notes:'First visit. Complaints of eyestrain and headaches. Likely myopia.',createdAt:dStr(-3)},
+    {id:sid('pt006'),name:'Tunde Fashola',dob:'1955-06-12',gender:'Male',phone:'+234 808 765 4321',email:'tunde.fashola@outlook.com',address:'88 Rumuomasi Rd, Port Harcourt',blood:'A-',status:'Active',allergies:'Aspirin',occupation:'Businessman',notes:'Diabetic retinopathy. Requires quarterly monitoring. NPDR both eyes.',createdAt:dStr(-200)},
+    {id:sid('pt007'),name:'Chisom Obi',dob:'1995-04-27',gender:'Female',phone:'+234 813 456 7890',email:'chisom.obi@gmail.com',address:'14 Old GRA, Port Harcourt',blood:'B-',status:'Active',allergies:'None',occupation:'Pharmacist',notes:'Contact lens wearer. Mild dry eye syndrome. Using Systane drops.',createdAt:dStr(-30)},
+    {id:sid('pt008'),name:'Emeka Dike',dob:'1980-12-08',gender:'Male',phone:'+234 907 234 5678',email:'emeka.dike@company.ng',address:'33 Aggrey Rd, Port Harcourt',blood:'O+',status:'Inactive',allergies:'None',occupation:'Lawyer',notes:'Last seen 14 months ago. Reading glasses Rx +1.50 OU.',createdAt:dStr(-400)},
   ];
   appts=[
-    {id:'ap001',patientId:'pt001',date:dStr(0),time:'8:30 AM',type:'Eye Examination',status:'Scheduled',reminder:'SMS sent',notes:'Annual diabetic eye screening'},
-    {id:'ap002',patientId:'pt002',date:dStr(0),time:'9:00 AM',type:'Refraction',status:'In Progress',reminder:'WhatsApp sent',notes:'Recheck prescription'},
-    {id:'ap003',patientId:'pt004',date:dStr(0),time:'10:00 AM',type:'Post-op Review',status:'Scheduled',reminder:'SMS sent',notes:'1-week post-op OD cataract review'},
-    {id:'ap004',patientId:'pt006',date:dStr(0),time:'11:30 AM',type:'Retinal Assessment',status:'Scheduled',reminder:'Not sent',notes:'Q3 diabetic retinopathy monitoring'},
-    {id:'ap005',patientId:'pt005',date:dStr(0),time:'2:00 PM',type:'Eye Examination',status:'Scheduled',reminder:'Not sent',notes:'New patient first visit'},
-    {id:'ap006',patientId:'pt003',date:dStr(1),time:'9:30 AM',type:'Glaucoma Check',status:'Scheduled',reminder:'Not sent',notes:'IOP recheck + VF test'},
-    {id:'ap007',patientId:'pt007',date:dStr(1),time:'11:00 AM',type:'Contact Lens Fitting',status:'Scheduled',reminder:'SMS sent',notes:'New monthly toric lenses'},
-    {id:'ap008',patientId:'pt001',date:dStr(3),time:'10:30 AM',type:'Follow-up',status:'Scheduled',reminder:'Not sent',notes:'Review blood sugar and eye correlation'},
-    {id:'ap009',patientId:'pt002',date:dStr(-2),time:'9:00 AM',type:'Eye Examination',status:'Done',reminder:'SMS sent',notes:''},
-    {id:'ap010',patientId:'pt004',date:dStr(-7),time:'8:00 AM',type:'Pre-op Assessment',status:'Done',reminder:'WhatsApp sent',notes:'Pre-op cataract surgery OD'},
+    {id:sid('ap001'),patientId:sid('pt001'),date:dStr(0),time:'8:30 AM',type:'Eye Examination',status:'Scheduled',reminder:'SMS sent',notes:'Annual diabetic eye screening'},
+    {id:sid('ap002'),patientId:sid('pt002'),date:dStr(0),time:'9:00 AM',type:'Refraction',status:'In Progress',reminder:'WhatsApp sent',notes:'Recheck prescription'},
+    {id:sid('ap003'),patientId:sid('pt004'),date:dStr(0),time:'10:00 AM',type:'Post-op Review',status:'Scheduled',reminder:'SMS sent',notes:'1-week post-op OD cataract review'},
+    {id:sid('ap004'),patientId:sid('pt006'),date:dStr(0),time:'11:30 AM',type:'Retinal Assessment',status:'Scheduled',reminder:'Not sent',notes:'Q3 diabetic retinopathy monitoring'},
+    {id:sid('ap005'),patientId:sid('pt005'),date:dStr(0),time:'2:00 PM',type:'Eye Examination',status:'Scheduled',reminder:'Not sent',notes:'New patient first visit'},
+    {id:sid('ap006'),patientId:sid('pt003'),date:dStr(1),time:'9:30 AM',type:'Glaucoma Check',status:'Scheduled',reminder:'Not sent',notes:'IOP recheck + VF test'},
+    {id:sid('ap007'),patientId:sid('pt007'),date:dStr(1),time:'11:00 AM',type:'Contact Lens Fitting',status:'Scheduled',reminder:'SMS sent',notes:'New monthly toric lenses'},
+    {id:sid('ap008'),patientId:sid('pt001'),date:dStr(3),time:'10:30 AM',type:'Follow-up',status:'Scheduled',reminder:'Not sent',notes:'Review blood sugar and eye correlation'},
+    {id:sid('ap009'),patientId:sid('pt002'),date:dStr(-2),time:'9:00 AM',type:'Eye Examination',status:'Done',reminder:'SMS sent',notes:''},
+    {id:sid('ap010'),patientId:sid('pt004'),date:dStr(-7),time:'8:00 AM',type:'Pre-op Assessment',status:'Done',reminder:'WhatsApp sent',notes:'Pre-op cataract surgery OD'},
   ];
   emrs=[
-    {id:'em001',patientId:'pt001',date:dStr(-90),type:'Eye Examination',doctor:'Dr. Adaeze Obi',cc:'Blurred vision especially at night',vaRU:'6/18',vaLU:'6/12',vaRNu:'N10',vaLNu:'N8',vaRD:'6/9',vaLD:'6/6',vaRNc:'N6',vaLNc:'N6',rxRS:'-1.50',rxRC:'-0.75',rxRA:'170',rxRAd:'',rxRP:'',rxLS:'-1.25',rxLC:'-0.50',rxLA:'10',rxLAd:'',rxLP:'',iopR:'16',iopL:'15',iopM:'Non-contact tonometry',antR:'Cornea clear, lens transparent, AC deep',antL:'Cornea clear, lens transparent, AC deep',fundR:'CDR 0.3, macula healthy',fundL:'CDR 0.3, mild dot haemorrhage',diagnosis:'Myopia OU. Mild NPDR LE.',plan:'New spectacles prescribed. Refer for HbA1c review. Review in 6 months.',followUp:'24',spec:'Distance only'},
-    {id:'em002',patientId:'pt002',date:dStr(-60),type:'Refraction',doctor:'Dr. Adaeze Obi',cc:'Current glasses not working well',vaRU:'6/60',vaLU:'6/60',vaRNu:'N36',vaLNu:'N36',vaRD:'6/6',vaLD:'6/6',vaRNc:'N5',vaLNc:'N5',rxRS:'-6.50',rxRC:'-1.25',rxRA:'180',rxRAd:'+2.00',rxRP:'',rxLS:'-6.25',rxLC:'-1.00',rxLA:'175',rxLAd:'+2.00',rxLP:'',iopR:'14',iopL:'13',iopM:'Non-contact tonometry',antR:'Cornea clear, mild lens opacification peripherally',antL:'Cornea clear, lens clear',fundR:'CDR 0.4, peripheral lattice degeneration',fundL:'CDR 0.3, healthy macula',diagnosis:'High myopia OU. Presbyopia. Early lattice OD.',plan:'Update to progressive. Counsel on RD symptoms. Annual review.',followUp:'52',spec:'Progressive'},
-    {id:'em003',patientId:'pt003',date:dStr(-45),type:'Glaucoma Assessment',doctor:'Dr. Adaeze Obi',cc:'Referred by GP, no symptoms',vaRU:'6/6',vaLU:'6/6',vaRNu:'N5',vaLNu:'N5',vaRD:'6/6',vaLD:'6/6',vaRNc:'N5',vaLNc:'N5',rxRS:'+0.25',rxRC:'-0.25',rxRA:'90',rxRAd:'',rxRP:'',rxLS:'+0.50',rxLC:'',rxLA:'',rxLAd:'',rxLP:'',iopR:'22',iopL:'21',iopM:'Goldmann applanation',antR:'Cornea clear, angle open 360',antL:'Cornea clear, angle open 360',fundR:'CDR 0.55 suspicious, rim pallor superiorly',fundL:'CDR 0.45 normal',diagnosis:'Glaucoma suspect OD. Borderline IOP OU.',plan:'VF and OCT RNFL. Glaucoma clinic referral. Consider Latanoprost OD.',followUp:'8',spec:'No'},
-    {id:'em004',patientId:'pt006',date:dStr(-30),type:'Retinal Exam',doctor:'Dr. Adaeze Obi',cc:'Floaters and mild distortion right eye',vaRU:'6/18',vaLU:'6/24',vaRNu:'N12',vaLNu:'N14',vaRD:'6/12',vaLD:'6/18',vaRNc:'N8',vaLNc:'N10',rxRS:'+1.00',rxRC:'-0.50',rxRA:'80',rxRAd:'+2.50',rxRP:'',rxLS:'+1.25',rxLC:'-0.75',rxLA:'95',rxLAd:'+2.50',rxLP:'',iopR:'18',iopL:'17',iopM:'Non-contact tonometry',antR:'Cornea clear, early nuclear sclerosis',antL:'Cornea clear, early nuclear sclerosis',fundR:'Multiple blot haemorrhages and microaneurysms. Hard exudates near macula. CSME suspected.',fundL:'Mild dot haemorrhages and microaneurysms.',diagnosis:'Moderate NPDR OU with CSME OD. Early cataracts OU.',plan:'Urgent FFA and possible intravitreal injection OD. Strict glycaemic control. Review 6 weeks.',followUp:'6',spec:'Bifocal'},
-    {id:'em005',patientId:'pt004',date:dStr(-8),type:'Pre-op Assessment',doctor:'Dr. Adaeze Obi',cc:'Severe visual loss right eye',vaRU:'6/60',vaLU:'6/18',vaRNu:'N36',vaLNu:'N12',vaRD:'CF',vaLD:'6/12',vaRNc:'N36',vaLNc:'N8',rxRS:'',rxRC:'',rxRA:'',rxRAd:'',rxRP:'',rxLS:'+2.00',rxLC:'-0.75',rxLA:'75',rxLAd:'+2.50',rxLP:'',iopR:'15',iopL:'14',iopM:'Non-contact tonometry',antR:'Dense posterior subcapsular cataract.',antL:'Mild cortical cataract.',fundR:'Unable to assess',fundL:'CDR 0.3, macula healthy',diagnosis:'Mature cataract OD. Surgical intervention planned.',plan:'Phacoemulsification + IOL OD. Biometry completed. IOL 21.5D target -0.25D.',followUp:'1',spec:'No'},
+    {id:sid('em001'),patientId:sid('pt001'),date:dStr(-90),type:'Eye Examination',doctor:'Dr. Adaeze Obi',cc:'Blurred vision especially at night',vaRU:'6/18',vaLU:'6/12',vaRNu:'N10',vaLNu:'N8',vaRD:'6/9',vaLD:'6/6',vaRNc:'N6',vaLNc:'N6',rxRS:'-1.50',rxRC:'-0.75',rxRA:'170',rxRAd:'',rxRP:'',rxLS:'-1.25',rxLC:'-0.50',rxLA:'10',rxLAd:'',rxLP:'',iopR:'16',iopL:'15',iopM:'Non-contact tonometry',antR:'Cornea clear, lens transparent, AC deep',antL:'Cornea clear, lens transparent, AC deep',fundR:'CDR 0.3, macula healthy',fundL:'CDR 0.3, mild dot haemorrhage',diagnosis:'Myopia OU. Mild NPDR LE.',plan:'New spectacles prescribed. Refer for HbA1c review. Review in 6 months.',followUp:'24',spec:'Distance only'},
+    {id:sid('em002'),patientId:sid('pt002'),date:dStr(-60),type:'Refraction',doctor:'Dr. Adaeze Obi',cc:'Current glasses not working well',vaRU:'6/60',vaLU:'6/60',vaRNu:'N36',vaLNu:'N36',vaRD:'6/6',vaLD:'6/6',vaRNc:'N5',vaLNc:'N5',rxRS:'-6.50',rxRC:'-1.25',rxRA:'180',rxRAd:'+2.00',rxRP:'',rxLS:'-6.25',rxLC:'-1.00',rxLA:'175',rxLAd:'+2.00',rxLP:'',iopR:'14',iopL:'13',iopM:'Non-contact tonometry',antR:'Cornea clear, mild lens opacification peripherally',antL:'Cornea clear, lens clear',fundR:'CDR 0.4, peripheral lattice degeneration',fundL:'CDR 0.3, healthy macula',diagnosis:'High myopia OU. Presbyopia. Early lattice OD.',plan:'Update to progressive. Counsel on RD symptoms. Annual review.',followUp:'52',spec:'Progressive'},
+    {id:sid('em003'),patientId:sid('pt003'),date:dStr(-45),type:'Glaucoma Assessment',doctor:'Dr. Adaeze Obi',cc:'Referred by GP, no symptoms',vaRU:'6/6',vaLU:'6/6',vaRNu:'N5',vaLNu:'N5',vaRD:'6/6',vaLD:'6/6',vaRNc:'N5',vaLNc:'N5',rxRS:'+0.25',rxRC:'-0.25',rxRA:'90',rxRAd:'',rxRP:'',rxLS:'+0.50',rxLC:'',rxLA:'',rxLAd:'',rxLP:'',iopR:'22',iopL:'21',iopM:'Goldmann applanation',antR:'Cornea clear, angle open 360',antL:'Cornea clear, angle open 360',fundR:'CDR 0.55 suspicious, rim pallor superiorly',fundL:'CDR 0.45 normal',diagnosis:'Glaucoma suspect OD. Borderline IOP OU.',plan:'VF and OCT RNFL. Glaucoma clinic referral. Consider Latanoprost OD.',followUp:'8',spec:'No'},
+    {id:sid('em004'),patientId:sid('pt006'),date:dStr(-30),type:'Retinal Exam',doctor:'Dr. Adaeze Obi',cc:'Floaters and mild distortion right eye',vaRU:'6/18',vaLU:'6/24',vaRNu:'N12',vaLNu:'N14',vaRD:'6/12',vaLD:'6/18',vaRNc:'N8',vaLNc:'N10',rxRS:'+1.00',rxRC:'-0.50',rxRA:'80',rxRAd:'+2.50',rxRP:'',rxLS:'+1.25',rxLC:'-0.75',rxLA:'95',rxLAd:'+2.50',rxLP:'',iopR:'18',iopL:'17',iopM:'Non-contact tonometry',antR:'Cornea clear, early nuclear sclerosis',antL:'Cornea clear, early nuclear sclerosis',fundR:'Multiple blot haemorrhages and microaneurysms. Hard exudates near macula. CSME suspected.',fundL:'Mild dot haemorrhages and microaneurysms.',diagnosis:'Moderate NPDR OU with CSME OD. Early cataracts OU.',plan:'Urgent FFA and possible intravitreal injection OD. Strict glycaemic control. Review 6 weeks.',followUp:'6',spec:'Bifocal'},
+    {id:sid('em005'),patientId:sid('pt004'),date:dStr(-8),type:'Pre-op Assessment',doctor:'Dr. Adaeze Obi',cc:'Severe visual loss right eye',vaRU:'6/60',vaLU:'6/18',vaRNu:'N36',vaLNu:'N12',vaRD:'CF',vaLD:'6/12',vaRNc:'N36',vaLNc:'N8',rxRS:'',rxRC:'',rxRA:'',rxRAd:'',rxRP:'',rxLS:'+2.00',rxLC:'-0.75',rxLA:'75',rxLAd:'+2.50',rxLP:'',iopR:'15',iopL:'14',iopM:'Non-contact tonometry',antR:'Dense posterior subcapsular cataract.',antL:'Mild cortical cataract.',fundR:'Unable to assess',fundL:'CDR 0.3, macula healthy',diagnosis:'Mature cataract OD. Surgical intervention planned.',plan:'Phacoemulsification + IOL OD. Biometry completed. IOL 21.5D target -0.25D.',followUp:'1',spec:'No'},
   ];
   surgs=[
-    {id:'sg001',patientId:'pt004',procedure:'Phacoemulsification + IOL',eye:'Right Eye (OD)',date:dStr(-1),surgeon:'Dr. Adaeze Obi',alR:'23.45',alL:'23.12',kerR:'43.75/44.50',kerL:'43.50/44.25',target:'-0.25',iolR:'21.5',iolL:'22.0',formula:'SRK/T',iolModel:'AcrySof IQ SN60WF',anae:'Peribulbar block',investigations:'Completed',preop:'Consent obtained. Risks explained. Pupil dilated to 8mm. Pre-op drops given.',postop:'Uncomplicated. CCC well-centred. IOL in-the-bag. Steroid/antibiotic drops QID.',status:'Completed',outcomeVA:'6/9 unaided'},
-    {id:'sg002',patientId:'pt004',procedure:'Phacoemulsification + IOL',eye:'Left Eye (OS)',date:dStr(14),surgeon:'Dr. Adaeze Obi',alR:'23.45',alL:'23.12',kerR:'43.75/44.50',kerL:'43.50/44.25',target:'-0.50',iolR:'21.5',iolL:'22.0',formula:'SRK/T',iolModel:'AcrySof IQ SN60WF',anae:'Peribulbar block',investigations:'Completed',preop:'Pre-op completed. ECG normal. Patient consented. OD outcome excellent.',postop:'Standard protocol. Steroid taper 4 weeks. F/U Day 1, Week 1, Month 1, 3.',status:'Planned',outcomeVA:''},
+    {id:sid('sg001'),patientId:sid('pt004'),procedure:'Phacoemulsification + IOL',eye:'Right Eye (OD)',date:dStr(-1),surgeon:'Dr. Adaeze Obi',alR:'23.45',alL:'23.12',kerR:'43.75/44.50',kerL:'43.50/44.25',target:'-0.25',iolR:'21.5',iolL:'22.0',formula:'SRK/T',iolModel:'AcrySof IQ SN60WF',anae:'Peribulbar block',investigations:'Completed',preop:'Consent obtained. Risks explained. Pupil dilated to 8mm. Pre-op drops given.',postop:'Uncomplicated. CCC well-centred. IOL in-the-bag. Steroid/antibiotic drops QID.',status:'Completed',outcomeVA:'6/9 unaided'},
+    {id:sid('sg002'),patientId:sid('pt004'),procedure:'Phacoemulsification + IOL',eye:'Left Eye (OS)',date:dStr(14),surgeon:'Dr. Adaeze Obi',alR:'23.45',alL:'23.12',kerR:'43.75/44.50',kerL:'43.50/44.25',target:'-0.50',iolR:'21.5',iolL:'22.0',formula:'SRK/T',iolModel:'AcrySof IQ SN60WF',anae:'Peribulbar block',investigations:'Completed',preop:'Pre-op completed. ECG normal. Patient consented. OD outcome excellent.',postop:'Standard protocol. Steroid taper 4 weeks. F/U Day 1, Week 1, Month 1, 3.',status:'Planned',outcomeVA:''},
   ];
   invItems=[
-    {id:'iv001',name:'Ray-Ban RB5154 Clubmaster',category:'frames',brand:'Ray-Ban',sku:'RB5154-BLK',qty:8,minQty:5,cost:18000,price:45000,description:'Black acetate, unisex',supplier:'OptiVision Supplies',restocked:dStr(-30)},
-    {id:'iv002',name:'Essilor Transitions Gen8',category:'lenses',brand:'Essilor',sku:'ESS-TR8-PHG',qty:3,minQty:10,cost:12000,price:28000,description:'Photochromic progressive 1.6, Grey',supplier:'Essilor Nigeria',restocked:dStr(-60)},
-    {id:'iv003',name:'CooperVision Biofinity Monthly',category:'contacts',brand:'CooperVision',sku:'BIO-30D-BC86',qty:24,minQty:12,cost:4500,price:9500,description:'Monthly, silicone hydrogel, BC 8.6',supplier:'Medical Eyes Ltd',restocked:dStr(-14)},
-    {id:'iv004',name:'Zeiss Precision Distance 1.67',category:'lenses',brand:'Zeiss',sku:'ZEI-PRD-167',qty:2,minQty:8,cost:22000,price:55000,description:'Single vision, high index 1.67, AR coat',supplier:'Zeiss Africa',restocked:dStr(-90)},
-    {id:'iv005',name:'Flexon 623 Titanium Frame',category:'frames',brand:'Flexon',sku:'FLX-623-GUN',qty:12,minQty:4,cost:25000,price:65000,description:'Gunmetal titanium, memory flex',supplier:'OptiVision Supplies',restocked:dStr(-20)},
-    {id:'iv006',name:'Bausch+Lomb Ultra Presbyopia',category:'contacts',brand:'Bausch+Lomb',sku:'BLU-30D-PRES',qty:4,minQty:6,cost:7500,price:16000,description:'Monthly multifocal, MoistureSeal',supplier:'Medical Eyes Ltd',restocked:dStr(-45)},
-    {id:'iv007',name:'Visine AF Antihistamine Drops',category:'consumables',brand:'Visine',sku:'VIS-AF-10ML',qty:18,minQty:10,cost:1200,price:2800,description:'10ml, antihistamine + decongestant',supplier:'PharmaCorp NG',restocked:dStr(-7)},
-    {id:'iv008',name:'Tear-Naturale II Lubricant',category:'consumables',brand:'Alcon',sku:'ALN-TN2-15ML',qty:6,minQty:15,cost:2200,price:4500,description:'15ml lubricant, HPMC, preservative-free',supplier:'Alcon Nigeria',restocked:dStr(-50)},
-    {id:'iv009',name:'Xalatan Latanoprost 0.005%',category:'consumables',brand:'Pfizer',sku:'XAL-LAT-2.5ML',qty:9,minQty:8,cost:8500,price:18000,description:'2.5ml prostaglandin analogue',supplier:'PharmaCorp NG',restocked:dStr(-10)},
-    {id:'iv010',name:'Acuvue Oasys 1-Day 90pk',category:'contacts',brand:'J&J',sku:'ACU-1D-90PK',qty:15,minQty:6,cost:12000,price:26000,description:'Daily disposable, HydraLuxe, 90 pack',supplier:'J&J Vision Nigeria',restocked:dStr(-22)},
-    {id:'iv011',name:'Silhouette Rimless Titan',category:'frames',brand:'Silhouette',sku:'SIL-TIT-5515',qty:5,minQty:3,cost:60000,price:145000,description:'Ultra-lightweight rimless titanium',supplier:'Silhouette Africa',restocked:dStr(-60)},
-    {id:'iv012',name:'Tropicamide 1% Minims',category:'consumables',brand:'Chauvin',sku:'TRP-1PC-20PK',qty:2,minQty:10,cost:350,price:800,description:'Single-dose 0.5ml, pack of 20',supplier:'PharmaCorp NG',restocked:dStr(-80)},
+    {id:sid('iv001'),name:'Ray-Ban RB5154 Clubmaster',category:'frames',brand:'Ray-Ban',sku:'RB5154-BLK',qty:8,minQty:5,cost:18000,price:45000,description:'Black acetate, unisex',supplier:'OptiVision Supplies',restocked:dStr(-30)},
+    {id:sid('iv002'),name:'Essilor Transitions Gen8',category:'lenses',brand:'Essilor',sku:'ESS-TR8-PHG',qty:3,minQty:10,cost:12000,price:28000,description:'Photochromic progressive 1.6, Grey',supplier:'Essilor Nigeria',restocked:dStr(-60)},
+    {id:sid('iv003'),name:'CooperVision Biofinity Monthly',category:'contacts',brand:'CooperVision',sku:'BIO-30D-BC86',qty:24,minQty:12,cost:4500,price:9500,description:'Monthly, silicone hydrogel, BC 8.6',supplier:'Medical Eyes Ltd',restocked:dStr(-14)},
+    {id:sid('iv004'),name:'Zeiss Precision Distance 1.67',category:'lenses',brand:'Zeiss',sku:'ZEI-PRD-167',qty:2,minQty:8,cost:22000,price:55000,description:'Single vision, high index 1.67, AR coat',supplier:'Zeiss Africa',restocked:dStr(-90)},
+    {id:sid('iv005'),name:'Flexon 623 Titanium Frame',category:'frames',brand:'Flexon',sku:'FLX-623-GUN',qty:12,minQty:4,cost:25000,price:65000,description:'Gunmetal titanium, memory flex',supplier:'OptiVision Supplies',restocked:dStr(-20)},
+    {id:sid('iv006'),name:'Bausch+Lomb Ultra Presbyopia',category:'contacts',brand:'Bausch+Lomb',sku:'BLU-30D-PRES',qty:4,minQty:6,cost:7500,price:16000,description:'Monthly multifocal, MoistureSeal',supplier:'Medical Eyes Ltd',restocked:dStr(-45)},
+    {id:sid('iv007'),name:'Visine AF Antihistamine Drops',category:'consumables',brand:'Visine',sku:'VIS-AF-10ML',qty:18,minQty:10,cost:1200,price:2800,description:'10ml, antihistamine + decongestant',supplier:'PharmaCorp NG',restocked:dStr(-7)},
+    {id:sid('iv008'),name:'Tear-Naturale II Lubricant',category:'consumables',brand:'Alcon',sku:'ALN-TN2-15ML',qty:6,minQty:15,cost:2200,price:4500,description:'15ml lubricant, HPMC, preservative-free',supplier:'Alcon Nigeria',restocked:dStr(-50)},
+    {id:sid('iv009'),name:'Xalatan Latanoprost 0.005%',category:'consumables',brand:'Pfizer',sku:'XAL-LAT-2.5ML',qty:9,minQty:8,cost:8500,price:18000,description:'2.5ml prostaglandin analogue',supplier:'PharmaCorp NG',restocked:dStr(-10)},
+    {id:sid('iv010'),name:'Acuvue Oasys 1-Day 90pk',category:'contacts',brand:'J&J',sku:'ACU-1D-90PK',qty:15,minQty:6,cost:12000,price:26000,description:'Daily disposable, HydraLuxe, 90 pack',supplier:'J&J Vision Nigeria',restocked:dStr(-22)},
+    {id:sid('iv011'),name:'Silhouette Rimless Titan',category:'frames',brand:'Silhouette',sku:'SIL-TIT-5515',qty:5,minQty:3,cost:60000,price:145000,description:'Ultra-lightweight rimless titanium',supplier:'Silhouette Africa',restocked:dStr(-60)},
+    {id:sid('iv012'),name:'Tropicamide 1% Minims',category:'consumables',brand:'Chauvin',sku:'TRP-1PC-20PK',qty:2,minQty:10,cost:350,price:800,description:'Single-dose 0.5ml, pack of 20',supplier:'PharmaCorp NG',restocked:dStr(-80)},
   ];
   bills=[
-    {id:'bl001',patientId:'pt001',service:'Comprehensive Eye Examination + Refraction',amount:15000,date:dStr(-90),method:'POS',status:'Paid',notes:''},
-    {id:'bl002',patientId:'pt001',service:'Spectacles — Distance lenses + Ray-Ban Frame',amount:52000,date:dStr(-89),method:'Bank Transfer',status:'Paid',notes:''},
-    {id:'bl003',patientId:'pt002',service:'Eye Examination + Progressive Lenses (Essilor Transitions)',amount:68000,date:dStr(-60),method:'POS',status:'Paid',notes:''},
-    {id:'bl004',patientId:'pt003',service:'Glaucoma Assessment + Goldmann Tonometry + OCT RNFL',amount:35000,date:dStr(-45),method:'Cash',status:'Paid',notes:''},
-    {id:'bl005',patientId:'pt004',service:'Pre-op Biometry + Phacoemulsification OD + IOL',amount:280000,date:dStr(-8),method:'Bank Transfer',status:'Paid',notes:'Package includes surgery and 3 post-op visits'},
-    {id:'bl006',patientId:'pt004',service:'Cataract Surgery OS — 50% Deposit',amount:100000,date:dStr(-1),method:'Bank Transfer',status:'Paid',notes:''},
-    {id:'bl007',patientId:'pt006',service:'Retinal Examination + FFA Referral + Consultation',amount:42000,date:dStr(-30),method:'Insurance',status:'Pending',notes:'Insurance pre-authorization pending'},
-    {id:'bl008',patientId:'pt005',service:'First-Visit Eye Examination',amount:8000,date:dStr(-3),method:'Cash',status:'Pending',notes:'Patient to pay on next visit'},
-    {id:'bl009',patientId:'pt007',service:'Contact Lens Fitting + Monthly Toric CL x3 months',amount:31500,date:dStr(-15),method:'POS',status:'Paid',notes:''},
-    {id:'bl010',patientId:'pt006',service:'Intravitreal Injection OD (Anti-VEGF)',amount:120000,date:dStr(-5),method:'Insurance',status:'Overdue',notes:'Insurance rejected. Patient notified.'},
+    {id:sid('bl001'),patientId:sid('pt001'),service:'Comprehensive Eye Examination + Refraction',amount:15000,date:dStr(-90),method:'POS',status:'Paid',notes:''},
+    {id:sid('bl002'),patientId:sid('pt001'),service:'Spectacles — Distance lenses + Ray-Ban Frame',amount:52000,date:dStr(-89),method:'Bank Transfer',status:'Paid',notes:''},
+    {id:sid('bl003'),patientId:sid('pt002'),service:'Eye Examination + Progressive Lenses (Essilor Transitions)',amount:68000,date:dStr(-60),method:'POS',status:'Paid',notes:''},
+    {id:sid('bl004'),patientId:sid('pt003'),service:'Glaucoma Assessment + Goldmann Tonometry + OCT RNFL',amount:35000,date:dStr(-45),method:'Cash',status:'Paid',notes:''},
+    {id:sid('bl005'),patientId:sid('pt004'),service:'Pre-op Biometry + Phacoemulsification OD + IOL',amount:280000,date:dStr(-8),method:'Bank Transfer',status:'Paid',notes:'Package includes surgery and 3 post-op visits'},
+    {id:sid('bl006'),patientId:sid('pt004'),service:'Cataract Surgery OS — 50% Deposit',amount:100000,date:dStr(-1),method:'Bank Transfer',status:'Paid',notes:''},
+    {id:sid('bl007'),patientId:sid('pt006'),service:'Retinal Examination + FFA Referral + Consultation',amount:42000,date:dStr(-30),method:'Insurance',status:'Pending',notes:'Insurance pre-authorization pending'},
+    {id:sid('bl008'),patientId:sid('pt005'),service:'First-Visit Eye Examination',amount:8000,date:dStr(-3),method:'Cash',status:'Pending',notes:'Patient to pay on next visit'},
+    {id:sid('bl009'),patientId:sid('pt007'),service:'Contact Lens Fitting + Monthly Toric CL x3 months',amount:31500,date:dStr(-15),method:'POS',status:'Paid',notes:''},
+    {id:sid('bl010'),patientId:sid('pt006'),service:'Intravitreal Injection OD (Anti-VEGF)',amount:120000,date:dStr(-5),method:'Insurance',status:'Overdue',notes:'Insurance rejected. Patient notified.'},
   ];
   saveAll();
   S.s('cv_sample_loaded',true);
@@ -4458,11 +4484,13 @@ async function registerClinic(){
   S.s('cv_pin_doctor',         pinDoc);
   S.s('cv_pin_receptionist',   pinRec);
   S.s('cv_sync_dirty',         true);
-  localStorage.removeItem('cv_sample_loaded');
+  // New clinics start clean — the demo gate in loadSampleData handles this automatically
 
   // ── Step 2: Try Supabase in background — don't block if it fails ──
   if(navigator.onLine){
     btn.textContent='Registering online…';
+      // Save clinic email before sync so loadSampleData gate works correctly
+    S.s('cv_clinic_email', email.toLowerCase().trim());
     try{
       const clinic = await SB.register(name, email, pinDoc, pinRec);
       // Update local ID with real Supabase ID
