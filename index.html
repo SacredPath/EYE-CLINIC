@@ -1859,16 +1859,32 @@ function editPt(id){
   document.getElementById('pt-eid').value=p.id;document.getElementById('pt-fn').value=p.name.split(' ')[0];document.getElementById('pt-ln').value=p.name.split(' ').slice(1).join(' ');document.getElementById('pt-dob').value=p.dob||'';document.getElementById('pt-gen').value=p.gender||'Female';document.getElementById('pt-ph').value=p.phone||'';document.getElementById('pt-em').value=p.email||'';document.getElementById('pt-ad').value=p.address||'';document.getElementById('pt-bl').value=p.blood||'';document.getElementById('pt-st').value=p.status||'Active';document.getElementById('pt-al').value=p.allergies||'';document.getElementById('pt-oc').value=p.occupation||'';document.getElementById('pt-nt').value=p.notes||'';
   document.getElementById('mod-patient').classList.add('open');
 }
+// ── Delete log helpers ──
+function getDeleteLog(){ return S.g('cv_deleted')||{}; }
+function logDeleted(id){
+  const log = getDeleteLog();
+  log[id] = new Date().toISOString();
+  S.s('cv_deleted', log);
+  // Also hard-delete from Supabase so it never comes back
+  const clinicId = S.g('cv_clinic_id');
+  if(navigator.onLine && SB.isUUID(clinicId||'')){
+    const tables = ['patients','appointments','emrs','surgs','inventory','bills','portal_data'];
+    tables.forEach(table=>{
+      SB.req(`${table}?id=eq.${id}&clinic_id=eq.${clinicId}`,{method:'DELETE'}).catch(()=>{});
+    });
+  }
+}
+
 function delRec(type,id,name){
   if(type==='fu'){
     cfm('Delete follow-up?','This cannot be undone.',()=>{
-      followUps=followUps.filter(x=>x.id!==id);savePortalData();toast('Deleted.');
+      followUps=followUps.filter(x=>x.id!==id);savePortalData();logDeleted(id);toast('Deleted.');
       switchPortalTab('followup',document.querySelector('#portalTabs .tab:nth-child(6)'));
     });return;
   }
   if(type==='msg'){
     cfm('Delete message?','This cannot be undone.',()=>{
-      messages=messages.filter(x=>x.id!==id);savePortalData();toast('Deleted.');
+      messages=messages.filter(x=>x.id!==id);savePortalData();logDeleted(id);toast('Deleted.');
       switchPortalTab('messages',document.querySelector('#portalTabs .tab:last-child'));
     });return;
   }
@@ -1879,6 +1895,7 @@ function delRec(type,id,name){
     else if(type==='surg')surgs=surgs.filter(x=>x.id!==id);
     else if(type==='inv')invItems=invItems.filter(x=>x.id!==id);
     else if(type==='bill')bills=bills.filter(x=>x.id!==id);
+    logDeleted(id);
     saveAll();toast('Deleted.');renderDash();renderPts();renderEMR();renderSurg();renderInv();renderBilling();
   });
 }
@@ -4210,6 +4227,8 @@ const SB = {
         ...(opts.headers||{})
       }
     });
+    // 204 No Content = DELETE success — don't try to parse empty body
+    if(res.status===204) return null;
     if(!res.ok){
       const err = await res.text();
       throw new Error(err);
@@ -4359,6 +4378,8 @@ const SB = {
     const clinicId = S.g('cv_clinic_id');
     if(!clinicId) return;
 
+    const deleted = getDeleteLog(); // IDs we have explicitly deleted — never restore these
+
     for(const table of this.TABLES){
       const rows = await this.req(
         `${table}?clinic_id=eq.${clinicId}&select=id,data,updated_at&order=updated_at.desc`
@@ -4366,7 +4387,6 @@ const SB = {
       if(!rows||!rows.length) continue;
 
       if(table==='portal_data'){
-        // Portal: take the newest record from cloud (we just pushed ours, so it wins)
         const combined = rows[0].data;
         if(combined){
           S.s('cv_fus',  combined.followUps||[]);
@@ -4375,21 +4395,19 @@ const SB = {
         continue;
       }
 
-      const lsKey   = this.LS_MAP[table];
+      const lsKey    = this.LS_MAP[table];
       const localArr = S.g(lsKey)||[];
-
-      // Build a set of IDs we already have locally
       const localIds = new Set(localArr.map(r=>r.id));
 
-      // Only add records from cloud that are completely missing locally
-      // (deleted records stay deleted, local edits stay as-is)
+      // Only add records that:
+      // 1. Don't exist locally (new from another device)
+      // 2. Were NOT explicitly deleted by this clinic (delete log)
       const newFromCloud = rows
         .map(r=>r.data)
-        .filter(r=>r&&r.id&&!localIds.has(r.id));
+        .filter(r => r && r.id && !localIds.has(r.id) && !deleted[r.id]);
 
       if(newFromCloud.length){
-        const merged = [...localArr, ...newFromCloud];
-        S.s(lsKey, merged);
+        S.s(lsKey, [...localArr, ...newFromCloud]);
       }
     }
   },
