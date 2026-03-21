@@ -634,7 +634,12 @@ body.dark .tab.active{color:#00cfa8;border-color:#00cfa8;}
 .msg-send-email:hover{background:#2550e8;}
 .bulk-msg-row{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);}
 .bulk-msg-check{width:16px;height:16px;accent-color:var(--cyan);cursor:pointer;}
-/* ── COMPACT DASHBOARD TILES ── */
+/* ── REPORTS CHARTS ── */
+.rpt-card{overflow:hidden;min-width:0;}
+.rpt-chart-label{font-size:11px;font-weight:700;color:var(--muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:0.4px;}
+.rpt-chart-wrap{position:relative;width:100%;height:130px;min-height:80px;overflow:hidden;}
+.rpt-chart-wrap canvas{position:absolute;inset:0;width:100%!important;height:100%!important;}
+</style>
 .dash-tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px;}
 .dtile{border-radius:12px;padding:13px 15px;cursor:pointer;position:relative;overflow:hidden;transition:transform 0.15s,box-shadow 0.15s;text-decoration:none;display:block;border:none;text-align:left;font-family:'Sora',sans-serif;width:100%;}
 .dtile:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,0.18);}
@@ -1095,11 +1100,9 @@ body.dark .tab.active{color:#00cfa8;border-color:#00cfa8;}
     <!-- Stats strip -->
     <div class="srow srow-4" id="reportStats" style="margin-bottom:10px;"></div>
 
-    <!-- Row 1: Revenue (wide) + Appointment donut + Monthly summary -->
-    <div style="display:grid;grid-template-columns:2fr 1fr 1fr;gap:10px;margin-bottom:10px;">
-
-      <!-- Revenue bar -->
-      <div class="card cp" style="padding:12px 14px;">
+    <!-- Row 1: Revenue bar (dominant) + Appointment donut -->
+    <div style="display:grid;grid-template-columns:3fr 1fr;gap:10px;margin-bottom:10px;">
+      <div class="card cp rpt-card" style="padding:12px 14px;min-width:0;">
         <div class="ch" style="margin-bottom:8px;">
           <div><div class="ct" style="font-size:12.5px;">Revenue</div><div class="cs">Paid invoices by day</div></div>
           <div style="display:flex;gap:6px;align-items:center;">
@@ -1109,62 +1112,55 @@ body.dark .tab.active{color:#00cfa8;border-color:#00cfa8;}
             <button class="export-btn" onclick="exportCSV('bills')" style="font-size:10px;padding:3px 8px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" width="10" height="10"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>CSV</button>
           </div>
         </div>
-        <div style="position:relative;height:calc(22vh - 20px);min-height:100px;max-height:160px;"><canvas id="revChartCanvas"></canvas></div>
+        <div class="rpt-chart-wrap"><canvas id="revChartCanvas"></canvas></div>
       </div>
-
-      <!-- Appointment donut -->
-      <div class="card cp" style="padding:12px 14px;">
+      <div class="card cp rpt-card" style="padding:12px 14px;min-width:0;">
         <div style="font-size:12.5px;font-weight:700;margin-bottom:6px;">Appointments</div>
-        <div style="position:relative;height:calc(16vh - 10px);min-height:80px;max-height:120px;"><canvas id="apptDonut"></canvas></div>
-        <div id="apptDonutLegend" style="margin-top:6px;display:flex;flex-wrap:wrap;gap:4px;justify-content:center;"></div>
+        <div class="rpt-chart-wrap" style="height:100px;"><canvas id="apptDonut"></canvas></div>
+        <div id="apptDonutLegend" style="margin-top:6px;display:flex;flex-wrap:wrap;gap:3px;justify-content:center;"></div>
       </div>
+    </div>
 
-      <!-- Monthly summary table -->
+    <!-- Row 2: 4 equal charts -->
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:10px;">
+      <div class="card cp rpt-card" style="padding:12px 14px;min-width:0;">
+        <div class="rpt-chart-label">Exam Types</div>
+        <div class="rpt-chart-wrap"><canvas id="examTypeChart"></canvas></div>
+      </div>
+      <div class="card cp rpt-card" style="padding:12px 14px;min-width:0;">
+        <div class="rpt-chart-label">Payment Methods</div>
+        <div class="rpt-chart-wrap"><canvas id="payMethodChart"></canvas></div>
+      </div>
+      <div class="card cp rpt-card" style="padding:12px 14px;min-width:0;">
+        <div class="rpt-chart-label">Monthly Revenue</div>
+        <div class="rpt-chart-wrap"><canvas id="monthRevChart"></canvas></div>
+      </div>
+      <div class="card cp rpt-card" style="padding:12px 14px;min-width:0;">
+        <div class="rpt-chart-label">New Patients</div>
+        <div class="rpt-chart-wrap"><canvas id="patientTrendChart"></canvas></div>
+      </div>
+    </div>
+
+    <!-- Row 3: Monthly summary + Export -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
       <div class="card cp" style="padding:12px 14px;">
-        <div class="ch" style="margin-bottom:6px;">
+        <div class="ch" style="margin-bottom:8px;">
           <div style="font-size:12.5px;font-weight:700;" id="monthlyTitle">This Month</div>
           <button class="btn btn-ghost btn-sm" style="font-size:10px;padding:2px 7px;" onclick="printMonthlyReport()">Print</button>
         </div>
         <div id="monthlyBody"></div>
       </div>
-    </div>
-
-    <!-- Row 2: Exam types + Pay methods + Monthly revenue + Patient trend + Export -->
-    <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr 1fr;gap:10px;">
-
       <div class="card cp" style="padding:12px 14px;">
-        <div style="font-size:11.5px;font-weight:700;color:var(--muted);margin-bottom:6px;">Exam Types</div>
-        <div style="position:relative;height:calc(28vh - 40px);min-height:120px;max-height:200px;"><canvas id="examTypeChart"></canvas></div>
-      </div>
-
-      <div class="card cp" style="padding:12px 14px;">
-        <div style="font-size:11.5px;font-weight:700;color:var(--muted);margin-bottom:6px;">Payment Methods</div>
-        <div style="position:relative;height:calc(28vh - 40px);min-height:120px;max-height:200px;"><canvas id="payMethodChart"></canvas></div>
-      </div>
-
-      <div class="card cp" style="padding:12px 14px;">
-        <div style="font-size:11.5px;font-weight:700;color:var(--muted);margin-bottom:6px;">Monthly Revenue</div>
-        <div style="position:relative;height:calc(28vh - 40px);min-height:120px;max-height:200px;"><canvas id="monthRevChart"></canvas></div>
-      </div>
-
-      <div class="card cp" style="padding:12px 14px;">
-        <div style="font-size:11.5px;font-weight:700;color:var(--muted);margin-bottom:6px;">New Patients</div>
-        <div style="position:relative;height:calc(28vh - 40px);min-height:120px;max-height:200px;"><canvas id="patientTrendChart"></canvas></div>
-      </div>
-
-      <!-- Export (compact) -->
-      <div class="card cp" style="padding:12px 14px;">
-        <div style="font-size:11.5px;font-weight:700;color:var(--muted);margin-bottom:8px;">Export CSV</div>
-        <div style="display:flex;flex-direction:column;gap:5px;">
-          <button class="btn btn-ghost btn-sm" style="justify-content:flex-start;font-size:10.5px;padding:4px 8px;" onclick="exportCSV('patients')">Patients</button>
-          <button class="btn btn-ghost btn-sm" style="justify-content:flex-start;font-size:10.5px;padding:4px 8px;" onclick="exportCSV('emr')">Examinations</button>
-          <button class="btn btn-ghost btn-sm" style="justify-content:flex-start;font-size:10.5px;padding:4px 8px;" onclick="exportCSV('appointments')">Appointments</button>
-          <button class="btn btn-ghost btn-sm" style="justify-content:flex-start;font-size:10.5px;padding:4px 8px;" onclick="exportCSV('bills')">Invoices</button>
-          <button class="btn btn-ghost btn-sm" style="justify-content:flex-start;font-size:10.5px;padding:4px 8px;" onclick="exportCSV('inventory')">Inventory</button>
-          <button class="btn btn-ghost btn-sm" style="justify-content:flex-start;font-size:10.5px;padding:4px 8px;" onclick="exportCSV('surgical')">Surgical</button>
+        <div style="font-size:12.5px;font-weight:700;margin-bottom:8px;">Export Data</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;">
+          <button class="btn btn-ghost btn-sm" style="justify-content:flex-start;font-size:10.5px;" onclick="exportCSV('patients')">Patients</button>
+          <button class="btn btn-ghost btn-sm" style="justify-content:flex-start;font-size:10.5px;" onclick="exportCSV('emr')">Examinations</button>
+          <button class="btn btn-ghost btn-sm" style="justify-content:flex-start;font-size:10.5px;" onclick="exportCSV('appointments')">Appointments</button>
+          <button class="btn btn-ghost btn-sm" style="justify-content:flex-start;font-size:10.5px;" onclick="exportCSV('bills')">Invoices</button>
+          <button class="btn btn-ghost btn-sm" style="justify-content:flex-start;font-size:10.5px;" onclick="exportCSV('inventory')">Inventory</button>
+          <button class="btn btn-ghost btn-sm" style="justify-content:flex-start;font-size:10.5px;" onclick="exportCSV('surgical')">Surgical</button>
         </div>
       </div>
-
     </div>
   </div>
 
@@ -3956,12 +3952,17 @@ function renderReports(){
     <div class="sc c-bl"><div class="si" style="background:var(--bbg);color:var(--blue);"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/></svg></div><div class="sv">${emrs.length}</div><div class="sl">Total Exams</div><div class="sd up">${examsM} this month</div></div>
     <div class="sc c-am"><div class="si" style="background:var(--abg);color:var(--amber);"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div><div class="sv">${fmt(paid)}</div><div class="sl">Revenue Collected</div><div class="sd">${bills.filter(b=>b.status==='Paid').length} paid invoices</div></div>
     <div class="sc c-ro"><div class="si" style="background:var(--rbg);color:var(--rose);"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div><div class="sv">${fmt(owed)}</div><div class="sl">Outstanding</div><div class="sd dn">${bills.filter(b=>b.status!=='Paid').length} unpaid</div></div>`;
-  renderRevenueChart();
-  renderApptDonut();
-  renderExamTypeChart();
-  renderPayMethodChart();
-  renderMonthRevChart();
-  renderPatientTrendChart();
+  // Render charts — defer so DOM layout is complete and widths are known
+  requestAnimationFrame(()=>{
+    renderRevenueChart();
+    renderApptDonut();
+    renderExamTypeChart();
+    renderPayMethodChart();
+    renderMonthRevChart();
+    renderPatientTrendChart();
+    // Force resize after a tick to ensure Chart.js reads correct container width
+    setTimeout(()=>{ Object.values(_charts).forEach(ch=>{ try{ ch.resize(); }catch(e){} }); }, 80);
+  });
   renderMonthlyReport();
 }
 
